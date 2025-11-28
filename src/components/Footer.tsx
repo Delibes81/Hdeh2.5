@@ -1,19 +1,6 @@
 import { Instagram, Mail, Phone } from 'lucide-react';
-import { useState } from 'react';
 
 export default function Footer() {
-  const [email, setEmail] = useState('');
-  const [isSubscribed, setIsSubscribed] = useState(false);
-
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email) {
-      setIsSubscribed(true);
-      setEmail('');
-      setTimeout(() => setIsSubscribed(false), 3000);
-    }
-  };
-
   const footerLinks = {
     atención: [
       { name: 'FAQ', href: '#faq' },
@@ -31,44 +18,43 @@ export default function Footer() {
 
   return (
     <footer id="contact" className="bg-charcoal text-cream">
-      {/* Newsletter Section */}
+      {/* Instagram Section */}
       <div className="border-b border-warm-gray/20">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
-          <div className="text-center max-w-2xl mx-auto">
+          <div className="text-center max-w-4xl mx-auto">
             <h3 className="font-serif font-light text-3xl lg:text-4xl mb-4">
               Mantente conectada
             </h3>
 
             <p className="text-cream/70 text-lg font-light mb-8">
-              Recibe las últimas noticias sobre nuestras colecciones y el mundo
-              de la artesanía
+              Síguenos en Instagram para descubrir nuestras últimas colecciones, detrás de cámaras y el proceso artesanal
             </p>
 
-            <form onSubmit={handleNewsletterSubmit} className="max-w-md mx-auto">
-              <div className="flex flex-col sm:flex-row gap-4">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Tu correo electrónico"
-                  className="flex-1 px-4 py-3 bg-transparent border border-cream/30 text-cream placeholder-cream/50 focus:outline-none focus:border-cream transition-colors duration-300"
-                  required
+            <div className="mb-8">
+              <a
+                href="https://www.instagram.com/h.de.helena?igsh=MWVodHdrN2pjNDg0eg=="
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 px-8 py-4 border-2 border-cream/30 text-cream hover:bg-cream hover:text-charcoal transition-all duration-300 group"
+              >
+                <Instagram size={24} strokeWidth={1.5} className="group-hover:scale-110 transition-transform duration-300" />
+                <span className="font-light text-lg">@h.de.helena</span>
+              </a>
+            </div>
+
+            {/* Instagram Feed Grid */}
+            <div className="relative overflow-hidden rounded-lg">
+              <div className="aspect-square max-w-2xl mx-auto bg-charcoal/50 border border-cream/20 rounded-lg overflow-hidden">
+                <iframe
+                  src="https://www.instagram.com/h.de.helena/embed"
+                  className="w-full h-full"
+                  frameBorder="0"
+                  scrolling="no"
+                  allowTransparency={true}
+                  title="Instagram Feed"
                 />
-
-                <button
-                  type="submit"
-                  className="btn-primary border-cream text-cream hover:bg-cream hover:text-charcoal whitespace-nowrap"
-                >
-                  Suscríbete
-                </button>
               </div>
-
-              {isSubscribed && (
-                <p className="text-cream/80 text-sm mt-3 animate-fade-in">
-                  ¡Gracias por suscribirte! Te escribiremos pronto.
-                </p>
-              )}
-            </form>
+            </div>
           </div>
         </div>
       </div>
