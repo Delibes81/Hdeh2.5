@@ -44,7 +44,7 @@ export default function PhilosophySection() {
           {/* Image */}
           <div className="relative h-[600px] group animate-fade-in" style={{ animationDelay: '0.4s' }}>
             <img
-              src="/images/philosophy.png"
+              src="/images/philosophy-workshop.jpg"
               alt="Artesano trabajando"
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
