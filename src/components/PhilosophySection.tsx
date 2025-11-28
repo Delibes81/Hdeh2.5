@@ -36,7 +36,7 @@ export default function PhilosophySection() {
             <div className="pt-4">
               <div className="w-16 h-px bg-warm-gray/30 mb-4"></div>
               <p className="text-sm text-warm-gray font-medium tracking-wide uppercase">
-                Helena Martín, Fundadora
+                Helena Navarrete, Fundadora
               </p>
             </div>
           </div>
@@ -53,7 +53,7 @@ export default function PhilosophySection() {
                 "La verdadera elegancia está en los detalles que nadie ve, pero que todos sienten."
               </p>
               <p className="text-sm text-warm-gray uppercase tracking-widest">
-                Helena de la Fuente
+                Helena Navarrete
               </p>
             </div>
           </div>
