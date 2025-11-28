@@ -26,7 +26,11 @@ export default function Header({ cart, onCartClick }: HeaderProps) {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <div className="flex-1 flex justify-start lg:justify-center">
-            <Link to="/" className="font-serif font-light text-2xl lg:text-3xl text-charcoal tracking-wide hover:text-warm-gray transition-colors">
+            <Link
+              to="/"
+              className="font-serif font-light text-2xl lg:text-3xl text-charcoal tracking-wide hover:text-warm-gray transition-colors"
+              onClick={() => window.scrollTo(0, 0)}
+            >
               H de Helena
             </Link>
           </div>
@@ -39,6 +43,9 @@ export default function Header({ cart, onCartClick }: HeaderProps) {
                   key={item.name}
                   to={item.href}
                   className="text-warm-gray hover:text-charcoal transition-colors duration-300 font-medium tracking-wide text-sm"
+                  onClick={() => {
+                    if (item.href === '/') window.scrollTo(0, 0);
+                  }}
                 >
                   {item.name}
                 </Link>
@@ -92,7 +99,10 @@ export default function Header({ cart, onCartClick }: HeaderProps) {
                   <Link
                     key={item.name}
                     to={item.href}
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      if (item.href === '/') window.scrollTo(0, 0);
+                    }}
                     className="text-warm-gray hover:text-charcoal transition-colors duration-300 font-medium tracking-wide py-2"
                   >
                     {item.name}
