@@ -6,9 +6,10 @@ import ProductCard from './ProductCard';
 interface ProductGridProps {
   onAddToCart: (product: Product) => void;
   onProductClick: (product: Product) => void;
+  limit?: number;
 }
 
-export default function ProductGrid({ onAddToCart, onProductClick }: ProductGridProps) {
+export default function ProductGrid({ onAddToCart, onProductClick, limit }: ProductGridProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const categories = [
@@ -16,14 +17,17 @@ export default function ProductGrid({ onAddToCart, onProductClick }: ProductGrid
     { key: 'heels', label: 'Tacones' },
     { key: 'boots', label: 'Botas' },
     { key: 'flats', label: 'Flats' },
+    { key: 'loafers', label: 'Mocasines' },
     { key: 'sandals', label: 'Sandalias' },
     { key: 'sneakers', label: 'Tenis' },
     { key: 'wedges', label: 'Plataformas' }
   ];
 
-  const filteredProducts = selectedCategory === 'all'
+  const allFilteredProducts = selectedCategory === 'all'
     ? products
     : products.filter(product => product.category === selectedCategory);
+
+  const filteredProducts = limit ? allFilteredProducts.slice(0, limit) : allFilteredProducts;
 
   return (
     <section id="collection" className="py-24 lg:py-32 bg-cream">

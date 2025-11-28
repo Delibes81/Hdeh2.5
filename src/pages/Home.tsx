@@ -59,6 +59,7 @@ export default function Home() {
                 <ProductGrid
                     onAddToCart={handleAddToCart}
                     onProductClick={handleProductClick}
+                    limit={8}
                 />
 
                 <RevealOnScroll animation="animate-slide-up">

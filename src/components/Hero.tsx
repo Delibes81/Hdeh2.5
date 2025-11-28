@@ -19,7 +19,7 @@ export default function Hero({ startAnimations = true }: HeroProps) {
       {/* Hero Image */}
       <div className="absolute inset-0">
         <img
-          src="/images/hero.png"
+          src="/images/hero-new.jpg"
           alt="Artesanía elegante"
           className="w-full h-full object-cover"
         />
