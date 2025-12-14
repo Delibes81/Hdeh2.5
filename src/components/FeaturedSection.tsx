@@ -1,5 +1,5 @@
-import { products } from '../data/products';
 import { Product } from '../types';
+import { useProducts } from '../hooks/useProducts';
 
 interface FeaturedSectionProps {
   onAddToCart: (product: Product) => void;
@@ -7,7 +7,13 @@ interface FeaturedSectionProps {
 }
 
 export default function FeaturedSection({ onAddToCart, onProductClick }: FeaturedSectionProps) {
-  const featuredProduct = products.find(p => p.isFeatured) || products[1];
+  const { products, loading } = useProducts();
+
+  if (loading) return null; // Don't show section while loading or show skeleton
+
+  const featuredProduct = products.find(p => p.isFeatured) || products[0];
+
+  if (!featuredProduct) return null;
 
   return (
     <section className="relative min-h-screen flex items-center bg-stone">

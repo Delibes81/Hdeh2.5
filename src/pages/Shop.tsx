@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Product } from '../types';
-import { products } from '../data/products';
+import { useProducts } from '../hooks/useProducts';
 import ProductCard from '../components/ProductCard';
-import { Search } from 'lucide-react';
+import { Search, Loader } from 'lucide-react';
 
 interface ShopProps {
     onAddToCart: (product: Product) => void;
@@ -10,6 +10,7 @@ interface ShopProps {
 }
 
 export default function Shop({ onAddToCart, onProductClick }: ShopProps) {
+    const { products, loading, error } = useProducts();
     const [selectedCategory, setSelectedCategory] = useState<string>('all');
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -22,6 +23,22 @@ export default function Shop({ onAddToCart, onProductClick }: ShopProps) {
         { key: 'sneakers', label: 'Tenis', icon: '👟' },
         { key: 'wedges', label: 'Plataformas', icon: '👢' }
     ];
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-cream flex items-center justify-center">
+                <Loader className="w-8 h-8 animate-spin text-charcoal" />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen bg-cream flex items-center justify-center text-red-500">
+                Error al cargar productos: {error}
+            </div>
+        );
+    }
 
     const filteredProducts = products.filter((product) => {
         const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
@@ -76,8 +93,8 @@ export default function Shop({ onAddToCart, onProductClick }: ShopProps) {
                                 key={category.key}
                                 onClick={() => setSelectedCategory(category.key)}
                                 className={`group px-4 lg:px-6 py-2.5 rounded-full font-medium text-sm lg:text-base tracking-wide transition-all duration-300 ${selectedCategory === category.key
-                                        ? 'bg-charcoal text-cream shadow-lg scale-105'
-                                        : 'bg-white text-warm-gray hover:bg-charcoal/5 hover:text-charcoal border border-warm-gray/20'
+                                    ? 'bg-charcoal text-cream shadow-lg scale-105'
+                                    : 'bg-white text-warm-gray hover:bg-charcoal/5 hover:text-charcoal border border-warm-gray/20'
                                     }`}
                             >
                                 <span className="mr-2 text-base">{category.icon}</span>

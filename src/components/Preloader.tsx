@@ -24,11 +24,13 @@ export default function Preloader({ onFinish }: PreloaderProps) {
                 }`}
         >
             <div className="text-center">
-                <h1 className="font-serif text-4xl md:text-6xl text-charcoal tracking-widest animate-pulse">
-                    H de Helena
-                </h1>
+                <img
+                    src="/logo.png"
+                    alt="H de Helena"
+                    className="h-32 md:h-48 w-auto animate-pulse object-contain block mx-auto"
+                />
                 <div className="mt-4 h-px w-24 bg-charcoal/30 mx-auto animate-scale-in"></div>
-                <p className="mt-4 text-warm-gray font-light tracking-widest text-sm uppercase animate-fade-in-up">
+                <p className="mt-4 text-[#5D4037] font-light tracking-widest text-sm uppercase animate-fade-in-up">
                     Artesanía & Elegancia
                 </p>
             </div>

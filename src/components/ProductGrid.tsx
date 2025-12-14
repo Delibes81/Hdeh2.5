@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { products } from '../data/products';
 import { Product } from '../types';
+import { useProducts } from '../hooks/useProducts';
 import ProductCard from './ProductCard';
 
 interface ProductGridProps {
@@ -10,6 +10,7 @@ interface ProductGridProps {
 }
 
 export default function ProductGrid({ onAddToCart, onProductClick, limit }: ProductGridProps) {
+  const { products, loading } = useProducts();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const categories = [
@@ -22,6 +23,10 @@ export default function ProductGrid({ onAddToCart, onProductClick, limit }: Prod
     { key: 'sneakers', label: 'Tenis' },
     { key: 'wedges', label: 'Plataformas' }
   ];
+
+  if (loading) {
+    return <div className="py-24 text-center">Cargando productos...</div>;
+  }
 
   const allFilteredProducts = selectedCategory === 'all'
     ? products

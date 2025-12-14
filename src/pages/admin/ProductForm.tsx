@@ -1,0 +1,419 @@
+import { useState, useEffect } from 'react';
+import { Product, ProductVariant } from '../../types';
+import { supabase } from '../../lib/supabase';
+import { X, Upload, Plus, Trash2, Loader2, Save } from 'lucide-react';
+
+interface ProductFormProps {
+    product?: Product | null;
+    onClose: () => void;
+    onSave: () => void;
+}
+
+export default function ProductForm({ product, onClose, onSave }: ProductFormProps) {
+    const [loading, setLoading] = useState(false);
+    const [activeTab, setActiveTab] = useState<'details' | 'variants' | 'images'>('details');
+
+    // Form State
+    const [name, setName] = useState(product?.name || '');
+    const [price, setPrice] = useState(product?.price?.toString() || '');
+    const [description, setDescription] = useState(product?.description || '');
+    const [category, setCategory] = useState<Product['category']>(product?.category || 'heels');
+    const [materials, setMaterials] = useState<string[]>(product?.materials || []);
+    const [materialInput, setMaterialInput] = useState('');
+    const [images, setImages] = useState<string[]>(product?.images || []);
+    const [uploading, setUploading] = useState(false);
+
+    // Variants State
+    const [variants, setVariants] = useState<ProductVariant[]>(product?.variants || []);
+    const [newSize, setNewSize] = useState('');
+    const [newStock, setNewStock] = useState('');
+
+    // Save Handler
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+
+        try {
+            const productData = {
+                name,
+                price: parseFloat(price),
+                description,
+                category,
+                materials,
+                images,
+                // Default flags
+                is_handcrafted: product?.isHandcrafted ?? true,
+                is_featured: product?.isFeatured ?? false,
+            };
+
+            let productId = product?.id;
+
+            if (product) {
+                // Update
+                const { error } = await supabase
+                    .from('products')
+                    .update(productData)
+                    .eq('id', product.id);
+                if (error) throw error;
+            } else {
+                // Create
+                const { data, error } = await supabase
+                    .from('products')
+                    .insert(productData)
+                    .select()
+                    .single();
+                if (error) throw error;
+                productId = data.id;
+            }
+
+            // Handle Variants (Upsert/Delete strategy is complex, let's keep it simple: Delete all and re-insert for now, or careful upsert)
+            // For simplicity in this iteration: We will delete all variants for this product and re-insert current state.
+            // NOTE: In production, better to accept IDs to update specific rows to preserve integrity if needed.
+
+            if (productId) {
+                // Delete existing variants
+                await supabase.from('product_variants').delete().eq('product_id', productId);
+
+                // Insert new variants
+                if (variants.length > 0) {
+                    const variantsToInsert = variants.map(v => ({
+                        product_id: productId,
+                        size: v.size.includes('MX') ? v.size : `${v.size} MX`,
+                        stock: v.stock
+                    }));
+
+                    const { error: variantError } = await supabase
+                        .from('product_variants')
+                        .insert(variantsToInsert);
+
+                    if (variantError) throw variantError;
+                }
+            }
+
+            onSave();
+            onClose();
+        } catch (error: any) {
+            alert('Error guardando producto: ' + error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleAddMaterial = () => {
+        if (materialInput.trim()) {
+            setMaterials([...materials, materialInput.trim()]);
+            setMaterialInput('');
+        }
+    };
+
+    const removeMaterial = (index: number) => {
+        setMaterials(materials.filter((_, i) => i !== index));
+    };
+
+    const handleAddVariant = () => {
+        if (newSize && newStock) {
+            setVariants([...variants, {
+                id: Math.random().toString(), // Temp ID
+                size: newSize,
+                stock: parseInt(newStock)
+            }]);
+            setNewSize('');
+            setNewStock('');
+        }
+    };
+
+    const removeVariant = (index: number) => {
+        setVariants(variants.filter((_, i) => i !== index));
+    };
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+
+        setUploading(true);
+        const file = e.target.files[0];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        try {
+            const { error: uploadError } = await supabase.storage
+                .from('product-images')
+                .upload(filePath, file);
+
+            if (uploadError) throw uploadError;
+
+            const { data: { publicUrl } } = supabase.storage
+                .from('product-images')
+                .getPublicUrl(filePath);
+
+            setImages([...images, publicUrl]);
+        } catch (error: any) {
+            alert('Error subiendo imagen: ' + error.message);
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 overflow-hidden flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+                {/* Header */}
+                <div className="flex justify-between items-center p-6 border-b border-stone/10">
+                    <h2 className="font-serif text-2xl text-charcoal">
+                        {product ? 'Editar Producto' : 'Nuevo Producto'}
+                    </h2>
+                    <button onClick={onClose} className="text-warm-gray hover:text-charcoal">
+                        <X size={24} />
+                    </button>
+                </div>
+
+                {/* Tabs */}
+                <div className="flex border-b border-stone/10 bg-stone/5">
+                    <button
+                        onClick={() => setActiveTab('details')}
+                        className={`flex-1 py-3 text-sm font-medium transition-colors ${activeTab === 'details' ? 'bg-white border-t-2 border-charcoal text-charcoal' : 'text-warm-gray hover:text-charcoal'}`}
+                    >
+                        Detalles
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('variants')}
+                        className={`flex-1 py-3 text-sm font-medium transition-colors ${activeTab === 'variants' ? 'bg-white border-t-2 border-charcoal text-charcoal' : 'text-warm-gray hover:text-charcoal'}`}
+                    >
+                        Tallas y Stock
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('images')}
+                        className={`flex-1 py-3 text-sm font-medium transition-colors ${activeTab === 'images' ? 'bg-white border-t-2 border-charcoal text-charcoal' : 'text-warm-gray hover:text-charcoal'}`}
+                    >
+                        Imágenes
+                    </button>
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 overflow-y-auto p-6">
+                    <form id="product-form" onSubmit={handleSubmit} className="space-y-6">
+
+                        {/* DETAILS TAB */}
+                        {activeTab === 'details' && (
+                            <div className="space-y-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-warm-gray mb-1">Nombre</label>
+                                        <input
+                                            type="text"
+                                            required
+                                            value={name}
+                                            onChange={e => setName(e.target.value)}
+                                            className="w-full p-2 border border-stone/20 rounded focus:border-charcoal outline-none"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-warm-gray mb-1">Precio</label>
+                                        <input
+                                            type="number"
+                                            required
+                                            min="0"
+                                            step="0.01"
+                                            value={price}
+                                            onChange={e => setPrice(e.target.value)}
+                                            className="w-full p-2 border border-stone/20 rounded focus:border-charcoal outline-none"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-warm-gray mb-1">Categoría</label>
+                                    <select
+                                        value={category}
+                                        onChange={e => setCategory(e.target.value as any)}
+                                        className="w-full p-2 border border-stone/20 rounded focus:border-charcoal outline-none bg-white"
+                                    >
+                                        <option value="flats">Flats</option>
+                                        <option value="heels">Tacones</option>
+                                        <option value="boots">Botas/Botines</option>
+                                        <option value="sneakers">Sneakers</option>
+                                        <option value="sandals">Sandalias</option>
+                                        <option value="wedges">Plataformas</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-warm-gray mb-1">Descripción</label>
+                                    <textarea
+                                        rows={4}
+                                        required
+                                        value={description}
+                                        onChange={e => setDescription(e.target.value)}
+                                        className="w-full p-2 border border-stone/20 rounded focus:border-charcoal outline-none"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-warm-gray mb-1">Materiales</label>
+                                    <div className="flex gap-2 mb-2">
+                                        <input
+                                            type="text"
+                                            value={materialInput}
+                                            onChange={e => setMaterialInput(e.target.value)}
+                                            className="flex-1 p-2 border border-stone/20 rounded focus:border-charcoal outline-none"
+                                            placeholder="Ej: Piel genuina, Suela sintética..."
+                                            onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddMaterial())}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={handleAddMaterial}
+                                            className="px-4 py-2 bg-stone/10 hover:bg-stone/20 rounded text-charcoal font-medium"
+                                        >
+                                            Agregar
+                                        </button>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {materials.map((mat, idx) => (
+                                            <span key={idx} className="bg-stone/10 px-2 py-1 rounded text-xs flex items-center gap-1">
+                                                {mat}
+                                                <button type="button" onClick={() => removeMaterial(idx)} className="hover:text-red-600"><X size={12} /></button>
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* VARIANTS TAB */}
+                        {activeTab === 'variants' && (
+                            <div className="space-y-6">
+                                <div className="bg-stone/5 p-4 rounded-lg flex items-end gap-4">
+                                    <div>
+                                        <label className="block text-xs font-medium text-warm-gray mb-1">Talla (ej: 24, 25.5)</label>
+                                        <input
+                                            type="text"
+                                            value={newSize}
+                                            onChange={e => setNewSize(e.target.value)}
+                                            className="w-24 p-2 border border-stone/20 rounded outline-none"
+                                            placeholder="24"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-warm-gray mb-1">Stock</label>
+                                        <input
+                                            type="number"
+                                            value={newStock}
+                                            onChange={e => setNewStock(e.target.value)}
+                                            className="w-24 p-2 border border-stone/20 rounded outline-none"
+                                            placeholder="10"
+                                        />
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={handleAddVariant}
+                                        className="px-4 py-2 bg-charcoal text-white rounded hover:bg-warm-gray transition-colors flex items-center gap-2"
+                                    >
+                                        <Plus size={16} /> Agregar Talla
+                                    </button>
+                                </div>
+
+                                <div className="border border-stone/20 rounded-lg overflow-hidden">
+                                    <table className="w-full text-left">
+                                        <thead className="bg-stone/5 text-xs text-warm-gray uppercase">
+                                            <tr>
+                                                <th className="p-3">Talla</th>
+                                                <th className="p-3">Stock</th>
+                                                <th className="p-3 text-right">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-stone/10">
+                                            {variants.map((variant, idx) => (
+                                                <tr key={idx}>
+                                                    <td className="p-3 font-medium">{variant.size.replace(' MX', '')}</td>
+                                                    <td className="p-3">{variant.stock}</td>
+                                                    <td className="p-3 text-right">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeVariant(idx)}
+                                                            className="text-warm-gray hover:text-red-600"
+                                                        >
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                            {variants.length === 0 && (
+                                                <tr>
+                                                    <td colSpan={3} className="p-8 text-center text-warm-gray italic">
+                                                        No hay tallas configuradas.
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* IMAGES TAB */}
+                        {activeTab === 'images' && (
+                            <div className="space-y-6">
+                                <div className="flex items-center justify-center w-full">
+                                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-warm-gray/30 border-dashed rounded-lg cursor-pointer bg-stone/5 hover:bg-stone/10 transition-colors">
+                                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                            {uploading ? (
+                                                <Loader2 className="animate-spin text-charcoal mb-2" size={24} />
+                                            ) : (
+                                                <Upload className="text-warm-gray mb-2" size={24} />
+                                            )}
+                                            <p className="mb-2 text-sm text-warm-gray"><span className="font-semibold text-charcoal">Haz clic para subir imagen</span></p>
+                                            <p className="text-xs text-warm-gray/60">PNG, JPG (MAX. 2MB)</p>
+                                        </div>
+                                        <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
+                                    </label>
+                                </div>
+
+                                <div className="grid grid-cols-3 gap-4">
+                                    {images.map((img, idx) => (
+                                        <div key={idx} className="relative aspect-[4/5] bg-stone/10 rounded overflow-hidden group">
+                                            <img src={img} alt="" className="w-full h-full object-cover" />
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setImages(images.filter((_, i) => i !== idx))}
+                                                    className="p-2 bg-red-600 text-white rounded-full hover:bg-red-700"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                            {idx === 0 && (
+                                                <div className="absolute top-2 left-2 px-2 py-1 bg-charcoal/80 text-white text-xs rounded">Principal</div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                    </form>
+                </div>
+
+                {/* Footer */}
+                <div className="p-6 border-t border-stone/10 flex justify-end gap-3 bg-stone/5">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="px-6 py-2 border border-warm-gray/30 rounded text-warm-gray hover:text-charcoal transition-colors"
+                        disabled={loading}
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        type="submit"
+                        form="product-form"
+                        disabled={loading}
+                        className="px-6 py-2 bg-charcoal text-cream rounded hover:bg-warm-gray transition-colors flex items-center gap-2"
+                    >
+                        {loading && <Loader2 className="animate-spin" size={16} />}
+                        {product ? 'Guardar Cambios' : 'Crear Producto'}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}

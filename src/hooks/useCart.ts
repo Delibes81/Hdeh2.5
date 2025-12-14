@@ -28,19 +28,36 @@ export function useCart() {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
   }, [cart]);
 
-  const addToCart = (product: Product, quantity = 1) => {
+  const addToCart = (product: Product, size: string, quantity = 1) => {
     setCart(prevCart => {
-      const existingItem = prevCart.items.find(item => item.product.id === product.id);
+      // Find item with same ID AND same size
+      const existingItem = prevCart.items.find(item =>
+        item.product.id === product.id && item.size === size
+      );
+
+      // Find variant stock
+      const variant = product.variants?.find(v => v.size === size);
+      const maxStock = variant?.stock || 0;
 
       let newItems: CartItem[];
       if (existingItem) {
+        const newQuantity = existingItem.quantity + quantity;
+        if (newQuantity > maxStock) {
+          alert(`Lo sentimos, solo hay ${maxStock} unidades disponibles en esta talla.`);
+          return prevCart;
+        }
+
         newItems = prevCart.items.map(item =>
-          item.product.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
+          item.product.id === product.id && item.size === size
+            ? { ...item, quantity: newQuantity }
             : item
         );
       } else {
-        newItems = [...prevCart.items, { product, quantity }];
+        if (quantity > maxStock) {
+          alert(`Lo sentimos, solo hay ${maxStock} unidades disponibles en esta talla.`);
+          return prevCart;
+        }
+        newItems = [...prevCart.items, { product, size, quantity }];
       }
 
       const total = newItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
@@ -54,9 +71,11 @@ export function useCart() {
     });
   };
 
-  const removeFromCart = (productId: string) => {
+  const removeFromCart = (productId: string, size: string) => {
     setCart(prevCart => {
-      const newItems = prevCart.items.filter(item => item.product.id !== productId);
+      const newItems = prevCart.items.filter(item =>
+        !(item.product.id === productId && item.size === size)
+      );
       const total = newItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
       const itemCount = newItems.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -68,15 +87,30 @@ export function useCart() {
     });
   };
 
-  const updateQuantity = (productId: string, newQuantity: number) => {
+  const updateQuantity = (productId: string, size: string, newQuantity: number) => {
     if (newQuantity <= 0) {
-      removeFromCart(productId);
+      removeFromCart(productId, size);
       return;
     }
 
     setCart(prevCart => {
+      // Check stock before updating
+      const itemToUpdate = prevCart.items.find(item =>
+        item.product.id === productId && item.size === size
+      );
+
+      if (itemToUpdate) {
+        const variant = itemToUpdate.product.variants?.find(v => v.size === size);
+        const maxStock = variant?.stock || 0;
+
+        if (newQuantity > maxStock) {
+          alert(`Lo sentimos, solo hay ${maxStock} unidades disponibles en esta talla.`);
+          return prevCart;
+        }
+      }
+
       const newItems = prevCart.items.map(item =>
-        item.product.id === productId
+        item.product.id === productId && item.size === size
           ? { ...item, quantity: newQuantity }
           : item
       );

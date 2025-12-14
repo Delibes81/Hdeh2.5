@@ -69,9 +69,7 @@ export default function Footer() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 lg:gap-16">
             {/* Brand */}
             <div className="md:col-span-2 space-y-6">
-              <h2 className="font-serif font-light text-2xl lg:text-3xl">
-                H de Helena
-              </h2>
+              <img src="/logo.png" alt="H de Helena" className="h-16 w-auto mb-6 invert opacity-90" />
 
               <p className="text-cream/70 font-light leading-relaxed max-w-md">
                 Creamos piezas artesanales que celebran la belleza de lo auténtico

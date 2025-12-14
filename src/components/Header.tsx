@@ -28,10 +28,10 @@ export default function Header({ cart, onCartClick }: HeaderProps) {
           <div className="flex-1 flex justify-start lg:justify-center">
             <Link
               to="/"
-              className="font-serif font-light text-2xl lg:text-3xl text-charcoal tracking-wide hover:text-warm-gray transition-colors"
+              className="block hover:opacity-80 transition-opacity"
               onClick={() => window.scrollTo(0, 0)}
             >
-              H de Helena
+              <img src="/logo.png" alt="H de Helena" className="h-12 lg:h-16 w-auto" />
             </Link>
           </div>
 

@@ -13,6 +13,9 @@ import ScrollToTop from './components/ScrollToTop';
 
 import Home from './pages/Home';
 import Shop from './pages/Shop';
+import Login from './pages/admin/Login';
+import Dashboard from './pages/admin/Dashboard';
+import ProtectedRoute from './components/admin/ProtectedRoute';
 
 function AppContent() {
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -28,8 +31,8 @@ function AppContent() {
     clearCart
   } = useCart();
 
-  const handleAddToCart = (product: Product) => {
-    addToCart(product);
+  const handleAddToCart = (product: Product, size: string, quantity = 1) => {
+    addToCart(product, size, quantity);
   };
 
   const handleProductClick = (product: Product) => {
@@ -42,17 +45,19 @@ function AppContent() {
     setSelectedProduct(null);
   };
 
-  // Show header/footer on all pages except homepage (which has its own header)
+  // Show header/footer on all pages except homepage (which has its own header) and admin pages
   const isHomePage = location.pathname === '/';
+  const isAdminPage = location.pathname.startsWith('/admin');
+  const showGlobalHeader = !isHomePage && !isAdminPage;
 
   return (
     <>
       <ScrollToTop />
 
       <div className="min-h-screen">
-        <FloatingControls />
+        {!isAdminPage && <FloatingControls />}
 
-        {!isHomePage && (
+        {showGlobalHeader && (
           <Header
             cart={cart}
             onCartClick={() => setIsCartOpen(true)}
@@ -65,14 +70,21 @@ function AppContent() {
             path="/shop"
             element={
               <Shop
-                onAddToCart={handleAddToCart}
+                onAddToCart={(product) => handleProductClick(product)} // Redirect add to cart to detail view
                 onProductClick={handleProductClick}
               />
             }
           />
+
+          {/* Admin Routes */}
+          <Route path="/admin/login" element={<Login />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/admin/dashboard" element={<Dashboard />} />
+            <Route path="/admin" element={<Dashboard />} />
+          </Route>
         </Routes>
 
-        {!isHomePage && <Footer />}
+        {showGlobalHeader && <Footer />}
 
         {/* Modals */}
         <CartModal
@@ -96,15 +108,12 @@ function AppContent() {
 }
 
 function App() {
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [isInitialLoad, setIsInitialLoad] = useState(() => {
+    return !sessionStorage.getItem('hasLoaded');
+  });
 
   useEffect(() => {
-    // Check if this is the first load
-    const hasLoadedBefore = sessionStorage.getItem('hasLoaded');
-
-    if (hasLoadedBefore) {
-      setIsInitialLoad(false);
-    } else {
+    if (!sessionStorage.getItem('hasLoaded')) {
       sessionStorage.setItem('hasLoaded', 'true');
     }
   }, []);

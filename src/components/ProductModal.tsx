@@ -1,12 +1,12 @@
 import { X, ChevronLeft, ChevronRight, Heart, Share2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Product } from '../types';
 
 interface ProductModalProps {
   isOpen: boolean;
   onClose: () => void;
   product: Product | null;
-  onAddToCart: (product: Product) => void;
+  onAddToCart: (product: Product, size: string, quantity: number) => void;
 }
 
 export default function ProductModal({
@@ -18,6 +18,17 @@ export default function ProductModal({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isLiked, setIsLiked] = useState(false);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setCurrentImageIndex(0);
+      setQuantity(1);
+      setSelectedSize(null);
+      setError(null);
+    }
+  }, [isOpen, product]);
 
   if (!isOpen || !product) return null;
 
@@ -32,7 +43,13 @@ export default function ProductModal({
   };
 
   const handleAddToCart = () => {
-    onAddToCart(product);
+    if (!selectedSize) {
+      setError('Por favor selecciona una talla');
+      return;
+    }
+
+    onAddToCart(product, selectedSize, quantity);
+
     // Show a brief confirmation
     const originalText = document.getElementById('add-to-cart-btn')?.textContent;
     const button = document.getElementById('add-to-cart-btn');
@@ -57,6 +74,9 @@ export default function ProductModal({
     }
   };
 
+  // Sort variants by size logic can be complex, for now assume DB order or basic sort
+  const sortedVariants = product.variants?.slice().sort((a, b) => a.size.localeCompare(b.size, undefined, { numeric: true })) || [];
+
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
       {/* Backdrop */}
@@ -70,7 +90,7 @@ export default function ProductModal({
         <div className="bg-cream rounded-lg shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden animate-scale-in">
           <div className="grid grid-cols-1 lg:grid-cols-2 h-full max-h-[90vh]">
             {/* Image Gallery */}
-            <div className="relative bg-stone/10">
+            <div className="relative bg-stone/10 h-[40vh] lg:h-auto">
               <img
                 src={product.images[currentImageIndex]}
                 alt={product.name}
@@ -120,7 +140,7 @@ export default function ProductModal({
             </div>
 
             {/* Product Details */}
-            <div className="p-8 lg:p-12 overflow-y-auto">
+            <div className="p-6 lg:p-12 overflow-y-auto h-[50vh] lg:h-auto">
               <div className="space-y-6">
                 {/* Badges */}
                 <div className="flex items-center space-x-3">
@@ -151,33 +171,38 @@ export default function ProductModal({
                   {product.description}
                 </p>
 
-                {/* Materials */}
-                {product.materials && product.materials.length > 0 && (
-                  <div>
-                    <h3 className="font-serif text-lg text-charcoal mb-3">
-                      Materiales
-                    </h3>
-                    <ul className="space-y-1">
-                      {product.materials.map((material, index) => (
-                        <li key={index} className="text-warm-gray font-light">
-                          • {material}
-                        </li>
+                {/* Size Selector */}
+                <div>
+                  <h3 className="font-serif text-lg text-charcoal mb-3">
+                    Talla (MX)
+                  </h3>
+                  {sortedVariants.length > 0 ? (
+                    <div className="flex flex-wrap gap-3">
+                      {sortedVariants.map((variant) => (
+                        <button
+                          key={variant.id}
+                          onClick={() => {
+                            setSelectedSize(variant.size);
+                            setError(null);
+                          }}
+                          disabled={variant.stock === 0}
+                          className={`min-w-[3rem] h-10 px-3 border transition-colors duration-300 flex items-center justify-center text-sm font-medium
+                            ${selectedSize === variant.size
+                              ? 'bg-charcoal text-cream border-charcoal'
+                              : 'bg-transparent text-charcoal border-warm-gray/30 hover:border-charcoal'
+                            }
+                            ${variant.stock === 0 ? 'opacity-40 cursor-not-allowed bg-stone/20' : ''}
+                          `}
+                        >
+                          {variant.size.replace(' MX', '')}
+                        </button>
                       ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Dimensions */}
-                {product.dimensions && (
-                  <div>
-                    <h3 className="font-serif text-lg text-charcoal mb-2">
-                      Dimensiones
-                    </h3>
-                    <p className="text-warm-gray font-light">
-                      {product.dimensions}
-                    </p>
-                  </div>
-                )}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-warm-gray italic">No hay tallas disponibles</p>
+                  )}
+                  {error && <p className="text-red-800 text-sm mt-2">{error}</p>}
+                </div>
 
                 {/* Quantity Selector */}
                 <div>
@@ -208,9 +233,12 @@ export default function ProductModal({
                   <button
                     id="add-to-cart-btn"
                     onClick={handleAddToCart}
-                    className="w-full btn-primary bg-charcoal text-cream hover:bg-warm-gray border-transparent"
+                    disabled={!selectedSize}
+                    className={`w-full btn-primary bg-charcoal text-cream border-transparent
+                      ${!selectedSize ? 'opacity-70 cursor-not-allowed hover:bg-charcoal' : 'hover:bg-warm-gray'}
+                    `}
                   >
-                    Agregar al carrito
+                    {selectedSize ? 'Agregar al carrito' : 'Selecciona una talla'}
                   </button>
 
                   <div className="flex space-x-4">
@@ -236,11 +264,13 @@ export default function ProductModal({
                   </div>
                 </div>
 
-                {/* Additional Info */}
+                {/* Materials & Disclaimer */}
                 <div className="pt-6 border-t border-stone/20 space-y-3 text-sm text-warm-gray">
+                  {product.materials && (
+                    <p>Materiales: {product.materials.join(', ')}</p>
+                  )}
                   <p>• Envío gratuito en pedidos superiores a $3000</p>
                   <p>• Devoluciones gratuitas durante 30 días</p>
-                  <p>• Cada pieza es única debido a su naturaleza artesanal</p>
                 </div>
               </div>
             </div>

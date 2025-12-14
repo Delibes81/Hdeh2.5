@@ -5,8 +5,8 @@ interface CartModalProps {
   isOpen: boolean;
   onClose: () => void;
   cart: Cart;
-  onUpdateQuantity: (productId: string, quantity: number) => void;
-  onRemoveItem: (productId: string) => void;
+  onUpdateQuantity: (productId: string, size: string, quantity: number) => void;
+  onRemoveItem: (productId: string, size: string) => void;
   onClearCart: () => void;
 }
 
@@ -68,8 +68,8 @@ export default function CartModal({
               </div>
             ) : (
               <div className="space-y-6">
-                {cart.items.map((item) => (
-                  <div key={item.product.id} className="flex space-x-4">
+                {cart.items.map((item, index) => (
+                  <div key={`${item.product.id}-${item.size}-${index}`} className="flex space-x-4">
                     {/* Product Image */}
                     <div className="w-20 h-20 flex-shrink-0">
                       <img
@@ -81,9 +81,13 @@ export default function CartModal({
 
                     {/* Product Info */}
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-serif text-lg text-charcoal mb-1">
+                      <h3 className="font-serif text-lg text-charcoal mb-0.5">
                         {item.product.name}
                       </h3>
+
+                      <p className="text-sm text-warm-gray mb-1">
+                        Talla: <span className="font-medium text-charcoal">{item.size.replace(' MX', '')}</span>
+                      </p>
 
                       <p className="text-warm-gray text-sm mb-3">
                         ${item.product.price} c/u
@@ -92,7 +96,7 @@ export default function CartModal({
                       {/* Quantity Controls */}
                       <div className="flex items-center space-x-3">
                         <button
-                          onClick={() => onUpdateQuantity(item.product.id, item.quantity - 1)}
+                          onClick={() => onUpdateQuantity(item.product.id, item.size, item.quantity - 1)}
                           className="w-8 h-8 flex items-center justify-center border border-warm-gray/30 text-warm-gray hover:text-charcoal hover:border-charcoal transition-colors duration-300"
                         >
                           <Minus size={14} />
@@ -103,14 +107,14 @@ export default function CartModal({
                         </span>
 
                         <button
-                          onClick={() => onUpdateQuantity(item.product.id, item.quantity + 1)}
+                          onClick={() => onUpdateQuantity(item.product.id, item.size, item.quantity + 1)}
                           className="w-8 h-8 flex items-center justify-center border border-warm-gray/30 text-warm-gray hover:text-charcoal hover:border-charcoal transition-colors duration-300"
                         >
                           <Plus size={14} />
                         </button>
 
                         <button
-                          onClick={() => onRemoveItem(item.product.id)}
+                          onClick={() => onRemoveItem(item.product.id, item.size)}
                           className="ml-auto text-warm-gray/60 hover:text-charcoal transition-colors duration-300 text-sm"
                         >
                           Eliminar

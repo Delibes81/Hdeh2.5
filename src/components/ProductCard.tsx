@@ -3,7 +3,7 @@ import { Product } from '../types';
 
 interface ProductCardProps {
   product: Product;
-  onAddToCart: (product: Product) => void;
+  onAddToCart?: (product: Product) => void;
   onProductClick: (product: Product) => void;
 }
 
@@ -45,20 +45,7 @@ export default function ProductCard({ product, onAddToCart, onProductClick }: Pr
         )}
 
         {/* Add to Cart Button - appears on hover */}
-        <div
-          className={`absolute bottom-4 left-4 right-4 transform transition-all duration-300 ${isHovered ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-            }`}
-        >
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onAddToCart(product);
-            }}
-            className="w-full btn-primary bg-cream/90 hover:bg-cream text-charcoal border-transparent backdrop-blur-sm"
-          >
-            Agregar al carrito
-          </button>
-        </div>
+
       </div>
 
       {/* Product Info */}

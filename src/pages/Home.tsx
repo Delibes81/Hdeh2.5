@@ -26,8 +26,10 @@ export default function Home() {
         clearCart
     } = useCart();
 
+    // For Home components, "Add to Cart" should open the modal to select size
     const handleAddToCart = (product: Product) => {
-        addToCart(product);
+        setSelectedProduct(product);
+        setIsProductModalOpen(true);
     };
 
     const handleProductClick = (product: Product) => {
@@ -91,7 +93,7 @@ export default function Home() {
                 isOpen={isProductModalOpen}
                 onClose={handleCloseProductModal}
                 product={selectedProduct}
-                onAddToCart={handleAddToCart}
+                onAddToCart={(product, size, qty) => addToCart(product, size, qty)}
             />
         </>
     );
