@@ -6,12 +6,10 @@ interface OrderItem {
     id: string;
     quantity: number;
     price_at_purchase: number;
-    product_variants: {
-        size: string;
-        products: {
-            name: string;
-            images: string[];
-        };
+    size: string;
+    products: {
+        name: string;
+        images: string[];
     };
 }
 
@@ -46,6 +44,9 @@ export default function OrderList() {
 
     const fetchOrders = async () => {
         try {
+            console.log('Fetching orders...');
+            // Corrección: Consultamos 'products' directamente, ya que order_items tiene product_id
+            // y 'size' está guardado directamente en order_items.
             const { data, error } = await supabase
                 .from('orders')
                 .select(`
@@ -54,16 +55,17 @@ export default function OrderList() {
             id,
             quantity,
             price_at_purchase,
-            product_variants (
-              size,
-              products (
+            size,
+            products (
                 name,
                 images
-              )
             )
           )
         `)
                 .order('created_at', { ascending: false });
+
+            console.log('Orders Response - Data:', data);
+            console.log('Orders Response - Error:', error);
 
             if (error) throw error;
             setOrders(data || []);
@@ -160,7 +162,7 @@ export default function OrderList() {
                                                     Dirección de Envío
                                                 </h4>
                                                 <div className="bg-white p-4 rounded-lg border border-stone/10 text-sm text-warm-gray leading-relaxed">
-                                                    <p className="font-medium text-charcoal mb-1">{order.shipping_address?.name}</p>
+                                                    <p className="font-medium text-charcoal mb-1">{order.shipping_address?.name || 'Cliente sin nombre'}</p>
                                                     <p>{order.shipping_address?.address?.line1}</p>
                                                     {order.shipping_address?.address?.line2 && <p>{order.shipping_address?.address?.line2}</p>}
                                                     <p>
@@ -180,20 +182,22 @@ export default function OrderList() {
                                                     {order.order_items.map((item) => (
                                                         <div key={item.id} className="flex gap-4 bg-white p-3 rounded-lg border border-stone/10">
                                                             <div className="w-12 h-16 bg-stone/10 rounded overflow-hidden flex-shrink-0">
-                                                                {item.product_variants.products.images[0] && (
+                                                                {item.products?.images?.[0] ? (
                                                                     <img
-                                                                        src={item.product_variants.products.images[0]}
-                                                                        alt={item.product_variants.products.name}
+                                                                        src={item.products.images[0]}
+                                                                        alt={item.products.name}
                                                                         className="w-full h-full object-cover"
                                                                     />
+                                                                ) : (
+                                                                    <div className="w-full h-full bg-gray-200 flex items-center justify-center text-xs text-gray-400">Sin img</div>
                                                                 )}
                                                             </div>
                                                             <div className="flex-1">
                                                                 <p className="text-sm font-medium text-charcoal">
-                                                                    {item.product_variants.products.name}
+                                                                    {item.products?.name || 'Producto Desconocido'}
                                                                 </p>
                                                                 <p className="text-xs text-warm-gray mt-1">
-                                                                    Talla: {item.product_variants.size} | Cantidad: {item.quantity}
+                                                                    Talla: {item.size} | Cantidad: {item.quantity}
                                                                 </p>
                                                             </div>
                                                             <p className="text-sm font-medium text-charcoal">
