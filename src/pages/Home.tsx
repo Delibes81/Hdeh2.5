@@ -12,6 +12,7 @@ import Footer from '../components/Footer';
 import CartModal from '../components/CartModal';
 import ProductModal from '../components/ProductModal';
 import RevealOnScroll from '../components/RevealOnScroll';
+import SEO from '../components/SEO';
 
 export default function Home() {
     const [isCartOpen, setIsCartOpen] = useState(false);
@@ -44,6 +45,7 @@ export default function Home() {
 
     return (
         <>
+            <SEO />
             {/* Header */}
             <Header
                 cart={cart}

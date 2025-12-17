@@ -3,6 +3,7 @@ import { Product } from '../types';
 import { useProducts } from '../hooks/useProducts';
 import ProductCard from '../components/ProductCard';
 import { Search, Loader } from 'lucide-react';
+import SEO from '../components/SEO';
 
 interface ShopProps {
     onAddToCart: (product: Product) => void;
@@ -49,6 +50,7 @@ export default function Shop({ onAddToCart, onProductClick }: ShopProps) {
 
     return (
         <div className="min-h-screen bg-cream">
+            <SEO title="Tienda" description="Explora nuestra colección completa de zapatos de piel artesanales." url="/shop" />
             {/* Header Section */}
             <section className="relative py-24 lg:py-32 bg-gradient-to-br from-pale-pink via-cream to-pale-pink overflow-hidden">
                 <div className="absolute inset-0 opacity-5">
