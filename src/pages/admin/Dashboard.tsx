@@ -1,8 +1,12 @@
-import { LogOut, Package, ShoppingBag, BarChart3, Settings } from 'lucide-react';
+import { LogOut, Package, ShoppingBag, Settings } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useNavigate } from 'react-router-dom';
-import ProductList from './ProductList';
-import { useState } from 'react';
+import OrderList from './OrderList';
+
+// ... (existing code)
+
+{ currentView === 'products' && <ProductList /> }
+{ currentView === 'orders' && <OrderList /> }
 
 type View = 'products' | 'orders' | 'settings';
 
@@ -19,8 +23,8 @@ export default function Dashboard() {
         <button
             onClick={() => setCurrentView(view)}
             className={`flex items-center space-x-3 w-full px-4 py-3 rounded-lg transition-colors ${currentView === view
-                    ? 'bg-charcoal text-cream'
-                    : 'text-warm-gray hover:bg-stone/10 hover:text-charcoal'
+                ? 'bg-charcoal text-cream'
+                : 'text-warm-gray hover:bg-stone/10 hover:text-charcoal'
                 }`}
         >
             <Icon size={20} />

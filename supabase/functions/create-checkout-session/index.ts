@@ -22,6 +22,10 @@ serve(async (req) => {
         const { items, success_url, cancel_url } = await req.json()
         console.log("Received Checkout Request:", { items: items.length })
 
+        // Extract origin to fix relative paths
+        // success_url usually looks like "https://domain.com/success"
+        const origin = new URL(success_url).origin
+
         const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
         const lineItems = []
@@ -52,13 +56,19 @@ serve(async (req) => {
                 throw new Error(`Insufficient stock for ${product.name} (${item.size}). Available: ${variant.stock}`)
             }
 
+            // Fix Image URL (Stripe requires absolute URL)
+            let imageUrl = product.images?.[0];
+            if (imageUrl && imageUrl.startsWith('/')) {
+                imageUrl = `${origin}${imageUrl}`;
+            }
+
             lineItems.push({
                 price_data: {
                     currency: 'mxn',
                     product_data: {
                         name: `${product.name} (${item.size})`,
                         description: product.description ? product.description.substring(0, 100) : undefined,
-                        images: product.images ? product.images.slice(0, 1) : [],
+                        images: imageUrl ? [imageUrl] : [],
                         metadata: {
                             productId: product.id,
                             size: item.size
