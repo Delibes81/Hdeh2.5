@@ -2,11 +2,8 @@ import { LogOut, Package, ShoppingBag, Settings } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import OrderList from './OrderList';
-
-// ... (existing code)
-
-{ currentView === 'products' && <ProductList /> }
-{ currentView === 'orders' && <OrderList /> }
+import ProductList from './ProductList';
+import { useState } from 'react';
 
 type View = 'products' | 'orders' | 'settings';
 
@@ -69,13 +66,7 @@ export default function Dashboard() {
                 <div className="p-6 md:p-8 max-w-7xl mx-auto">
                     {currentView === 'products' && <ProductList />}
 
-                    {currentView === 'orders' && (
-                        <div className="flex flex-col items-center justify-center h-96 text-warm-gray">
-                            <ShoppingBag size={48} className="mb-4 opacity-50" />
-                            <h2 className="text-xl font-medium mb-2">Pedidos</h2>
-                            <p>Próximamente: Integración con Stripe</p>
-                        </div>
-                    )}
+                    {currentView === 'orders' && <OrderList />}
 
                     {currentView === 'settings' && (
                         <div className="flex flex-col items-center justify-center h-96 text-warm-gray">
