@@ -39,14 +39,17 @@ serve(async (req) => {
         }
 
         if (event.type === 'checkout.session.completed') {
-            const session = event.data.object
-            const { line_items } = await stripe.checkout.sessions.retrieve(session.id, {
-                expand: ['line_items']
+            const sessionEvent = event.data.object
+
+            // Fetch the session again to ensure expansion of line_items and fresh data
+            const session = await stripe.checkout.sessions.retrieve(sessionEvent.id, {
+                expand: ['line_items', 'payment_intent', 'customer_details']
             })
 
-            const customerEmail = session.customer_details?.email
-            const shippingAddress = session.shipping_details?.address
-            const paymentId = session.payment_intent
+            const customerEmail = session.customer_details?.email || sessionEvent.customer_details?.email
+            const customerPhone = session.customer_details?.phone || sessionEvent.customer_details?.phone
+            const shippingDetails = session.shipping_details || sessionEvent.shipping_details
+            const paymentId = typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id
 
             // 1. Create Order
             const { data: order, error: orderError } = await supabase
@@ -55,7 +58,8 @@ serve(async (req) => {
                     status: 'paid', // Captured immediately
                     total_amount: session.amount_total ? session.amount_total / 100 : 0,
                     contact_email: customerEmail,
-                    shipping_address: shippingAddress,
+                    contact_phone: customerPhone, // Saving phone number
+                    shipping_address: shippingDetails, // Store full object including Name & Address
                     payment_intent_id: paymentId
                 })
                 .select()

@@ -18,7 +18,9 @@ interface Order {
     created_at: string;
     status: string;
     total_amount: number;
+    total_amount: number;
     contact_email: string;
+    contact_phone?: string;
     shipping_address: {
         name: string;
         address: {
@@ -130,6 +132,9 @@ export default function OrderList() {
                                             </span>
                                         </div>
                                         <p className="font-medium text-charcoal">{order.contact_email}</p>
+                                        {order.contact_phone && (
+                                            <p className="text-xs text-warm-gray">{order.contact_phone}</p>
+                                        )}
                                     </div>
 
                                     <div className="flex items-center gap-2 text-sm text-warm-gray min-w-[150px]">
