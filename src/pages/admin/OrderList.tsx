@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Package, Calendar, MapPin, ChevronDown, ChevronUp } from 'lucide-react';
+import { Package, Calendar, MapPin, ChevronDown, ChevronUp, LogOut } from 'lucide-react';
 
 interface OrderItem {
     id: string;
@@ -142,6 +142,40 @@ export default function OrderList() {
                                         {formatDate(order.created_at)}
                                     </div>
 
+                                    <div className="flex items-center gap-2">
+                                        {order.status === 'paid' && (
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    // updateStatus(order.id, 'enviado'); // Assuming updateStatus is defined elsewhere
+                                                }}
+                                                className="px-3 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors"
+                                            >
+                                                Marcar Enviado
+                                            </button>
+                                        )}
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                updateStatus(order.id, 'enviado');
+                                            }}
+                                            className="px-3 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors"
+                                        >
+                                            Marcar Enviado
+                                        </button>
+                                    )}
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                deleteOrder(order.id);
+                                            }}
+                                            className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                                            title="Eliminar Pedido"
+                                        >
+                                            <LogOut size={16} className="rotate-180" />
+                                        </button>
+                                    </div>
+
                                     <div className="text-right min-w-[100px]">
                                         <p className="text-lg font-serif text-charcoal font-medium">
                                             ${order.total_amount.toFixed(2)}
@@ -220,6 +254,6 @@ export default function OrderList() {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 }

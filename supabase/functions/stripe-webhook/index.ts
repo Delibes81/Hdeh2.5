@@ -51,6 +51,20 @@ serve(async (req) => {
             const shippingDetails = session.shipping_details || sessionEvent.shipping_details
             const paymentId = typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id
 
+            // 0. Idempotency Check: Prevent duplicate orders
+            const { data: existingOrder } = await supabase
+                .from('orders')
+                .select('id')
+                .eq('payment_intent_id', paymentId)
+                .single()
+
+            if (existingOrder) {
+                console.log(`Order already exists for payment ${paymentId}`)
+                return new Response(JSON.stringify({ received: true, message: 'Order already exists' }), {
+                    headers: { "Content-Type": "application/json" },
+                })
+            }
+
             // 1. Create Order
             const { data: order, error: orderError } = await supabase
                 .from('orders')
