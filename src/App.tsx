@@ -13,6 +13,7 @@ import ScrollToTop from './components/ScrollToTop';
 
 import Home from './pages/Home';
 import Shop from './pages/Shop';
+import Success from './pages/Success';
 import Login from './pages/admin/Login';
 import Dashboard from './pages/admin/Dashboard';
 import ProtectedRoute from './components/admin/ProtectedRoute';
@@ -75,6 +76,8 @@ function AppContent() {
               />
             }
           />
+
+          <Route path="/success" element={<Success />} />
 
           {/* Admin Routes */}
           <Route path="/admin/login" element={<Login />} />
