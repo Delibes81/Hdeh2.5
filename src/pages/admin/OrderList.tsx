@@ -77,6 +77,32 @@ export default function OrderList() {
         }
     };
 
+    const deleteOrder = async (orderId: string) => {
+        if (!confirm('¿Estás seguro de eliminar este pedido duplicado?')) return;
+
+        try {
+            // First delete order items (FK constraint)
+            const { error: itemsError } = await supabase
+                .from('order_items')
+                .delete()
+                .eq('order_id', orderId);
+
+            if (itemsError) throw itemsError;
+
+            // Then delete the order
+            const { error } = await supabase
+                .from('orders')
+                .delete()
+                .eq('id', orderId);
+
+            if (error) throw error;
+            fetchOrders();
+        } catch (error) {
+            console.error('Error deleting order:', error);
+            alert('Error al eliminar el pedido: ' + (error as any).message);
+        }
+    };
+
     const toggleExpand = (orderId: string) => {
         setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
     };
