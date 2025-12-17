@@ -103,6 +103,26 @@ export default function OrderList() {
         }
     };
 
+    const updateStatus = async (orderId: string, newStatus: string) => {
+        console.log(`Updating status for ${orderId} to ${newStatus}`);
+        try {
+            const { error } = await supabase
+                .from('orders')
+                .update({ status: newStatus })
+                .eq('id', orderId);
+
+            if (error) {
+                console.error('Supabase update error:', error);
+                throw error;
+            }
+            // Refetch to update UI
+            fetchOrders();
+        } catch (error: any) {
+            console.error('Error updating status:', error);
+            alert('Error al actualizar el estado: ' + error.message);
+        }
+    };
+
     const toggleExpand = (orderId: string) => {
         setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
     };

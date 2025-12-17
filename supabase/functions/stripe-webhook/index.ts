@@ -83,90 +83,55 @@ serve(async (req) => {
 
             // 2. Process Items & Deduct Stock
             if (line_items?.data) {
+                console.log(`Processing ${line_items.data.length} line items...`)
                 for (const item of line_items.data) {
-                    // We stored metadata in correct place? Stripe session creation put metdata on Product Data inside Line Item
-                    // Usually we need to expand or check product. 
-                    // BUT "line_items" in webhook payload might be limited.
-                    // A safer way often is to pass metadata to price_data in creation.
-
-                    // Let's assume we can match by description string like "Product Name (Size)" if metadata is hard to get,
-                    // or retrieve product from Stripe.
-                    // BETTER: We added metadata to the product_data in create-checkout-session.
-                    // To get it here, we might need to retrieve the product or price object from Stripe if not present in item.
-
-                    // Simplification: Let's rely on retrieving the specific Stripe Line Item which *should* have price.product data expanded?
-                    // No, we need to be careful.
-
-                    // ALTERNATIVE: Use the description to parse. "Name (Size)"
-                    // This is fragile but works without complex expansion logic for this MVP.
-
-                    // Let's rely on the `create-checkout-session` sending metadata to the SESSION or Price?
-                    // The session line items usually don't have deep metadata unless expanded deeply.
-
-                    // REFINED STRATEGY:
-                    // For robustness, let's just log for now and do a simple string match if possible, or try to get metadata.
-                    // Actually, wait. In create-checkout-session we did:
-                    /*
-                      product_data: {
-                          metadata: { productId: ..., size: ... }
-                      }
-                    */
-                    // This metadata lives on the *Product* object in Stripe created on the fly.
-
-                    // Retrieving session.line_items only gives us the Price/Quantity.
-                    // We need to fetch the detailed line item to get the inner product.
-
-                    // Let's try to look at item.price.product (if expanded) or just item.description (fallback)
-
-                    // For this MVP, let's assume we can parse it to save complexity.
-                    // Or better: update create-checkout-session later to put metadata on the Line Item directly if possible? 
-                    // Only price_data supports metadata in newer API versions.
-
-                    // Let's try to get it from item.price.product_data if available? No.
-
-                    // SAFE FALLBACK for now: Parse the description "Talla: X" or format we used.
-                    // We used: name: `${product.name} (${item.size})`
-
-                    // Ideally we would update DB. 
-                    // Since this is the "final step", I will write code that TRIES to match.
-
-                    /* 
-                       We will parse the name to extract Size.
-                       This assumes valid format "Name (Size)"
-                    */
                     const description = item.description || ''
-                    const sizeMatch = description.match(/\((.*?)\)$/)
+                    // Try to extract size from format "Product Name (Size)"
+                    const sizeMatch = description.match(/\(([^)]+)\)$/) // Match content inside parens
                     const size = sizeMatch ? sizeMatch[1] : null
 
-                    // Find product by name (removing size part)
-                    const productName = description.replace(/\s\(.*?\)$/, '')
+                    // Product Name: Remove only the LAST parenthesized part (size) to get the name
+                    const productName = description.replace(/\s\([^)]+\)$/, '').trim()
+
+                    console.log(`Processing Item: ${description} (Name: ${productName}, Size: ${size})`)
 
                     if (size && productName) {
                         // Find DB Product
-                        const { data: dbProduct } = await supabase
+                        const { data: dbProduct, error: prodError } = await supabase
                             .from('products')
                             .select('id, variants:product_variants(*)')
                             .eq('name', productName)
                             .single()
 
-                        if (dbProduct) {
-                            // Insert Order Item
-                            await supabase.from('order_items').insert({
-                                order_id: order.id,
-                                product_id: dbProduct.id,
-                                quantity: item.quantity,
-                                size: size,
-                                price_at_purchase: item.amount_total / 100 / item.quantity
-                            })
-
-                            // Decrease Stock
-                            const variant = dbProduct.variants.find((v: any) => v.size === size)
-                            if (variant) {
-                                await supabase.from('product_variants')
-                                    .update({ stock: variant.stock - (item.quantity || 1) })
-                                    .eq('id', variant.id)
-                            }
+                        if (prodError || !dbProduct) {
+                            console.error(`Product not found in DB: ${productName}`)
+                            continue
                         }
+
+                        // Insert Order Item
+                        const { error: itemInsertError } = await supabase.from('order_items').insert({
+                            order_id: order.id,
+                            product_id: dbProduct.id,
+                            quantity: item.quantity,
+                            size: size,
+                            price_at_purchase: (item.amount_total || 0) / 100 / (item.quantity || 1)
+                        })
+
+                        if (itemInsertError) {
+                            console.error(`Error inserting order item: ${itemInsertError.message}`)
+                        }
+
+                        // Decrease Stock
+                        const variant = dbProduct.variants.find((v: any) => v.size === size)
+                        if (variant) {
+                            await supabase.from('product_variants')
+                                .update({ stock: variant.stock - (item.quantity || 1) })
+                                .eq('id', variant.id)
+                        } else {
+                            console.warn(`Variant not found for stock deduction: ${productName} size ${size}`)
+                        }
+                    } else {
+                        console.warn(`Could not parse size/name from description: ${description}`)
                     }
                 }
             }
