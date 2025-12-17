@@ -43,7 +43,7 @@ serve(async (req) => {
 
             // Fetch the session again to ensure expansion of line_items and fresh data
             const session = await stripe.checkout.sessions.retrieve(sessionEvent.id, {
-                expand: ['line_items', 'payment_intent', 'customer_details']
+                expand: ['line_items.data.price.product', 'payment_intent', 'customer_details']
             })
 
             const customerEmail = session.customer_details?.email || sessionEvent.customer_details?.email
