@@ -18,7 +18,6 @@ interface Order {
     created_at: string;
     status: string;
     total_amount: number;
-    total_amount: number;
     contact_email: string;
     contact_phone?: string;
     shipping_address: {
@@ -147,23 +146,13 @@ export default function OrderList() {
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    // updateStatus(order.id, 'enviado'); // Assuming updateStatus is defined elsewhere
+                                                    updateStatus(order.id, 'enviado');
                                                 }}
                                                 className="px-3 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors"
                                             >
                                                 Marcar Enviado
                                             </button>
                                         )}
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                updateStatus(order.id, 'enviado');
-                                            }}
-                                            className="px-3 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors"
-                                        >
-                                            Marcar Enviado
-                                        </button>
-                                    )}
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
