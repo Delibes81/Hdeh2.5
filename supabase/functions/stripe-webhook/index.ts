@@ -42,6 +42,7 @@ serve(async (req) => {
             const sessionEvent = event.data.object
 
             // Fetch the session again to ensure expansion of line_items and fresh data
+            // CRITICAL: We expand 'line_items.data.price.product' to get the metadata we added in create-checkout-session
             const session = await stripe.checkout.sessions.retrieve(sessionEvent.id, {
                 expand: ['line_items.data.price.product', 'payment_intent', 'customer_details']
             })
@@ -49,7 +50,10 @@ serve(async (req) => {
             const customerEmail = session.customer_details?.email || sessionEvent.customer_details?.email
             const customerPhone = session.customer_details?.phone || sessionEvent.customer_details?.phone
             const shippingDetails = session.shipping_details || sessionEvent.shipping_details
-            const paymentId = typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id
+            // Ensure payment_intent is a string
+            const paymentId = typeof session.payment_intent === 'string'
+                ? session.payment_intent
+                : session.payment_intent?.id
 
             // 0. Idempotency Check: Prevent duplicate orders
             const { data: existingOrder } = await supabase
@@ -82,39 +86,55 @@ serve(async (req) => {
             if (orderError) throw orderError
 
             // 2. Process Items & Deduct Stock
-            if (line_items?.data) {
-                console.log(`Processing ${line_items.data.length} line items...`)
-                for (const item of line_items.data) {
-                    const description = item.description || ''
-                    // Try to extract size from format "Product Name (Size)"
-                    const sizeMatch = description.match(/\(([^)]+)\)$/) // Match content inside parens
-                    const size = sizeMatch ? sizeMatch[1] : null
+            if (session.line_items?.data) {
+                console.log(`Processing ${session.line_items.data.length} line items...`)
+                for (const item of session.line_items.data) {
+                    let dbById = null;
+                    let size = null;
+                    const quantity = item.quantity || 1;
 
-                    // Product Name: Remove only the LAST parenthesized part (size) to get the name
-                    const productName = description.replace(/\s\([^)]+\)$/, '').trim()
+                    // A. Try getting Metadata (Most Reliable)
+                    // We added metadata: { productId, size } to the product_data in create-checkout-session
+                    // Because we expanded 'line_items.data.price.product', this should be available on item.price.product
+                    // @ts-ignore
+                    const stripeProduct = item.price?.product;
 
-                    console.log(`Processing Item: ${description} (Name: ${productName}, Size: ${size})`)
+                    if (stripeProduct && typeof stripeProduct === 'object' && stripeProduct.metadata) {
+                        const metaProductId = stripeProduct.metadata.productId;
+                        const metaSize = stripeProduct.metadata.size;
 
-                    if (size && productName) {
-                        // Find DB Product
-                        const { data: dbProduct, error: prodError } = await supabase
-                            .from('products')
-                            .select('id, variants:product_variants(*)')
-                            .eq('name', productName)
-                            .single()
-
-                        if (prodError || !dbProduct) {
-                            console.error(`Product not found in DB: ${productName}`)
-                            continue
+                        if (metaProductId && metaSize) {
+                            console.log(`Found Metadata: ID ${metaProductId}, Size ${metaSize}`);
+                            size = metaSize;
+                            const { data } = await supabase.from('products').select('id, variants:product_variants(*)').eq('id', metaProductId).single();
+                            dbById = data;
                         }
+                    }
 
+                    // B. Fallback to Name Parsing if Metadata fail
+                    if (!dbById) {
+                        const description = item.description || ''
+                        console.log(`Metadata failed, trying regex on: ${description}`);
+                        // Expect format: "Product Name (Size)"
+                        const sizeMatch = description.match(/\(([^)]+)\)$/) // Match content inside parens
+                        const parsedSize = sizeMatch ? sizeMatch[1] : null
+                        const productName = description.replace(/\s\([^)]+\)$/, '').trim()
+
+                        if (parsedSize && productName) {
+                            size = parsedSize;
+                            const { data } = await supabase.from('products').select('id, variants:product_variants(*)').eq('name', productName).single();
+                            dbById = data;
+                        }
+                    }
+
+                    if (dbById && size) {
                         // Insert Order Item
                         const { error: itemInsertError } = await supabase.from('order_items').insert({
                             order_id: order.id,
-                            product_id: dbProduct.id,
-                            quantity: item.quantity,
+                            product_id: dbById.id,
+                            quantity: quantity,
                             size: size,
-                            price_at_purchase: (item.amount_total || 0) / 100 / (item.quantity || 1)
+                            price_at_purchase: (item.amount_total || 0) / 100 / quantity
                         })
 
                         if (itemInsertError) {
@@ -122,18 +142,20 @@ serve(async (req) => {
                         }
 
                         // Decrease Stock
-                        const variant = dbProduct.variants.find((v: any) => v.size === size)
+                        const variant = dbById.variants.find((v: any) => v.size === size)
                         if (variant) {
                             await supabase.from('product_variants')
-                                .update({ stock: variant.stock - (item.quantity || 1) })
+                                .update({ stock: variant.stock - quantity })
                                 .eq('id', variant.id)
                         } else {
-                            console.warn(`Variant not found for stock deduction: ${productName} size ${size}`)
+                            console.warn(`Variant not found for stock deduction: ${size}`)
                         }
                     } else {
-                        console.warn(`Could not parse size/name from description: ${description}`)
+                        console.error('Could not identify product/size for item:', item.description);
                     }
                 }
+            } else {
+                console.warn("No line items found in session.");
             }
         }
 
@@ -141,6 +163,7 @@ serve(async (req) => {
             headers: { "Content-Type": "application/json" },
         })
     } catch (err: any) {
+        console.error("Webhook processing error:", err)
         return new Response(`Webhook Error: ${err.message}`, { status: 400 })
     }
 })

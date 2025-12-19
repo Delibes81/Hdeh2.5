@@ -22,10 +22,10 @@ export default function Header({ cart, onCartClick }: HeaderProps) {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-cream/95 backdrop-blur-sm border-b border-stone/20">
-      <nav className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+      <nav className="w-full mx-auto px-6 lg:px-8">
+        <div className="relative flex items-center justify-between h-20">
           {/* Logo */}
-          <div className="flex-1 flex justify-start lg:justify-center">
+          <div className="flex-1 flex justify-start lg:flex-none lg:absolute lg:left-1/2 lg:-translate-x-1/2">
             <Link
               to="/"
               className="block hover:opacity-80 transition-opacity"
@@ -62,7 +62,7 @@ export default function Header({ cart, onCartClick }: HeaderProps) {
           </div>
 
           {/* Cart and User Icons */}
-          <div className="flex items-center space-x-6">
+          <div className="flex items-center space-x-4 ml-auto">
             <button
               onClick={onCartClick}
               className="relative p-2 text-warm-gray hover:text-charcoal transition-colors duration-300"
