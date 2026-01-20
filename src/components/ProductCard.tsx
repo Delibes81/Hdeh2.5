@@ -5,11 +5,14 @@ interface ProductCardProps {
   product: Product;
   onAddToCart?: (product: Product) => void;
   onProductClick: (product: Product) => void;
+  index?: number;
+  startAnimation?: boolean;
 }
 
-export default function ProductCard({ product, onAddToCart, onProductClick }: ProductCardProps) {
+export default function ProductCard({ product, onAddToCart, onProductClick, index = 0, startAnimation = true }: ProductCardProps) {
   const [imageIndex, setImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const handleImageChange = () => {
     if (product.images.length > 1) {
@@ -19,7 +22,8 @@ export default function ProductCard({ product, onAddToCart, onProductClick }: Pr
 
   return (
     <div
-      className="group cursor-pointer"
+      className={`group cursor-pointer opacity-0 fill-mode-forwards ${startAnimation ? 'animate-fade-in-up' : ''}`}
+      style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'forwards' }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => onProductClick(product)}
@@ -32,7 +36,8 @@ export default function ProductCard({ product, onAddToCart, onProductClick }: Pr
         <img
           src={product.images[imageIndex]}
           alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          onLoad={() => setImageLoaded(true)}
+          className={`w-full h-full object-cover transition-all duration-700 group-hover:scale-105 ${imageLoaded ? 'opacity-100 blur-0' : 'opacity-0 blur-sm'}`}
         />
 
         {/* Handcrafted Badge */}

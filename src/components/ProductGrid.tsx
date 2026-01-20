@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Product } from '../types';
 import { useProducts } from '../hooks/useProducts';
 import ProductCard from './ProductCard';
+import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 
 interface ProductGridProps {
   onAddToCart: (product: Product) => void;
@@ -12,6 +13,8 @@ interface ProductGridProps {
 export default function ProductGrid({ onAddToCart, onProductClick, limit }: ProductGridProps) {
   const { products, loading } = useProducts();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const { elementRef, isVisible } = useIntersectionObserver();
+  const { elementRef: gridRef, isVisible: isGridVisible } = useIntersectionObserver({ threshold: 0.1 });
 
   const categories = [
     { key: 'all', label: 'Todo' },
@@ -34,7 +37,10 @@ export default function ProductGrid({ onAddToCart, onProductClick, limit }: Prod
     <section id="collection" className="py-24 lg:py-32 bg-cream">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center mb-16 lg:mb-24">
+        <div
+          ref={elementRef}
+          className={`text-center mb-16 lg:mb-24 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+        >
           <h2 className="font-serif font-light text-4xl lg:text-5xl text-charcoal mb-6">
             Nuestra Colección
           </h2>
@@ -60,11 +66,13 @@ export default function ProductGrid({ onAddToCart, onProductClick, limit }: Prod
         </div>
 
         {/* Products Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12 lg:gap-16">
-          {filteredProducts.map((product) => (
+        <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12 lg:gap-16">
+          {filteredProducts.map((product, index) => (
             <ProductCard
               key={product.id}
               product={product}
+              index={index}
+              startAnimation={isGridVisible}
               onAddToCart={onAddToCart}
               onProductClick={onProductClick}
             />

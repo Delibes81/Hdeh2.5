@@ -1,6 +1,9 @@
 import { Instagram, Mail, Phone } from 'lucide-react';
+import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 
 export default function Footer() {
+  const { elementRef, isVisible } = useIntersectionObserver();
+
   const footerLinks = {
     atención: [
       { name: 'FAQ', href: '#faq' },
@@ -19,11 +22,11 @@ export default function Footer() {
   return (
     <footer id="contact">
       {/* Instagram Section - White Background */}
-      <div className="bg-white text-charcoal py-16 lg:py-24">
+      <div className="bg-white text-charcoal py-16 lg:py-24 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div ref={elementRef} className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left Column: Content */}
-            <div className="text-center lg:text-left">
+            <div className={`text-center lg:text-left transition-all duration-1000 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-20'}`}>
               <h3 className="font-serif font-light text-3xl lg:text-4xl mb-6 text-charcoal">
                 Sé parte de nuestra inspiración
               </h3>
@@ -46,7 +49,7 @@ export default function Footer() {
             </div>
 
             {/* Right Column: Feed */}
-            <div className="relative overflow-hidden rounded-lg shadow-xl">
+            <div className={`relative overflow-hidden rounded-lg shadow-xl transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'}`}>
               <div className="aspect-square w-full bg-warm-gray/5 border border-warm-gray/10 rounded-lg overflow-hidden">
                 <iframe
                   src="https://www.instagram.com/h.de.helena/embed"

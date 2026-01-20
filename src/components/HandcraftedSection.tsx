@@ -1,6 +1,9 @@
 import { Heart, Gem, Clock } from 'lucide-react';
+import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 
 export default function HandcraftedSection() {
+  const { elementRef, isVisible } = useIntersectionObserver();
+
   const features = [
     {
       icon: Heart,
@@ -20,16 +23,16 @@ export default function HandcraftedSection() {
   ];
 
   return (
-    <section className="py-24 lg:py-32 bg-beige">
+    <section className="py-24 lg:py-32 bg-beige overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-16 lg:gap-24">
+        <div ref={elementRef} className="grid grid-cols-1 md:grid-cols-3 gap-16 lg:gap-24">
           {features.map((feature, index) => (
             <div
               key={feature.title}
-              className="text-center animate-fade-in-up"
-              style={{ animationDelay: `${index * 0.2}s` }}
+              className={`text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}
+              style={{ transitionDelay: `${index * 200}ms` }}
             >
-              <div className="inline-flex items-center justify-center w-16 h-16 mb-8 rounded-full border border-warm-gray/30">
+              <div className="inline-flex items-center justify-center w-16 h-16 mb-8 rounded-full border border-warm-gray/30 hover:scale-110 transition-transform duration-500">
                 <feature.icon
                   size={28}
                   strokeWidth={1}
