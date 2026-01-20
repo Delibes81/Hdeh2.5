@@ -25,11 +25,11 @@ export default function Footer() {
             {/* Left Column: Content */}
             <div className="text-center lg:text-left">
               <h3 className="font-serif font-light text-3xl lg:text-4xl mb-6 text-charcoal">
-                Mantente conectada
+                Sé parte de nuestra inspiración
               </h3>
 
               <p className="text-warm-gray text-lg font-light mb-8 max-w-md mx-auto lg:mx-0">
-                Síguenos en Instagram para descubrir nuestras últimas colecciones, detrás de cámaras y el proceso artesanal
+                Síguenos en instagram para ser parte del proceso e inspirar nuestros pares.
               </p>
 
               <div>

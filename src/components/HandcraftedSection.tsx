@@ -5,17 +5,17 @@ export default function HandcraftedSection() {
     {
       icon: Heart,
       title: 'Hecho a mano',
-      description: 'Cada pieza es creada con dedicación y técnicas artesanales tradicionales que han pasado de generación en generación.'
+      description: 'Cada par es creado por maestros artesanos expertos que trabajan con técnica, dedicación y sensibilidad dando vida a piezas con carácter propio.'
     },
     {
       icon: Gem,
-      title: 'Materiales nobles',
-      description: 'Seleccionamos cuidadosamente materiales de la más alta calidad, priorizando la sostenibilidad y la durabilidad.'
+      title: 'Materiales',
+      description: 'Seleccionamos pieles premium, dándole a este material una doble vida, siendo sostenible por naturaleza y durable a través de los años. La calidad de nuestra selección asegura suavidad, comodidad y un acabado impecable que se perfecciona con el uso.'
     },
     {
       icon: Clock,
       title: 'Diseño atemporal',
-      description: 'Creamos piezas que trascienden las tendencias, diseñadas para acompañarte durante años con elegancia.'
+      description: 'Nuestras siluetas combinan autenticidad, creatividad y estética, con modelos que trascienden tendencias y acompañan el momento perfecto. Creamos statement pieces.'
     }
   ];
 

@@ -6,30 +6,22 @@ export default function PhilosophySection() {
           {/* Text Content */}
           <div className="space-y-8 animate-slide-up">
             <h2 className="font-serif font-light text-4xl lg:text-5xl text-charcoal leading-tight">
-              Nuestra
+              Un poquito
               <br />
-              Filosofía
+              sobre nosotros
             </h2>
 
             <div className="space-y-6 text-warm-gray text-lg font-light leading-relaxed">
               <p>
-                En H de Helena creemos que el verdadero lujo reside en la
-                <em className="font-serif text-charcoal"> autenticidad y la artesanía</em>.
-                Cada pieza que creamos es una celebración de las técnicas
-                tradicionales y la belleza de lo hecho a mano.
+                H de Helena nació con el sueño de reinventar el calzado mexicano, siendo una firma que celebra la autenticidad a través de piezas creadas a mano, utilizando pieles de la más alta calidad y una visión estética que fusiona color, textura y diseño atemporal. Cada par es el resultado de manos expertas y de un enfoque particular a ser unicos, pensados para acompañar historias personales, recorridos significativos y momentos que se convierten en memoria.
               </p>
 
               <p>
-                Nuestro compromiso va más allá de crear objetos hermosos;
-                buscamos preservar un legado de maestría artesanal mientras
-                diseñamos piezas que se integren naturalmente en la vida moderna.
+                Nuestros zapatos nunca pasan desapercibidos, te impulsan a vivir la autenticidad de cada momento.
               </p>
 
               <p>
-                Creemos en el <em className="font-serif text-charcoal">lujo accesible</em>,
-                en piezas que cuentan historias y que están hechas para durar,
-                trascendiendo las tendencias pasajeras para convertirse en
-                compañeros atemporales de tu estilo personal.
+                Me encanta pensar que detrás de cada par que alguien compra está la creatividad, entrega y trabajo de un equipo de personas apasionadas por lo que hacemos, desde los bocetos, cada costura, cada herraje grabado y cada empaque.
               </p>
             </div>
 

@@ -29,20 +29,18 @@ export default function Hero({ startAnimations = true }: HeroProps) {
       {/* Content */}
       <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
         <h2 className={`font-serif font-light text-4xl md:text-6xl lg:text-7xl text-cream mb-6 text-shadow ${animationClass('animate-fade-in')}`}>
-          Lujo artesanal
+          Tus historias empiezan
           <br />
-          <span className="text-3xl md:text-5xl lg:text-6xl">para tu día a día</span>
+          <span className="text-3xl md:text-5xl lg:text-6xl">con un paso.</span>
         </h2>
 
-        <p className={`text-lg md:text-xl text-cream/90 mb-12 max-w-2xl mx-auto font-light text-shadow ${animationClass('animate-slide-up')}`}>
-          Descubre piezas únicas creadas con pasión y técnicas tradicionales
-        </p>
+
 
         <button
           onClick={scrollToCollection}
           className={`btn-primary bg-cream/10 hover:bg-cream hover:text-charcoal border-cream text-cream backdrop-blur-sm ${animationClass('animate-scale-in')}`}
         >
-          Descubre la colección
+          Encuentra tu par
         </button>
       </div>
 
