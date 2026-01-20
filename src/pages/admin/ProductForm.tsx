@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Product, ProductVariant } from '../../types';
 import { supabase } from '../../lib/supabase';
-import { X, Upload, Plus, Trash2, Loader2, Save } from 'lucide-react';
+import { X, Upload, Plus, Trash2, Loader2, Save, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface ProductFormProps {
     product?: Product | null;
@@ -17,7 +17,7 @@ export default function ProductForm({ product, onClose, onSave }: ProductFormPro
     const [name, setName] = useState(product?.name || '');
     const [price, setPrice] = useState(product?.price?.toString() || '');
     const [description, setDescription] = useState(product?.description || '');
-    const [category, setCategory] = useState<Product['category']>(product?.category || 'heels');
+    const [category, setCategory] = useState<Product['category']>(product?.category || 'zapatos-bajos');
     const [materials, setMaterials] = useState<string[]>(product?.materials || []);
     const [materialInput, setMaterialInput] = useState('');
     const [images, setImages] = useState<string[]>(product?.images || []);
@@ -154,6 +154,18 @@ export default function ProductForm({ product, onClose, onSave }: ProductFormPro
         }
     };
 
+    const moveImage = (index: number, direction: 'left' | 'right') => {
+        const newImages = [...images];
+        if (direction === 'left') {
+            if (index === 0) return;
+            [newImages[index - 1], newImages[index]] = [newImages[index], newImages[index - 1]];
+        } else {
+            if (index === images.length - 1) return;
+            [newImages[index], newImages[index + 1]] = [newImages[index + 1], newImages[index]];
+        }
+        setImages(newImages);
+    };
+
     return (
         <div className="fixed inset-0 z-50 overflow-hidden flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
             <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
@@ -228,12 +240,9 @@ export default function ProductForm({ product, onClose, onSave }: ProductFormPro
                                         onChange={e => setCategory(e.target.value as any)}
                                         className="w-full p-2 border border-stone/20 rounded focus:border-charcoal outline-none bg-white"
                                     >
-                                        <option value="flats">Flats</option>
-                                        <option value="heels">Tacones</option>
-                                        <option value="boots">Botas/Botines</option>
-                                        <option value="sneakers">Sneakers</option>
-                                        <option value="sandals">Sandalias</option>
-                                        <option value="wedges">Plataformas</option>
+                                        <option value="zapatos-bajos">Zapatos bajos</option>
+                                        <option value="zapatos-altos">Zapatos Altos</option>
+                                        <option value="botas">Botas</option>
                                     </select>
                                 </div>
 
@@ -372,14 +381,37 @@ export default function ProductForm({ product, onClose, onSave }: ProductFormPro
                                     {images.map((img, idx) => (
                                         <div key={idx} className="relative aspect-[4/5] bg-stone/10 rounded overflow-hidden group">
                                             <img src={img} alt="" className="w-full h-full object-cover" />
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                                {idx > 0 && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => moveImage(idx, 'left')}
+                                                        className="p-1.5 bg-white/20 hover:bg-white/40 text-white rounded-full transition-colors backdrop-blur-sm"
+                                                        title="Mover a la izquierda"
+                                                    >
+                                                        <ChevronLeft size={16} />
+                                                    </button>
+                                                )}
+
                                                 <button
                                                     type="button"
                                                     onClick={() => setImages(images.filter((_, i) => i !== idx))}
-                                                    className="p-2 bg-red-600 text-white rounded-full hover:bg-red-700"
+                                                    className="p-2 bg-red-600/80 text-white rounded-full hover:bg-red-700 transition-colors"
+                                                    title="Eliminar"
                                                 >
                                                     <Trash2 size={16} />
                                                 </button>
+
+                                                {idx < images.length - 1 && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => moveImage(idx, 'right')}
+                                                        className="p-1.5 bg-white/20 hover:bg-white/40 text-white rounded-full transition-colors backdrop-blur-sm"
+                                                        title="Mover a la derecha"
+                                                    >
+                                                        <ChevronRight size={16} />
+                                                    </button>
+                                                )}
                                             </div>
                                             {idx === 0 && (
                                                 <div className="absolute top-2 left-2 px-2 py-1 bg-charcoal/80 text-white text-xs rounded">Principal</div>

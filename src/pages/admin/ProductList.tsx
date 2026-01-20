@@ -163,7 +163,9 @@ export default function ProductList() {
                                         </td>
                                         <td className="p-4">
                                             <span className="capitalize px-2 py-1 bg-stone/10 text-warm-gray text-xs rounded-full">
-                                                {product.category}
+                                                {product.category === 'zapatos-bajos' ? 'Zapatos bajos' :
+                                                    product.category === 'zapatos-altos' ? 'Zapatos Altos' :
+                                                        product.category === 'botas' ? 'Botas' : product.category}
                                             </span>
                                         </td>
                                         <td className="p-4 font-medium text-charcoal">${product.price}</td>

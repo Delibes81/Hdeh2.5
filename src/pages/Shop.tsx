@@ -17,12 +17,9 @@ export default function Shop({ onAddToCart, onProductClick }: ShopProps) {
 
     const categories = [
         { key: 'all', label: 'Todos los Estilos', icon: ' ✨' },
-        { key: 'heels', label: 'Tacones', icon: '👠' },
-        { key: 'boots', label: 'Botas', icon: '🥾' },
-        { key: 'flats', label: 'Flats', icon: '🥿' },
-        { key: 'sandals', label: 'Sandalias', icon: '👡' },
-        { key: 'sneakers', label: 'Tenis', icon: '👟' },
-        { key: 'wedges', label: 'Plataformas', icon: '👢' }
+        { key: 'zapatos-bajos', label: 'Zapatos bajos', icon: '🥿' },
+        { key: 'zapatos-altos', label: 'Zapatos Altos', icon: '👠' },
+        { key: 'botas', label: 'Botas', icon: '🥾' }
     ];
 
     if (loading) {

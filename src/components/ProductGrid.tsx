@@ -15,13 +15,9 @@ export default function ProductGrid({ onAddToCart, onProductClick, limit }: Prod
 
   const categories = [
     { key: 'all', label: 'Todo' },
-    { key: 'heels', label: 'Tacones' },
-    { key: 'boots', label: 'Botas' },
-    { key: 'flats', label: 'Flats' },
-    { key: 'loafers', label: 'Mocasines' },
-    { key: 'sandals', label: 'Sandalias' },
-    { key: 'sneakers', label: 'Tenis' },
-    { key: 'wedges', label: 'Plataformas' }
+    { key: 'zapatos-bajos', label: 'Zapatos bajos' },
+    { key: 'zapatos-altos', label: 'Zapatos Altos' },
+    { key: 'botas', label: 'Botas' }
   ];
 
   if (loading) {

@@ -5,7 +5,7 @@ export const products: Product[] = [
     id: '2',
     name: 'Botines Boho Chic',
     price: 4200,
-    category: 'boots',
+    category: 'botas',
     images: [
       '/images/product-boots-brown-1.jpg',
       '/images/product-boots-brown-1.jpg'
@@ -19,7 +19,7 @@ export const products: Product[] = [
     id: '4',
     name: 'Sandalias Verano Natural',
     price: 2800,
-    category: 'sandals',
+    category: 'zapatos-bajos',
     images: [
       '/images/product-heels-brown-1.jpg',
       '/images/product-heels-brown-2.jpg'
@@ -32,7 +32,7 @@ export const products: Product[] = [
     id: '5',
     name: 'Ballerinas Bicolores',
     price: 3100,
-    category: 'flats',
+    category: 'zapatos-bajos',
     images: [
       '/images/product-flats-beige-1.jpg',
       '/images/product-flats-beige-2.jpg'
@@ -46,7 +46,7 @@ export const products: Product[] = [
     id: '6',
     name: 'Tacones de Fiesta Boho',
     price: 3900,
-    category: 'heels',
+    category: 'zapatos-altos',
     images: [
       '/images/product-heels-brown-2.jpg',
       '/images/product-heels-brown-1.jpg'
@@ -59,7 +59,7 @@ export const products: Product[] = [
     id: '7',
     name: 'Mocasines Crema Clásicos',
     price: 3200,
-    category: 'loafers',
+    category: 'zapatos-bajos',
     images: [
       '/images/product-loafers-cream.jpg',
       '/images/product-loafers-cream.jpg'
@@ -73,7 +73,7 @@ export const products: Product[] = [
     id: '8',
     name: 'Tacones Estampados',
     price: 3600,
-    category: 'heels',
+    category: 'zapatos-altos',
     images: [
       '/images/product-heels-pattern.jpg',
       '/images/product-heels-pattern.jpg'
@@ -87,7 +87,7 @@ export const products: Product[] = [
     id: '9',
     name: 'Flats Tan Natural',
     price: 2900,
-    category: 'flats',
+    category: 'zapatos-bajos',
     images: [
       '/images/product-flats-tan.jpg',
       '/images/product-flats-tan.jpg'
@@ -100,7 +100,7 @@ export const products: Product[] = [
     id: '10',
     name: 'Botines Tan Esenciales',
     price: 4100,
-    category: 'boots',
+    category: 'botas',
     images: [
       '/images/product-flats-pink.png',
       '/images/product-flats-pink.png'
@@ -114,7 +114,7 @@ export const products: Product[] = [
     id: '12',
     name: 'Mocasines Navy Elegance',
     price: 3300,
-    category: 'loafers',
+    category: 'zapatos-bajos',
     images: [
       '/images/product-loafers-navy.jpg',
       '/images/product-loafers-navy.jpg'
@@ -127,7 +127,7 @@ export const products: Product[] = [
     id: '13',
     name: 'Botines Burgundy',
     price: 4300,
-    category: 'boots',
+    category: 'botas',
     images: [
       '/images/product-boots-burgundy.jpg',
       '/images/product-boots-burgundy.jpg'
@@ -141,7 +141,7 @@ export const products: Product[] = [
     id: '14',
     name: 'Mocasines Crema Detalle',
     price: 3250,
-    category: 'loafers',
+    category: 'zapatos-bajos',
     images: [
       '/images/product-loafers-cream-2.jpg',
       '/images/product-loafers-cream-2.jpg'
@@ -154,7 +154,7 @@ export const products: Product[] = [
     id: '15',
     name: 'Tacones Verde Olivo',
     price: 3800,
-    category: 'heels',
+    category: 'zapatos-altos',
     images: [
       '/images/product-heels-green.jpg',
       '/images/product-heels-green.jpg'
