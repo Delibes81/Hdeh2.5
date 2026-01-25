@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Product } from '../../types';
-import { Edit, Trash2, Plus, Search, Loader2 } from 'lucide-react';
+import { Edit, Trash2, Plus, Search, Loader2, ArrowUpDown, ChevronDown } from 'lucide-react';
 import ProductForm from './ProductForm';
 
 export default function ProductList() {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [sortOption, setSortOption] = useState('date-desc');
 
     // Modal State
     const [isFormOpen, setIsFormOpen] = useState(false);
@@ -89,7 +90,24 @@ export default function ProductList() {
     const filteredProducts = products.filter(product =>
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.category.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    ).sort((a, b) => {
+        switch (sortOption) {
+            case 'price-asc':
+                return a.price - b.price;
+            case 'price-desc':
+                return b.price - a.price;
+            case 'name-asc':
+                return a.name.localeCompare(b.name);
+            case 'name-desc':
+                return b.name.localeCompare(a.name);
+            case 'stock-asc':
+                return calculateTotalStock(a) - calculateTotalStock(b);
+            case 'stock-desc':
+                return calculateTotalStock(b) - calculateTotalStock(a);
+            default:
+                return 0; // Keep original order (created_at desc from query)
+        }
+    });
 
     if (loading && products.length === 0) {
         return (
@@ -114,9 +132,9 @@ export default function ProductList() {
             </div>
 
             <div className="bg-white rounded-lg border border-stone/20 overflow-hidden">
-                {/* Search Bar */}
-                <div className="p-4 border-b border-stone/10 bg-stone/5">
-                    <div className="relative max-w-md">
+                {/* Filter Bar */}
+                <div className="p-4 border-b border-stone/10 bg-stone/5 flex flex-col md:flex-row gap-4 justify-between">
+                    <div className="relative max-w-md w-full">
                         <Search className="absolute left-3 top-2.5 text-warm-gray/50" size={18} />
                         <input
                             type="text"
@@ -125,6 +143,24 @@ export default function ProductList() {
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
+                    </div>
+
+                    <div className="relative w-full md:w-48">
+                        <ArrowUpDown className="absolute left-3 top-2.5 text-warm-gray/50" size={18} />
+                        <select
+                            value={sortOption}
+                            onChange={(e) => setSortOption(e.target.value)}
+                            className="w-full pl-10 pr-8 py-2 border border-stone/20 rounded bg-white appearance-none cursor-pointer focus:outline-none focus:border-charcoal text-sm text-charcoal"
+                        >
+                            <option value="date-desc">Más recientes</option>
+                            <option value="price-asc">Menor Precio</option>
+                            <option value="price-desc">Mayor Precio</option>
+                            <option value="stock-asc">Menor Stock</option>
+                            <option value="stock-desc">Mayor Stock</option>
+                            <option value="name-asc">Nombre (A-Z)</option>
+                            <option value="name-desc">Nombre (Z-A)</option>
+                        </select>
+                        <ChevronDown className="absolute right-3 top-2.5 text-warm-gray/50 pointer-events-none" size={16} />
                     </div>
                 </div>
 

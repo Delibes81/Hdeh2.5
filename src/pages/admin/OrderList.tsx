@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Package, Calendar, MapPin, ChevronDown, ChevronUp, LogOut } from 'lucide-react';
+import { Package, Calendar, MapPin, ChevronDown, ChevronUp, Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface OrderItem {
     id: string;
@@ -38,6 +38,15 @@ export default function OrderList() {
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+
+    // Filter & Sort State
+    const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('all');
+    const [sortOption, setSortOption] = useState('date-desc');
+
+    // Pagination State
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(10);
 
     useEffect(() => {
         fetchOrders();
@@ -77,31 +86,43 @@ export default function OrderList() {
         }
     };
 
-    const deleteOrder = async (orderId: string) => {
-        if (!confirm('¿Estás seguro de eliminar este pedido duplicado?')) return;
+    // --- Filter & Sort Logic ---
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, statusFilter, sortOption]);
 
-        try {
-            // First delete order items (FK constraint)
-            const { error: itemsError } = await supabase
-                .from('order_items')
-                .delete()
-                .eq('order_id', orderId);
+    const filteredOrders = orders.filter((order) => {
+        const matchesSearch =
+            order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            order.contact_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            order.shipping_address?.name?.toLowerCase().includes(searchTerm.toLowerCase());
 
-            if (itemsError) throw itemsError;
+        const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
 
-            // Then delete the order
-            const { error } = await supabase
-                .from('orders')
-                .delete()
-                .eq('id', orderId);
-
-            if (error) throw error;
-            fetchOrders();
-        } catch (error) {
-            console.error('Error deleting order:', error);
-            alert('Error al eliminar el pedido: ' + (error as any).message);
+        return matchesSearch && matchesStatus;
+    }).sort((a, b) => {
+        switch (sortOption) {
+            case 'date-asc':
+                return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+            case 'date-desc':
+                return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+            case 'amount-asc':
+                return a.total_amount - b.total_amount;
+            case 'amount-desc':
+                return b.total_amount - a.total_amount;
+            default:
+                return 0;
         }
-    };
+    });
+
+    // --- Pagination Logic ---
+    const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+    const paginatedOrders = filteredOrders.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+
 
     const updateStatus = async (orderId: string, newStatus: string) => {
         console.log(`Updating status for ${orderId} to ${newStatus}`);
@@ -141,25 +162,70 @@ export default function OrderList() {
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h2 className="text-2xl font-serif text-charcoal">Pedidos</h2>
                     <p className="text-warm-gray text-sm mt-1">Gestiona tus ventas y envíos</p>
                 </div>
                 <div className="bg-white px-4 py-2 rounded-lg border border-stone/10 text-sm font-medium text-charcoal">
-                    Total: {orders.length} pedidos
+                    Total: {filteredOrders.length} pedidos
+                </div>
+            </div>
+
+            {/* Controls Bar */}
+            <div className="bg-white p-4 rounded-xl border border-stone/10 flex flex-col md:flex-row gap-4 items-center justify-between shadow-sm">
+                <div className="relative w-full md:w-96">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-warm-gray" size={18} />
+                    <input
+                        type="text"
+                        placeholder="Buscar por ID, email o nombre..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2 bg-stone/5 border-none rounded-lg focus:ring-1 focus:ring-charcoal/20 text-sm"
+                    />
+                </div>
+
+                <div className="flex gap-2 w-full md:w-auto">
+                    <div className="relative flex-1 md:flex-none">
+                        <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-warm-gray" size={16} />
+                        <select
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                            className="w-full pl-9 pr-8 py-2 bg-stone/5 border-none rounded-lg text-sm appearance-none cursor-pointer focus:ring-1 focus:ring-charcoal/20"
+                        >
+                            <option value="all">Todos los estados</option>
+                            <option value="paid">Pagado</option>
+                            <option value="enviado">Enviado</option>
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-warm-gray pointer-events-none" size={14} />
+                    </div>
+
+                    <div className="relative flex-1 md:flex-none">
+                        <ArrowUpDown className="absolute left-3 top-1/2 -translate-y-1/2 text-warm-gray" size={16} />
+                        <select
+                            value={sortOption}
+                            onChange={(e) => setSortOption(e.target.value)}
+                            className="w-full pl-9 pr-8 py-2 bg-stone/5 border-none rounded-lg text-sm appearance-none cursor-pointer focus:ring-1 focus:ring-charcoal/20"
+                        >
+                            <option value="date-desc">Más recientes</option>
+                            <option value="date-asc">Más antiguos</option>
+                            <option value="amount-desc">Mayor precio</option>
+                            <option value="amount-asc">Menor precio</option>
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-warm-gray pointer-events-none" size={14} />
+                    </div>
                 </div>
             </div>
 
             <div className="bg-white rounded-xl shadow-sm border border-stone/10 overflow-hidden">
-                {orders.length === 0 ? (
+                {paginatedOrders.length === 0 ? (
                     <div className="p-12 text-center text-warm-gray flex flex-col items-center">
                         <Package size={48} className="mb-4 opacity-30" />
                         <p className="text-lg">No hay pedidos aún.</p>
                     </div>
                 ) : (
                     <div className="divide-y divide-stone/10">
-                        {orders.map((order) => (
+                        {paginatedOrders.map((order) => (
                             <div key={order.id} className="transition-colors hover:bg-stone/5">
                                 {/* Order Summary Row */}
                                 <div
@@ -199,16 +265,7 @@ export default function OrderList() {
                                                 Marcar Enviado
                                             </button>
                                         )}
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                deleteOrder(order.id);
-                                            }}
-                                            className="p-1 text-gray-400 hover:text-red-600 transition-colors"
-                                            title="Eliminar Pedido"
-                                        >
-                                            <LogOut size={16} className="rotate-180" />
-                                        </button>
+
                                     </div>
 
                                     <div className="text-right min-w-[100px]">
@@ -286,6 +343,34 @@ export default function OrderList() {
                                 )}
                             </div>
                         ))}
+                    </div>
+                )}
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                    <div className="p-4 border-t border-stone/10 flex justify-between items-center bg-stone/5">
+                        <p className="text-sm text-warm-gray">
+                            Mostrando {(currentPage - 1) * itemsPerPage + 1} a {Math.min(currentPage * itemsPerPage, filteredOrders.length)} de {filteredOrders.length}
+                        </p>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                                className="p-2 bg-white border border-stone/10 rounded-lg hover:bg-stone/5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                                <ChevronLeft size={16} />
+                            </button>
+                            <span className="flex items-center px-3 text-sm font-medium text-charcoal bg-white border border-stone/10 rounded-lg">
+                                {currentPage} / {totalPages}
+                            </span>
+                            <button
+                                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                                disabled={currentPage === totalPages}
+                                className="p-2 bg-white border border-stone/10 rounded-lg hover:bg-stone/5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                                <ChevronRight size={16} />
+                            </button>
+                        </div>
                     </div>
                 )}
             </div>
