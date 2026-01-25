@@ -1,15 +1,16 @@
-import { LogOut, Package, ShoppingBag, Settings } from 'lucide-react';
+import { LogOut, Package, ShoppingBag, Settings, LayoutDashboard } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import OrderList from './OrderList';
 import ProductList from './ProductList';
+import DashboardHome from './DashboardHome';
 import { useState } from 'react';
 
-type View = 'products' | 'orders' | 'settings';
+type View = 'home' | 'products' | 'orders' | 'settings';
 
 export default function Dashboard() {
     const navigate = useNavigate();
-    const [currentView, setCurrentView] = useState<View>('products');
+    const [currentView, setCurrentView] = useState<View>('home');
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
@@ -39,6 +40,7 @@ export default function Dashboard() {
                 </div>
 
                 <nav className="flex-1 p-4 space-y-2">
+                    <NavItem view="home" icon={LayoutDashboard} label="Inicio" />
                     <NavItem view="products" icon={Package} label="Productos" />
                     <NavItem view="orders" icon={ShoppingBag} label="Pedidos" />
                     <NavItem view="settings" icon={Settings} label="Configuración" />
@@ -64,6 +66,7 @@ export default function Dashboard() {
                 </div>
 
                 <div className="p-6 md:p-8 max-w-7xl mx-auto">
+                    {currentView === 'home' && <DashboardHome />}
                     {currentView === 'products' && <ProductList />}
 
                     {currentView === 'orders' && <OrderList />}
