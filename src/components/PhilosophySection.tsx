@@ -35,7 +35,7 @@ export default function PhilosophySection() {
             <div className="pt-4">
               <div className="w-16 h-px bg-warm-gray/30 mb-4"></div>
               <p className="text-sm text-warm-gray font-medium tracking-wide uppercase">
-                Helena Navarrete, Fundadora
+                Helena, Fundadora
               </p>
             </div>
           </div>
@@ -50,9 +50,6 @@ export default function PhilosophySection() {
             <div className={`absolute -bottom-12 -left-12 bg-white p-8 max-w-xs shadow-xl hidden md:block transition-all duration-1000 delay-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
               <p className="font-serif text-xl italic text-charcoal mb-4">
                 "La verdadera elegancia está en los detalles que nadie ve, pero que todos sienten."
-              </p>
-              <p className="text-sm text-warm-gray uppercase tracking-widest">
-                Helena Navarrete
               </p>
             </div>
           </div>

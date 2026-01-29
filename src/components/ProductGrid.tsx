@@ -44,9 +44,6 @@ export default function ProductGrid({ onAddToCart, onProductClick, limit }: Prod
           <h2 className="font-serif font-light text-4xl lg:text-5xl text-charcoal mb-6">
             Nuestra Colección
           </h2>
-          <p className="text-warm-gray text-lg lg:text-xl font-light max-w-2xl mx-auto">
-            Cada pieza cuenta una historia de tradición y elegancia atemporal
-          </p>
         </div>
 
         {/* Category Filter */}
