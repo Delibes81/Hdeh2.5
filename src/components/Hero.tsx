@@ -18,11 +18,14 @@ export default function Hero({ startAnimations = true }: HeroProps) {
     <section id="home" className="relative h-screen flex items-center justify-center overflow-hidden">
       {/* Hero Image */}
       <div className="absolute inset-0">
-        <img
-          src="/images/Herohdeh.webp"
-          alt="Artesanía elegante"
-          className="w-full h-full object-cover object-left"
-        />
+        <picture>
+          <source media="(min-width: 768px)" srcSet="/images/Herohdeh.webp" />
+          <img
+            src="/images/hdehmobilehero.webp"
+            alt="Artesanía elegante"
+            className="w-full h-full object-cover object-left"
+          />
+        </picture>
         <div className="absolute inset-0 bg-black/20"></div>
       </div>
 
