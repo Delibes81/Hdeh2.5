@@ -21,6 +21,8 @@ export default function ProductForm({ product, onClose, onSave }: ProductFormPro
     const [materials, setMaterials] = useState<string[]>(product?.materials || []);
     const [materialInput, setMaterialInput] = useState('');
     const [images, setImages] = useState<string[]>(product?.images || []);
+    const [isFeatured, setIsFeatured] = useState(product?.isFeatured || false);
+    const [featuredOrder, setFeaturedOrder] = useState(product?.featuredOrder?.toString() || '0');
     const [uploading, setUploading] = useState(false);
 
     // Variants State
@@ -43,7 +45,8 @@ export default function ProductForm({ product, onClose, onSave }: ProductFormPro
                 images,
                 // Default flags
                 is_handcrafted: product?.isHandcrafted ?? true,
-                is_featured: product?.isFeatured ?? false,
+                is_featured: isFeatured,
+                featured_order: parseInt(featuredOrder) || 0,
             };
 
             let productId = product?.id;
@@ -245,6 +248,31 @@ export default function ProductForm({ product, onClose, onSave }: ProductFormPro
                                         <option value="botas">Botas</option>
                                     </select>
                                 </div>
+                                <div className="flex items-center gap-2 pt-6">
+                                    <input
+                                        type="checkbox"
+                                        id="isFeatured"
+                                        checked={isFeatured}
+                                        onChange={e => setIsFeatured(e.target.checked)}
+                                        className="w-4 h-4 text-charcoal border-stone/20 rounded focus:ring-charcoal"
+                                    />
+                                    <label htmlFor="isFeatured" className="text-sm font-medium text-charcoal cursor-pointer">
+                                        Destacado (Mostrar en Inicio)
+                                    </label>
+
+                                    {isFeatured && (
+                                        <div className="ml-8 flex items-center gap-2">
+                                            <label className="text-sm font-medium text-warm-gray">Orden:</label>
+                                            <input
+                                                type="number"
+                                                value={featuredOrder}
+                                                onChange={e => setFeaturedOrder(e.target.value)}
+                                                className="w-16 p-1 border border-stone/20 rounded focus:border-charcoal outline-none text-center"
+                                            />
+                                            <span className="text-xs text-warm-gray">(1 = Primero)</span>
+                                        </div>
+                                    )}
+                                </div>
 
                                 <div>
                                     <label className="block text-sm font-medium text-warm-gray mb-1">Descripción</label>
@@ -371,6 +399,7 @@ export default function ProductForm({ product, onClose, onSave }: ProductFormPro
                                                 <Upload className="text-warm-gray mb-2" size={24} />
                                             )}
                                             <p className="mb-2 text-sm text-warm-gray"><span className="font-semibold text-charcoal">Haz clic para subir imagen</span></p>
+                                            <p className="text-xs text-warm-gray/60">Formato sugerido: Vertical (4:5)</p>
                                             <p className="text-xs text-warm-gray/60">PNG, JPG (MAX. 2MB)</p>
                                         </div>
                                         <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploading} />

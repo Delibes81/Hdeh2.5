@@ -86,15 +86,18 @@ export default function ProductModal({
       />
 
       {/* Modal */}
-      <div className="relative h-full flex items-center justify-center p-4">
-        <div className="bg-cream rounded-lg shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden animate-scale-in">
+      <div className="relative h-full flex items-center justify-center p-4" onClick={onClose}>
+        <div
+          className="bg-cream rounded-lg shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden animate-scale-in"
+          onClick={(e) => e.stopPropagation()}
+        >
           <div className="grid grid-cols-1 lg:grid-cols-2 h-full max-h-[90vh]">
             {/* Image Gallery */}
-            <div className="relative bg-stone/10 h-[40vh] lg:h-auto">
+            <div className="relative bg-white h-[40vh] lg:h-auto">
               <img
                 src={product.images[currentImageIndex]}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain p-8"
               />
 
               {/* Image Navigation */}
@@ -144,11 +147,7 @@ export default function ProductModal({
               <div className="space-y-6">
                 {/* Badges */}
                 <div className="flex items-center space-x-3">
-                  {product.isHandcrafted && (
-                    <span className="bg-stone text-charcoal px-3 py-1 text-xs font-medium tracking-wide">
-                      Artesanal
-                    </span>
-                  )}
+
                   {product.isFeatured && (
                     <span className="bg-soft-pink text-charcoal px-3 py-1 text-xs font-medium tracking-wide">
                       Destacado

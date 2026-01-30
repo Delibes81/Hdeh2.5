@@ -312,12 +312,12 @@ export default function OrderList() {
                                                 <div className="space-y-3">
                                                     {order.order_items.map((item) => (
                                                         <div key={item.id} className="flex gap-4 bg-white p-3 rounded-lg border border-stone/10">
-                                                            <div className="w-12 h-16 bg-stone/10 rounded overflow-hidden flex-shrink-0">
+                                                            <div className="w-12 aspect-[4/5] bg-white rounded overflow-hidden flex-shrink-0">
                                                                 {item.products?.images?.[0] ? (
                                                                     <img
                                                                         src={item.products.images[0]}
                                                                         alt={item.products.name}
-                                                                        className="w-full h-full object-cover"
+                                                                        className="w-full h-full object-contain p-1"
                                                                     />
                                                                 ) : (
                                                                     <div className="w-full h-full bg-gray-200 flex items-center justify-center text-xs text-gray-400">Sin img</div>

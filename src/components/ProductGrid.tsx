@@ -31,7 +31,16 @@ export default function ProductGrid({ onAddToCart, onProductClick, limit }: Prod
     ? products
     : products.filter(product => product.category === selectedCategory);
 
-  const filteredProducts = limit ? allFilteredProducts.slice(0, limit) : allFilteredProducts;
+  // If a limit is set (like on Home page), prioritize featured products and sort them by order
+  const productsToDisplay = limit
+    ? allFilteredProducts
+      .filter(p => p.isFeatured)
+      .sort((a, b) => (a.featuredOrder || 0) - (b.featuredOrder || 0))
+      .concat(allFilteredProducts.filter(p => !p.isFeatured))
+      .slice(0, limit)
+    : allFilteredProducts;
+
+  const filteredProducts = productsToDisplay;
 
   return (
     <section id="collection" className="py-24 lg:py-32 bg-cream">
@@ -63,7 +72,7 @@ export default function ProductGrid({ onAddToCart, onProductClick, limit }: Prod
         </div>
 
         {/* Products Grid */}
-        <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12 lg:gap-16">
+        <div ref={gridRef} className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8 lg:gap-16">
           {filteredProducts.map((product, index) => (
             <ProductCard
               key={product.id}

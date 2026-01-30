@@ -29,6 +29,7 @@ export function useProducts() {
                         description: item.description,
                         isHandcrafted: item.is_handcrafted,
                         isFeatured: item.is_featured,
+                        featuredOrder: item.featured_order || 0,
                         materials: item.materials || [],
                         dimensions: item.dimensions,
                         variants: item.variants || []

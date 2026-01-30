@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Product } from '../../types';
-import { Edit, Trash2, Plus, Search, Loader2, ArrowUpDown, ChevronDown } from 'lucide-react';
+import { Edit, Trash2, Plus, Search, Loader2, ArrowUpDown, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductForm from './ProductForm';
 
 export default function ProductList() {
@@ -13,6 +13,10 @@ export default function ProductList() {
     // Modal State
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+
+    // Pagination
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     useEffect(() => {
         fetchProducts();
@@ -41,6 +45,7 @@ export default function ProductList() {
                 description: item.description,
                 isHandcrafted: item.is_handcrafted,
                 isFeatured: item.is_featured,
+                featuredOrder: item.featured_order || 0,
                 materials: item.materials || [],
                 dimensions: item.dimensions,
                 variants: item.variants || []
@@ -141,7 +146,10 @@ export default function ProductList() {
                             placeholder="Buscar por nombre o categoría..."
                             className="w-full pl-10 pr-4 py-2 border border-stone/20 rounded focus:outline-none focus:border-charcoal"
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onChange={(e) => {
+                                setSearchTerm(e.target.value);
+                                setCurrentPage(1); // Reset to first page on filter change
+                            }}
                         />
                     </div>
 
@@ -177,64 +185,71 @@ export default function ProductList() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-stone/10">
-                            {filteredProducts.map(product => {
-                                const totalStock = calculateTotalStock(product);
-                                const isLowStock = totalStock < 5;
-                                const isOutStock = totalStock === 0;
+                            {/* Pagination Logic */}
+                            {(() => {
+                                const indexOfLastItem = currentPage * itemsPerPage;
+                                const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+                                const currentItems = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
 
-                                return (
-                                    <tr key={product.id} className="hover:bg-off-white/50 transition-colors">
-                                        <td className="p-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-12 h-12 bg-stone/10 rounded overflow-hidden flex-shrink-0">
-                                                    {product.images[0] && (
-                                                        <img src={product.images[0]} alt="" className="w-full h-full object-cover" />
-                                                    )}
+                                return currentItems.map(product => {
+                                    const totalStock = calculateTotalStock(product);
+                                    const isLowStock = totalStock < 5;
+                                    const isOutStock = totalStock === 0;
+
+                                    return (
+                                        <tr key={product.id} className="hover:bg-off-white/50 transition-colors">
+                                            <td className="p-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-12 aspect-[4/5] bg-white rounded overflow-hidden flex-shrink-0">
+                                                        {product.images[0] && (
+                                                            <img src={product.images[0]} alt="" className="w-full h-full object-contain p-1" />
+                                                        )}
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-medium text-charcoal">{product.name}</p>
+                                                        <p className="text-xs text-warm-gray truncate max-w-[200px]">{product.description}</p>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <p className="font-medium text-charcoal">{product.name}</p>
-                                                    <p className="text-xs text-warm-gray truncate max-w-[200px]">{product.description}</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="p-4">
-                                            <span className="capitalize px-2 py-1 bg-stone/10 text-warm-gray text-xs rounded-full">
-                                                {product.category === 'zapatos-bajos' ? 'Zapatos bajos' :
-                                                    product.category === 'zapatos-altos' ? 'Zapatos Altos' :
-                                                        product.category === 'botas' ? 'Botas' : product.category}
-                                            </span>
-                                        </td>
-                                        <td className="p-4 font-medium text-charcoal">${product.price}</td>
-                                        <td className="p-4">
-                                            <div className="flex items-center gap-2">
-                                                <span className={`w-2 h-2 rounded-full ${isOutStock ? 'bg-red-500' : isLowStock ? 'bg-amber-500' : 'bg-emerald-500'}`}></span>
-                                                <span className={isOutStock ? 'text-red-600' : isLowStock ? 'text-amber-600' : 'text-emerald-700'}>
-                                                    {totalStock} unidades
+                                            </td>
+                                            <td className="p-4">
+                                                <span className="capitalize px-2 py-1 bg-stone/10 text-warm-gray text-xs rounded-full">
+                                                    {product.category === 'zapatos-bajos' ? 'Zapatos bajos' :
+                                                        product.category === 'zapatos-altos' ? 'Zapatos Altos' :
+                                                            product.category === 'botas' ? 'Botas' : product.category}
                                                 </span>
-                                            </div>
-                                            <div className="text-xs text-warm-gray mt-1">
-                                                {product.variants?.map(v => `${v.size.replace(' MX', '')}: ${v.stock}`).join(', ')}
-                                            </div>
-                                        </td>
-                                        <td className="p-4 text-right">
-                                            <div className="flex justify-end gap-2">
-                                                <button
-                                                    onClick={() => handleEdit(product)}
-                                                    className="p-2 text-warm-gray hover:text-charcoal hover:bg-stone/10 rounded transition-colors"
-                                                >
-                                                    <Edit size={18} />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(product.id)}
-                                                    className="p-2 text-warm-gray hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-                                                >
-                                                    <Trash2 size={18} />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
+                                            </td>
+                                            <td className="p-4 font-medium text-charcoal">${product.price}</td>
+                                            <td className="p-4">
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`w-2 h-2 rounded-full ${isOutStock ? 'bg-red-500' : isLowStock ? 'bg-amber-500' : 'bg-emerald-500'}`}></span>
+                                                    <span className={isOutStock ? 'text-red-600' : isLowStock ? 'text-amber-600' : 'text-emerald-700'}>
+                                                        {totalStock} unidades
+                                                    </span>
+                                                </div>
+                                                <div className="text-xs text-warm-gray mt-1">
+                                                    {product.variants?.map(v => `${v.size.replace(' MX', '')}: ${v.stock}`).join(', ')}
+                                                </div>
+                                            </td>
+                                            <td className="p-4 text-right">
+                                                <div className="flex justify-end gap-2">
+                                                    <button
+                                                        onClick={() => handleEdit(product)}
+                                                        className="p-2 text-warm-gray hover:text-charcoal hover:bg-stone/10 rounded transition-colors"
+                                                    >
+                                                        <Edit size={18} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDelete(product.id)}
+                                                        className="p-2 text-warm-gray hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                                    >
+                                                        <Trash2 size={18} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                });
+                            })()}
                         </tbody>
                     </table>
                 </div>
@@ -244,15 +259,54 @@ export default function ProductList() {
                         No se encontraron productos.
                     </div>
                 )}
+
+                {/* Pagination Controls */}
+                {filteredProducts.length > 0 && (
+                    <div className="p-4 border-t border-stone/10 flex items-center justify-between">
+                        <div className="text-sm text-warm-gray">
+                            Mostrando <span className="font-medium text-charcoal">{Math.min((currentPage * itemsPerPage), filteredProducts.length)}</span> de <span className="font-medium text-charcoal">{filteredProducts.length}</span> productos
+                        </div>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                className="p-2 border border-stone/20 rounded hover:bg-stone/5 disabled:opacity-50 disabled:cursor-not-allowed text-charcoal transition-colors"
+                            >
+                                <ChevronLeft size={18} />
+                            </button>
+                            {Array.from({ length: Math.ceil(filteredProducts.length / itemsPerPage) }).map((_, idx) => (
+                                <button
+                                    key={idx}
+                                    onClick={() => setCurrentPage(idx + 1)}
+                                    className={`w-9 h-9 border rounded text-sm font-medium transition-colors ${currentPage === idx + 1
+                                        ? 'bg-charcoal text-white border-charcoal'
+                                        : 'border-stone/20 text-charcoal hover:bg-stone/5'
+                                        }`}
+                                >
+                                    {idx + 1}
+                                </button>
+                            ))}
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(filteredProducts.length / itemsPerPage)))}
+                                disabled={currentPage === Math.ceil(filteredProducts.length / itemsPerPage)}
+                                className="p-2 border border-stone/20 rounded hover:bg-stone/5 disabled:opacity-50 disabled:cursor-not-allowed text-charcoal transition-colors"
+                            >
+                                <ChevronRight size={18} />
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
-            {isFormOpen && (
-                <ProductForm
-                    product={editingProduct}
-                    onClose={() => setIsFormOpen(false)}
-                    onSave={handleFormSave}
-                />
-            )}
-        </div>
+            {
+                isFormOpen && (
+                    <ProductForm
+                        product={editingProduct}
+                        onClose={() => setIsFormOpen(false)}
+                        onSave={handleFormSave}
+                    />
+                )
+            }
+        </div >
     );
 }

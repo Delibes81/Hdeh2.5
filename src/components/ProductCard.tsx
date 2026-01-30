@@ -30,24 +30,17 @@ export default function ProductCard({ product, onAddToCart, onProductClick, inde
     >
       {/* Product Image */}
       <div
-        className="relative aspect-[4/5] mb-6 overflow-hidden bg-stone/10"
+        className="relative aspect-[4/5] mb-6 overflow-hidden bg-white"
         onMouseEnter={handleImageChange}
       >
         <img
           src={product.images[imageIndex]}
           alt={product.name}
           onLoad={() => setImageLoaded(true)}
-          className={`w-full h-full object-cover transition-all duration-700 group-hover:scale-105 ${imageLoaded ? 'opacity-100 blur-0' : 'opacity-0 blur-sm'}`}
+          className={`w-full h-full object-contain p-4 transition-all duration-700 group-hover:scale-105 ${imageLoaded ? 'opacity-100 blur-0' : 'opacity-0 blur-sm'}`}
         />
 
-        {/* Handcrafted Badge */}
-        {product.isHandcrafted && (
-          <div className="absolute top-4 left-4">
-            <span className="bg-cream/90 text-charcoal px-3 py-1 text-xs font-medium tracking-wide backdrop-blur-sm">
-              Artesanal
-            </span>
-          </div>
-        )}
+
 
         {/* Add to Cart Button - appears on hover */}
 

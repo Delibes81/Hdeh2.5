@@ -13,6 +13,7 @@ export interface Product {
   description: string;
   isHandcrafted?: boolean;
   isFeatured?: boolean;
+  featuredOrder?: number;
   materials: string[];
   dimensions?: string;
   variants?: ProductVariant[];
