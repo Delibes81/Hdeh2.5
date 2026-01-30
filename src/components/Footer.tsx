@@ -137,7 +137,7 @@ export default function Footer() {
           <div className="max-w-7xl mx-auto px-6 lg:px-8 py-6">
             <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
               <p className="text-cream/50 text-sm font-light">
-                © 2024 H de Helena. Todos los derechos reservados.
+                © 2026 H de Helena. Todos los derechos reservados.
               </p>
 
               <div className="flex items-center space-x-6 text-sm">
