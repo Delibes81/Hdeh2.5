@@ -43,7 +43,7 @@ export default function ProductGrid({ onAddToCart, onProductClick, limit }: Prod
   const filteredProducts = productsToDisplay;
 
   return (
-    <section id="collection" className="py-24 lg:py-32 bg-cream">
+    <section id="collection" className="py-24 lg:py-32 bg-white">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Section Header */}
         <div

@@ -16,10 +16,10 @@ export default function Shop({ onAddToCart, onProductClick }: ShopProps) {
     const [searchQuery, setSearchQuery] = useState('');
 
     const categories = [
-        { key: 'all', label: 'Todos los Estilos', icon: ' ✨' },
-        { key: 'zapatos-bajos', label: 'Zapatos bajos', icon: '🥿' },
-        { key: 'zapatos-altos', label: 'Zapatos Altos', icon: '👠' },
-        { key: 'botas', label: 'Botas', icon: '🥾' }
+        { key: 'all', label: 'Todos los Estilos' },
+        { key: 'zapatos-bajos', label: 'Zapatos bajos' },
+        { key: 'zapatos-altos', label: 'Zapatos Altos' },
+        { key: 'botas', label: 'Botas' }
     ];
 
     if (loading) {
@@ -46,10 +46,11 @@ export default function Shop({ onAddToCart, onProductClick }: ShopProps) {
     });
 
     return (
-        <div className="min-h-screen bg-cream">
+        <div className="min-h-screen bg-white">
             <SEO title="Tienda" description="Explora nuestra colección completa de zapatos de piel artesanales." url="/shop" />
+
             {/* Header Section */}
-            <section className="relative py-24 lg:py-32 bg-gradient-to-br from-pale-pink via-cream to-pale-pink overflow-hidden">
+            <section className="relative pt-32 pb-12 lg:pt-40 lg:pb-16 bg-gradient-to-br from-pale-pink via-white to-pale-pink overflow-hidden">
                 <div className="absolute inset-0 opacity-5">
                     <div className="absolute top-10 left-10 w-72 h-72 bg-charcoal rounded-full blur-3xl"></div>
                     <div className="absolute bottom-10 right-10 w-96 h-96 bg-warm-gray rounded-full blur-3xl"></div>
@@ -59,17 +60,14 @@ export default function Shop({ onAddToCart, onProductClick }: ShopProps) {
                     <div className="inline-block mb-4 px-4 py-2 bg-charcoal/5 rounded-full">
                         <span className="text-sm font-medium text-charcoal tracking-widest uppercase">Nueva Temporada</span>
                     </div>
-                    <h1 className="font-serif font-light text-5xl lg:text-7xl text-charcoal mb-6">
-                        El Paso Perfecto
+                    <h1 className="font-serif font-light text-5xl lg:text-7xl text-charcoal">
+                        El Par perfecto
                     </h1>
-                    <p className="text-warm-gray text-lg lg:text-xl font-light max-w-2xl mx-auto">
-                        Descubre la colección que define tu estilo único
-                    </p>
                 </div>
             </section>
 
             {/* Search and Filters */}
-            <section className="sticky top-0 z-40 bg-cream/95 backdrop-blur-sm border-b border-warm-gray/10 shadow-sm">
+            <section className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-warm-gray/10 shadow-sm">
                 <div className="max-w-7xl mx-auto px-6 lg:px-8 py-6">
                     {/* Search Bar */}
                     <div className="mb-6">
@@ -96,7 +94,6 @@ export default function Shop({ onAddToCart, onProductClick }: ShopProps) {
                                     : 'bg-white text-warm-gray hover:bg-charcoal/5 hover:text-charcoal border border-warm-gray/20'
                                     }`}
                             >
-                                <span className="mr-2 text-base">{category.icon}</span>
                                 {category.label}
                             </button>
                         ))}

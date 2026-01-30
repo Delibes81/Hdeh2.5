@@ -1,8 +1,11 @@
+import { useLocation } from 'react-router-dom';
 import { Instagram, Mail, Phone } from 'lucide-react';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 
 export default function Footer() {
   const { elementRef, isVisible } = useIntersectionObserver();
+  const location = useLocation();
+  const isShopPage = location.pathname === '/shop';
 
   const footerLinks = {
     atención: [
@@ -21,8 +24,8 @@ export default function Footer() {
 
   return (
     <footer id="contact">
-      {/* Instagram Section - White Background */}
-      <div className="bg-white text-charcoal py-16 lg:py-24 overflow-hidden">
+      {/* Instagram Section - Conditional Background */}
+      <div className={`${isShopPage ? 'bg-cream' : 'bg-white'} text-charcoal py-16 lg:py-24 overflow-hidden`}>
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div ref={elementRef} className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left Column: Content */}
