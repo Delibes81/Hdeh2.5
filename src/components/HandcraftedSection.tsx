@@ -23,7 +23,7 @@ export default function HandcraftedSection() {
   ];
 
   return (
-    <section className="py-24 lg:py-32 bg-beige overflow-hidden">
+    <section id="process" className="py-24 lg:py-32 bg-beige overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div ref={elementRef} className="grid grid-cols-1 md:grid-cols-3 gap-16 lg:gap-24">
           {features.map((feature, index) => (

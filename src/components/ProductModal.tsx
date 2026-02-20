@@ -2,6 +2,8 @@ import { X, ChevronLeft, ChevronRight, Heart, Share2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Product } from '../types';
 
+import { formatPrice } from '../utils/format';
+
 interface ProductModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -161,7 +163,7 @@ export default function ProductModal({
                     {product.name}
                   </h1>
                   <p className="text-2xl text-warm-gray font-light">
-                    ${product.price}
+                    {formatPrice(product.price)}
                   </p>
                 </div>
 

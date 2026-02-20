@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { DollarSign, ShoppingBag, TrendingUp, AlertTriangle, Loader2, Calendar } from 'lucide-react';
+import { formatPrice } from '../../utils/format';
 
 export default function DashboardHome() {
     const [loading, setLoading] = useState(true);
@@ -161,7 +162,7 @@ export default function DashboardHome() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <StatCard
                     title="Ventas Totales"
-                    value={`$${stats.totalSales.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`}
+                    value={formatPrice(stats.totalSales)}
                     subtext="Ingresos brutos"
                     icon={DollarSign}
                     colorClass="bg-emerald-100 text-emerald-700"
@@ -175,7 +176,7 @@ export default function DashboardHome() {
                 />
                 <StatCard
                     title="Ticket Promedio"
-                    value={`$${stats.avgTicket.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`}
+                    value={formatPrice(stats.avgTicket)}
                     subtext="Por pedido"
                     icon={TrendingUp}
                     colorClass="bg-blue-100 text-blue-700"
@@ -216,11 +217,11 @@ export default function DashboardHome() {
                                     axisLine={false}
                                     tickLine={false}
                                     tick={{ fill: '#78716C', fontSize: 12 }}
-                                    tickFormatter={(value) => `$${value}`}
+                                    tickFormatter={(value) => formatPrice(value)}
                                 />
                                 <Tooltip
                                     contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                                    formatter={(value: number) => [`$${value.toFixed(2)}`, 'Ventas']}
+                                    formatter={(value: number) => [formatPrice(value || 0), 'Ventas']}
                                 />
                                 <Line
                                     type="monotone"
@@ -228,6 +229,7 @@ export default function DashboardHome() {
                                     stroke="#1C1917"
                                     strokeWidth={2}
                                     dot={{ fill: '#1C1917', r: 4 }}
+
                                     activeDot={{ r: 6 }}
                                 />
                             </LineChart>

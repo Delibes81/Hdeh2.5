@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Product } from '../types';
+import { formatPrice } from '../utils/format';
 
 interface ProductCardProps {
   product: Product;
@@ -53,7 +54,7 @@ export default function ProductCard({ product, onAddToCart, onProductClick, inde
         </h3>
 
         <p className="text-warm-gray font-light text-base">
-          ${product.price}
+          {formatPrice(product.price)}
         </p>
       </div>
     </div>

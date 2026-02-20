@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { Instagram, Mail, Phone } from 'lucide-react';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 
@@ -9,16 +9,16 @@ export default function Footer() {
 
   const footerLinks = {
     atención: [
-      { name: 'FAQ', href: '#faq' },
-      { name: 'Envíos', href: '#shipping' },
-      { name: 'Devoluciones', href: '#returns' },
-      { name: 'Cuidados', href: '#care' }
+      { name: 'FAQ', href: '/faq' },
+      { name: 'Envíos', href: '/shipping' },
+      { name: 'Devoluciones', href: '/returns' },
+      { name: 'Cuidados', href: '/care' }
     ],
     compañía: [
-      { name: 'Sobre Nosotros', href: '#about' },
-      { name: 'Proceso', href: '#process' },
-      { name: 'Sostenibilidad', href: '#sustainability' },
-      { name: 'Contacto', href: '#contact' }
+      { name: 'Sobre Nosotros', href: '/#philosophy' },
+      { name: 'Proceso', href: '/#process' },
+      { name: 'Sostenibilidad', href: '/#process' },
+      { name: 'Contacto', href: '/#contact' }
     ]
   };
 
@@ -102,12 +102,21 @@ export default function Footer() {
               <ul className="space-y-3">
                 {footerLinks.atención.map((link) => (
                   <li key={link.name}>
-                    <a
-                      href={link.href}
-                      className="text-cream/60 hover:text-cream transition-colors duration-300 font-light"
-                    >
-                      {link.name}
-                    </a>
+                    {link.href.startsWith('#') ? (
+                      <a
+                        href={link.href}
+                        className="text-cream/60 hover:text-cream transition-colors duration-300 font-light"
+                      >
+                        {link.name}
+                      </a>
+                    ) : (
+                      <Link
+                        to={link.href}
+                        className="text-cream/60 hover:text-cream transition-colors duration-300 font-light"
+                      >
+                        {link.name}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -119,12 +128,21 @@ export default function Footer() {
               <ul className="space-y-3">
                 {footerLinks.compañía.map((link) => (
                   <li key={link.name}>
-                    <a
-                      href={link.href}
-                      className="text-cream/60 hover:text-cream transition-colors duration-300 font-light"
-                    >
-                      {link.name}
-                    </a>
+                    {link.href.startsWith('#') ? (
+                      <a
+                        href={link.href}
+                        className="text-cream/60 hover:text-cream transition-colors duration-300 font-light"
+                      >
+                        {link.name}
+                      </a>
+                    ) : (
+                      <Link
+                        to={link.href}
+                        className="text-cream/60 hover:text-cream transition-colors duration-300 font-light"
+                      >
+                        {link.name}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -141,12 +159,12 @@ export default function Footer() {
               </p>
 
               <div className="flex items-center space-x-6 text-sm">
-                <a href="#privacy" className="text-cream/50 hover:text-cream/70 transition-colors duration-300">
+                <Link to="/privacy" className="text-cream/50 hover:text-cream/70 transition-colors duration-300">
                   Privacidad
-                </a>
-                <a href="#terms" className="text-cream/50 hover:text-cream/70 transition-colors duration-300">
+                </Link>
+                <Link to="/terms" className="text-cream/50 hover:text-cream/70 transition-colors duration-300">
                   Términos
-                </a>
+                </Link>
               </div>
             </div>
           </div>

@@ -3,6 +3,8 @@ import { Cart } from '../types';
 import { supabase } from '../lib/supabase';
 import { useState } from 'react';
 
+import { formatPrice } from '../utils/format';
+
 interface CartModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -109,7 +111,7 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
                       <button onClick={() => onRemoveItem(item.product.id, item.size)} className="text-xs text-red-500 hover:text-red-700 mb-1 block ml-auto">
                         Eliminar
                       </button>
-                      <p className="font-medium text-charcoal">${(item.product.price * item.quantity).toFixed(2)}</p>
+                      <p className="font-medium text-charcoal">{formatPrice(item.product.price * item.quantity)}</p>
                     </div>
                   </div>
                 </div>
@@ -123,7 +125,7 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
           <div className="p-6 border-t border-stone/10 bg-stone/5 space-y-4">
             <div className="flex justify-between items-end">
               <span className="text-warm-gray text-sm uppercase tracking-wider">Total</span>
-              <span className="text-2xl font-serif text-charcoal">${cart.total.toFixed(2)}</span>
+              <span className="text-2xl font-serif text-charcoal">{formatPrice(cart.total)}</span>
             </div>
 
             <button

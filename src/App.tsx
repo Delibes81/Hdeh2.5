@@ -13,6 +13,12 @@ import ScrollToTop from './components/ScrollToTop';
 
 import Home from './pages/Home';
 import Shop from './pages/Shop';
+import FAQ from './pages/FAQ';
+import Shipping from './pages/Shipping';
+import Returns from './pages/Returns';
+import Care from './pages/Care';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
 import Success from './pages/Success';
 import Login from './pages/admin/Login';
 import Dashboard from './pages/admin/Dashboard';
@@ -76,6 +82,13 @@ function AppContent() {
               />
             }
           />
+
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/shipping" element={<Shipping />} />
+          <Route path="/returns" element={<Returns />} />
+          <Route path="/care" element={<Care />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
 
           <Route path="/success" element={<Success />} />
 
