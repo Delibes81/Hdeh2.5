@@ -7,7 +7,7 @@ export default function PhilosophySection() {
   });
 
   return (
-    <section id="philosophy" className="py-24 lg:py-32 bg-pale-pink overflow-hidden">
+    <section id="philosophy" className="py-12 lg:py-16 bg-pale-pink overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div ref={elementRef} className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
           {/* Text Content */}
@@ -41,11 +41,11 @@ export default function PhilosophySection() {
           </div>
 
           {/* Image */}
-          <div className={`relative h-[600px] group transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'}`}>
+          <div className={`relative h-[500px] lg:h-[600px] group transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'}`}>
             <img
-              src="/images/philosophy-workshop.jpg"
+              src="/images/artesano.webp"
               alt="Artesano trabajando"
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              className="w-full h-full object-cover rounded-xl shadow-lg transition-transform duration-700 group-hover:scale-[1.02]"
             />
             <div className={`absolute -bottom-12 -left-12 bg-white p-8 max-w-xs shadow-xl hidden md:block transition-all duration-1000 delay-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
               <p className="font-serif text-xl italic text-charcoal mb-4">

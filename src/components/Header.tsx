@@ -21,7 +21,7 @@ export default function Header({ cart, onCartClick }: HeaderProps) {
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-cream/95 backdrop-blur-sm border-b border-stone/20">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-gray-200/95 backdrop-blur-sm border-b border-stone/20">
       <nav className="w-full mx-auto px-6 lg:px-8">
         <div className="relative flex items-center justify-between h-20">
           {/* Logo */}

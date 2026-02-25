@@ -4,14 +4,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        'cream': '#FAF8F3',
-        'beige': '#F5F1E8',
-        'stone': '#E8E0D4',
-        'stone-dark': '#D4C4B0',
-        'warm-gray': '#9B8F7F',
-        'charcoal': '#4A453F',
-        'pale-pink': '#F4EDE4',
-        'soft-pink': '#E8D5CA',
+        'cream': '#FFFFFF',
+        'beige': '#FFFFFF',
+        'stone': '#E5E5E5',
+        'stone-dark': '#D4D4D4',
+        'warm-gray': '#000000',
+        'charcoal': '#000000',
+        'pale-pink': '#FFFFFF',
+        'soft-pink': '#FFFFFF',
       },
       fontFamily: {
         'serif': ['Playfair Display', 'Georgia', 'serif'],

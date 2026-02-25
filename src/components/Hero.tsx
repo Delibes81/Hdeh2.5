@@ -34,7 +34,7 @@ export default function Hero({ startAnimations = true }: HeroProps) {
         <h2 className={`font-serif font-light text-4xl md:text-6xl lg:text-7xl text-cream mb-24 text-shadow leading-[0.9] md:leading-[0.9] ${animationClass('animate-fade-in')}`}>
           Tus historias empiezan
           <br />
-          <span className="text-3xl md:text-5xl lg:text-6xl">con un paso.</span>
+          <span className="text-3xl md:text-5xl lg:text-6xl">con un solo paso.</span>
         </h2>
 
 

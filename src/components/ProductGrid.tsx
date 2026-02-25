@@ -43,20 +43,20 @@ export default function ProductGrid({ onAddToCart, onProductClick, limit }: Prod
   const filteredProducts = productsToDisplay;
 
   return (
-    <section id="collection" className="py-24 lg:py-32 bg-white">
+    <section id="collection" className="py-12 lg:py-16 bg-white">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Section Header */}
         <div
           ref={elementRef}
-          className={`text-center mb-16 lg:mb-24 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+          className={`text-center mb-8 lg:mb-12 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
         >
-          <h2 className="font-serif font-light text-4xl lg:text-5xl text-charcoal mb-6">
+          <h2 className="font-serif font-light text-4xl lg:text-5xl text-charcoal mb-0">
             Nuestra Colección
           </h2>
         </div>
 
         {/* Category Filter */}
-        <div className="flex flex-wrap justify-center gap-4 mb-16 lg:mb-20">
+        <div className="flex flex-wrap justify-center gap-4 mb-8 lg:mb-12">
           {categories.map((category) => (
             <button
               key={category.key}
