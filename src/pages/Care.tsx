@@ -96,7 +96,7 @@ export default function Care() {
                                 </li>
                                 <li className="flex items-center gap-3">
                                     <span className="w-2 h-2 rounded-full bg-red-400"></span>
-                                    Productos químicos agresivos (lejía, alcohol).
+                                    Productos químicos agresivos (Cloro, alcohol).
                                 </li>
                                 <li className="flex items-center gap-3">
                                     <span className="w-2 h-2 rounded-full bg-red-400"></span>
