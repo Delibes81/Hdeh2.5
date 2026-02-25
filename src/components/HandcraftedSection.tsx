@@ -31,7 +31,7 @@ export default function HandcraftedSection() {
               <img
                 src={image.src}
                 alt={image.alt}
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                className="w-full h-full object-cover scale-[1.02] hover:scale-[1.07] transition-transform duration-700"
               />
             </div>
           ))}
