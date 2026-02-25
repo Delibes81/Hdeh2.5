@@ -81,8 +81,8 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
           ) : (
             cart.items.map((item, index) => (
               <div key={`${item.product.id}-${item.size}-${index}`} className="flex gap-4 animate-fade-in">
-                <div className="w-24 h-32 bg-stone/10 rounded-md overflow-hidden flex-shrink-0">
-                  <img src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-cover" />
+                <div className="w-24 h-32 bg-stone/10 rounded-md overflow-hidden flex flex-shrink-0 items-center justify-center p-2">
+                  <img src={item.product.images[0]} alt={item.product.name} className="max-w-full max-h-full object-contain" />
                 </div>
                 <div className="flex-1 flex flex-col justify-between">
                   <div>
@@ -125,7 +125,7 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
           <div className="p-6 border-t border-stone/10 bg-stone/5 space-y-4">
             <div className="flex justify-between items-end">
               <span className="text-warm-gray text-sm uppercase tracking-wider">Total</span>
-              <span className="text-2xl font-serif text-charcoal">{formatPrice(cart.total)}</span>
+              <span className="text-2xl font-medium text-charcoal">{formatPrice(cart.total)}</span>
             </div>
 
             <button

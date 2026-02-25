@@ -90,6 +90,68 @@ serve(async (req) => {
             shipping_address_collection: {
                 allowed_countries: ['MX'],
             },
+            shipping_options: [
+                {
+                    shipping_rate_data: {
+                        type: 'fixed_amount',
+                        fixed_amount: {
+                            amount: 0,
+                            currency: 'mxn',
+                        },
+                        display_name: 'Envío Estándar (Todo México)',
+                        delivery_estimate: {
+                            minimum: {
+                                unit: 'business_day',
+                                value: 3,
+                            },
+                            maximum: {
+                                unit: 'business_day',
+                                value: 5,
+                            },
+                        },
+                    },
+                },
+                {
+                    shipping_rate_data: {
+                        type: 'fixed_amount',
+                        fixed_amount: {
+                            amount: 10000, // 100 MXN
+                            currency: 'mxn',
+                        },
+                        display_name: 'Entrega Día Siguiente (Solo CDMX)',
+                        delivery_estimate: {
+                            minimum: {
+                                unit: 'business_day',
+                                value: 1,
+                            },
+                            maximum: {
+                                unit: 'business_day',
+                                value: 1,
+                            },
+                        },
+                    },
+                },
+                {
+                    shipping_rate_data: {
+                        type: 'fixed_amount',
+                        fixed_amount: {
+                            amount: 25000, // 250 MXN
+                            currency: 'mxn',
+                        },
+                        display_name: 'Entrega Día Siguiente (Foráneo / Afueras de CDMX)',
+                        delivery_estimate: {
+                            minimum: {
+                                unit: 'business_day',
+                                value: 1,
+                            },
+                            maximum: {
+                                unit: 'business_day',
+                                value: 1,
+                            },
+                        },
+                    },
+                },
+            ],
             phone_number_collection: {
                 enabled: true,
             },

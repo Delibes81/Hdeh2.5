@@ -11,7 +11,7 @@ export default function Footer() {
     atención: [
       { name: 'FAQ', href: '/faq' },
       { name: 'Envíos', href: '/shipping' },
-      { name: 'Devoluciones', href: '/returns' },
+      { name: 'Cambios y Devoluciones', href: '/returns' },
       { name: 'Cuidados', href: '/care' }
     ],
     compañía: [

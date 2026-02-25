@@ -90,16 +90,16 @@ export default function ProductModal({
       {/* Modal */}
       <div className="relative h-full flex items-center justify-center p-4" onClick={onClose}>
         <div
-          className="bg-cream rounded-lg shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden animate-scale-in"
+          className="bg-cream shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden animate-scale-in"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 h-full max-h-[90vh]">
             {/* Image Gallery */}
-            <div className="relative bg-white h-[40vh] lg:h-auto">
+            <div className="relative bg-white h-[40vh] lg:h-full lg:min-h-[600px] flex items-center justify-center">
               <img
                 src={product.images[currentImageIndex]}
                 alt={product.name}
-                className="w-full h-full object-contain p-8"
+                className="max-w-full max-h-full object-contain p-8"
               />
 
               {/* Image Navigation */}
@@ -138,14 +138,14 @@ export default function ProductModal({
               {/* Close Button */}
               <button
                 onClick={onClose}
-                className="absolute top-4 right-4 w-10 h-10 bg-cream/80 hover:bg-cream transition-colors duration-300 rounded-full flex items-center justify-center"
+                className="absolute top-4 right-4 w-10 h-10 bg-cream/80 hover:bg-cream transition-colors duration-300 rounded-full flex items-center justify-center z-10 shadow-sm"
               >
                 <X size={20} className="text-charcoal" />
               </button>
             </div>
 
             {/* Product Details */}
-            <div className="p-6 lg:p-12 overflow-y-auto h-[50vh] lg:h-auto">
+            <div className="p-6 lg:p-10 overflow-y-auto h-[50vh] lg:h-auto lg:max-h-[90vh]">
               <div className="space-y-6">
                 {/* Badges */}
                 <div className="flex items-center space-x-3">
@@ -242,22 +242,22 @@ export default function ProductModal({
                     {selectedSize ? 'Agregar al carrito' : 'Selecciona una talla'}
                   </button>
 
-                  <div className="flex space-x-4">
+                  <div className="flex gap-4">
                     <button
                       onClick={() => setIsLiked(!isLiked)}
-                      className={`flex-1 btn-secondary border border-warm-gray/30 hover:border-charcoal ${isLiked ? 'text-charcoal' : 'text-warm-gray'
-                        }`}
+                      className={`flex-1 flex items-center justify-center py-3 rounded-full border border-warm-gray/30 hover:border-charcoal transition-colors font-medium text-sm
+                        ${isLiked ? 'text-charcoal bg-stone/5' : 'text-warm-gray bg-transparent'}`}
                     >
                       <Heart
                         size={16}
-                        className={`mr-2 ${isLiked ? 'fill-current' : ''}`}
+                        className={`mr-2 transition-transform ${isLiked ? 'fill-current scale-110' : ''}`}
                       />
                       {isLiked ? 'En favoritos' : 'Favorito'}
                     </button>
 
                     <button
                       onClick={handleShare}
-                      className="flex-1 btn-secondary border border-warm-gray/30 hover:border-charcoal text-warm-gray hover:text-charcoal"
+                      className="flex-1 flex items-center justify-center py-3 rounded-full border border-warm-gray/30 hover:border-charcoal text-warm-gray hover:text-charcoal transition-colors font-medium text-sm bg-transparent"
                     >
                       <Share2 size={16} className="mr-2" />
                       Compartir
@@ -266,12 +266,12 @@ export default function ProductModal({
                 </div>
 
                 {/* Materials & Disclaimer */}
-                <div className="pt-6 border-t border-stone/20 space-y-3 text-sm text-warm-gray">
+                <div className="pt-6 border-t border-stone/20 space-y-3 text-sm text-warm-gray pb-4">
                   {product.materials && (
                     <p>Materiales: {product.materials.join(', ')}</p>
                   )}
-                  <p>• Envío gratuito en pedidos superiores a $3000</p>
-                  <p>• Devoluciones gratuitas durante 30 días</p>
+                  <p>• Envío gratuito en México</p>
+                  <p>• Cambios de talla gratuitos durante 30 días</p>
                 </div>
               </div>
             </div>
