@@ -3,6 +3,15 @@ import { Product, ProductVariant } from '../../types';
 import { supabase } from '../../lib/supabase';
 import { X, Upload, Plus, Trash2, Loader2, Save, ChevronLeft, ChevronRight } from 'lucide-react';
 
+const formatBytes = (bytes: number, decimals = 2) => {
+    if (!+bytes) return '0 Bytes';
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+};
+
 interface ProductFormProps {
     product?: Product | null;
     onClose: () => void;
@@ -24,6 +33,7 @@ export default function ProductForm({ product, onClose, onSave }: ProductFormPro
     const [isFeatured, setIsFeatured] = useState(product?.isFeatured || false);
     const [featuredOrder, setFeaturedOrder] = useState(product?.featuredOrder?.toString() || '0');
     const [uploading, setUploading] = useState(false);
+    const [optimizationMsg, setOptimizationMsg] = useState<{ original: number; optimized: number } | null>(null);
 
     // Variants State
     const [variants, setVariants] = useState<ProductVariant[]>(product?.variants || []);
@@ -133,15 +143,70 @@ export default function ProductForm({ product, onClose, onSave }: ProductFormPro
         if (!e.target.files || e.target.files.length === 0) return;
 
         setUploading(true);
+        setOptimizationMsg(null);
         const file = e.target.files[0];
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `${fileName}`;
 
         try {
+            const optimizeImage = (file: File): Promise<{ blob: Blob, originalSize: number, optimizedSize: number }> => {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            let width = img.width;
+                            let height = img.height;
+                            
+                            const MAX_SIZE = 1200;
+                            if (width > height) {
+                                if (width > MAX_SIZE) {
+                                    height *= MAX_SIZE / width;
+                                    width = MAX_SIZE;
+                                }
+                            } else {
+                                if (height > MAX_SIZE) {
+                                    width *= MAX_SIZE / height;
+                                    height = MAX_SIZE;
+                                }
+                            }
+                            
+                            canvas.width = width;
+                            canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            if (!ctx) return reject(new Error('No canvas context'));
+                            
+                            ctx.drawImage(img, 0, 0, width, height);
+                            canvas.toBlob((blob) => {
+                                if (blob) {
+                                    resolve({
+                                        blob,
+                                        originalSize: file.size,
+                                        optimizedSize: blob.size
+                                    });
+                                } else {
+                                    reject(new Error('Error en toBlob'));
+                                }
+                            }, 'image/webp', 0.85);
+                        };
+                        img.onerror = () => reject(new Error('Error cargando imagen para optimizar'));
+                        img.src = event.target?.result as string;
+                    };
+                    reader.onerror = () => reject(new Error('Error leyendo archivo'));
+                    reader.readAsDataURL(file);
+                });
+            };
+
+            const optimized = await optimizeImage(file);
+            setOptimizationMsg({ original: optimized.originalSize, optimized: optimized.optimizedSize });
+            
+            const fileName = `${Math.random().toString(36).substring(2, 15)}.webp`;
+            const filePath = `${fileName}`;
+
             const { error: uploadError } = await supabase.storage
                 .from('product-images')
-                .upload(filePath, file);
+                .upload(filePath, optimized.blob, {
+                    contentType: 'image/webp'
+                });
 
             if (uploadError) throw uploadError;
 
@@ -400,11 +465,17 @@ export default function ProductForm({ product, onClose, onSave }: ProductFormPro
                                             )}
                                             <p className="mb-2 text-sm text-warm-gray"><span className="font-semibold text-charcoal">Haz clic para subir imagen</span></p>
                                             <p className="text-xs text-warm-gray/60">Formato sugerido: Vertical (4:5)</p>
-                                            <p className="text-xs text-warm-gray/60">PNG, JPG (MAX. 2MB)</p>
+                                            <p className="text-xs text-warm-gray/60">Se convertirá y optimizará a WebP automáticamente</p>
                                         </div>
                                         <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
                                     </label>
                                 </div>
+
+                                {optimizationMsg && (
+                                    <div className="bg-green-50 text-green-700 p-3 rounded-lg text-sm flex items-center gap-2 border border-green-200 justify-center">
+                                        <span>✅ Imagen optimizada: de <strong>{formatBytes(optimizationMsg.original)}</strong> a <strong>{formatBytes(optimizationMsg.optimized)}</strong> (Reducción del {Math.round((1 - optimizationMsg.optimized / optimizationMsg.original) * 100)}%)</span>
+                                    </div>
+                                )}
 
                                 <div className="grid grid-cols-3 gap-4">
                                     {images.map((img, idx) => (
