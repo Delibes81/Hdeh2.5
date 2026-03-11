@@ -30,7 +30,7 @@ export default function HandcraftedSection() {
           <div className="flex flex-col md:flex-row gap-4 md:gap-1 items-stretch justify-center h-[70vh] md:h-[85vh]">
             
             {/* Imagen Izquierda (1ro) */}
-            <div className={`relative w-full md:w-1/3 group overflow-hidden transition-all duration-700 ease-out ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+            <div className={`relative w-full md:w-1/3 group overflow-hidden transition-all duration-[1.5s] delay-100 ease-out ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
               <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors duration-500 z-10" />
               <img 
                 src={images[0].src} 
@@ -46,7 +46,7 @@ export default function HandcraftedSection() {
             </div>
 
             {/* Imagen Central (2do) */}
-            <div className={`relative w-full md:w-1/3 group overflow-hidden transition-all duration-700 delay-100 ease-out ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+            <div className={`relative w-full md:w-1/3 group overflow-hidden transition-all duration-[1.5s] delay-300 ease-out ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
               <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors duration-500 z-10" />
               <img 
                 src={images[1].src} 
@@ -62,7 +62,7 @@ export default function HandcraftedSection() {
             </div>
 
             {/* Imagen Derecha (3ro) */}
-            <div className={`relative w-full md:w-1/3 group overflow-hidden transition-all duration-700 delay-200 ease-out ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+            <div className={`relative w-full md:w-1/3 group overflow-hidden transition-all duration-[1.5s] delay-500 ease-out ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
                <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors duration-500 z-10" />
               <img 
                 src={images[2].src} 
