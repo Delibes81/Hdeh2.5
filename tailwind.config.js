@@ -14,8 +14,9 @@ export default {
         'soft-pink': '#FFFFFF',
       },
       fontFamily: {
-        'serif': ['Playfair Display', 'Georgia', 'serif'],
-        'sans': ['Inter', 'system-ui', 'sans-serif'],
+        'serif': ['"Libre Bodoni"', 'Georgia', 'serif'],
+        'sans': ['Inter', 'Helvetica', 'Arial', 'sans-serif'],
+        'montserrat': ['Montserrat', 'sans-serif'],
       },
       fontSize: {
         'xs': '0.75rem',

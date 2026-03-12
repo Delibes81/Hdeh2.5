@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Libre+Bodoni:ital,wght@0,400..700;1,400..700&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Inter:wght@300;400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -17,17 +17,17 @@
   }
 
   .serif {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Libre Bodoni', Georgia, serif;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply px-8 py-3 rounded-full border border-charcoal text-charcoal bg-transparent hover:bg-charcoal hover:text-cream transition-all duration-300 font-sans font-medium tracking-wide;
+    @apply px-8 py-3 rounded-full border border-charcoal text-charcoal bg-transparent hover:bg-charcoal hover:text-cream transition-all duration-300 font-montserrat uppercase font-medium tracking-wide;
   }
 
   .btn-secondary {
-    @apply px-6 py-2 rounded-full text-warm-gray hover:text-charcoal transition-colors duration-300 font-sans font-medium;
+    @apply px-6 py-2 rounded-full text-warm-gray hover:text-charcoal transition-colors duration-300 font-montserrat uppercase font-medium;
   }
 
   .card-hover {

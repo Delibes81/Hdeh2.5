@@ -17,7 +17,7 @@ export default function Shipping() {
                     <h1 className="font-serif font-light text-5xl lg:text-7xl text-charcoal mb-3">
                         Envíos y Entregas
                     </h1>
-                    <p className="text-xl text-warm-gray font-light max-w-2xl mx-auto">
+                    <p className="text-xl text-warm-gray font-sans lowercase font-light max-w-2xl mx-auto">
                         Te llevamos la artesanía directamente a tu puerta
                     </p>
                 </div>
@@ -32,20 +32,20 @@ export default function Shipping() {
                         <div className="bg-cream/30 p-8 rounded-xl border border-warm-gray/10">
                             <Truck className="text-charcoal mb-4" size={32} strokeWidth={1} />
                             <h3 className="font-serif text-xl text-charcoal mb-2">Envíos Nacionales (Estándar)</h3>
-                            <p className="text-warm-gray font-light mb-2">
+                            <p className="text-warm-gray font-sans lowercase font-light mb-2">
                                 Podemos realizar entregas en un rango de 3 a 5 días hábiles.
                             </p>
-                            <p className="text-warm-gray font-medium">
+                            <p className="text-warm-gray font-sans lowercase font-medium">
                                 *Dentro de CDMX y república mexicana: costo de envío gratis
                             </p>
                         </div>
                         <div className="bg-cream/30 p-8 rounded-xl border border-warm-gray/10">
                             <Clock className="text-charcoal mb-4" size={32} strokeWidth={1} />
                             <h3 className="font-serif text-xl text-charcoal mb-2">Envíos Express (Día siguiente)</h3>
-                            <p className="text-warm-gray font-light mb-2">
+                            <p className="text-warm-gray font-sans lowercase font-light mb-2">
                                 Posible si hay stock disponible.
                             </p>
-                            <ul className="text-warm-gray font-light list-disc pl-5">
+                            <ul className="text-warm-gray font-sans lowercase font-light list-disc pl-5">
                                 <li>CDMX: $100.00 MXN</li>
                                 <li>Afueras de CDMX o Foráneo (Rep. Mex.): $250.00 MXN</li>
                             </ul>
@@ -53,21 +53,21 @@ export default function Shipping() {
                         <div className="bg-cream/30 p-8 rounded-xl border border-warm-gray/10">
                             <Globe className="text-charcoal mb-4" size={32} strokeWidth={1} />
                             <h3 className="font-serif text-xl text-charcoal mb-2">Envíos Internacionales</h3>
-                            <p className="text-warm-gray font-light">
+                            <p className="text-warm-gray font-sans lowercase font-light">
                                 Realizamos envíos a todo el mundo. Los costos y tiempos varían según el destino y si aplican tarifas arancelarias.
                             </p>
                         </div>
                         <div className="bg-cream/30 p-8 rounded-xl border border-warm-gray/10">
                             <Package className="text-charcoal mb-4" size={32} strokeWidth={1} />
                             <h3 className="font-serif text-xl text-charcoal mb-2">Seguimiento</h3>
-                            <p className="text-warm-gray font-light">
+                            <p className="text-warm-gray font-sans lowercase font-light">
                                 Recibirás un email con tu código de seguimiento en cuanto tu pedido salga de nuestro taller.
                             </p>
                         </div>
                     </div>
 
                     {/* Detailed Info */}
-                    <div className="space-y-12 text-lg font-light text-warm-gray leading-relaxed">
+                    <div className="space-y-12 text-lg font-sans lowercase font-light text-warm-gray leading-relaxed">
                         <div>
                             <h2 className="font-serif text-2xl text-charcoal mb-4">Procesamiento del Pedido</h2>
                             <p>

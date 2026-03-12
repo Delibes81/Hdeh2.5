@@ -86,9 +86,9 @@ export default function Shop({ onAddToCart, onProductClick }: ShopProps) {
                             <button
                                 key={category.key}
                                 onClick={() => setSelectedCategory(category.key)}
-                                className={`group px-4 lg:px-6 py-2.5 rounded-full font-medium text-sm lg:text-base tracking-wide transition-all duration-300 ${selectedCategory === category.key
-                                    ? 'bg-charcoal text-cream shadow-lg scale-105'
-                                    : 'bg-white text-warm-gray hover:bg-charcoal/5 hover:text-charcoal border border-warm-gray/20'
+                                className={`font-montserrat uppercase group px-4 lg:px-6 py-2.5 rounded-full text-sm lg:text-base tracking-wide transition-all duration-300 ${selectedCategory === category.key
+                                    ? 'bg-charcoal text-cream shadow-lg scale-105 font-semibold'
+                                    : 'bg-white text-warm-gray hover:bg-charcoal/5 hover:text-charcoal border border-warm-gray/20 font-medium'
                                     }`}
                             >
                                 {category.label}

@@ -17,7 +17,7 @@ export default function Returns() {
                     <h1 className="font-serif font-light text-5xl lg:text-7xl text-charcoal mb-3">
                         Cambios y devoluciones
                     </h1>
-                    <p className="text-xl text-warm-gray font-light max-w-2xl mx-auto">
+                    <p className="text-xl text-warm-gray font-sans lowercase font-light max-w-2xl mx-auto">
                         En H de Helena queremos que encuentres el ajuste perfecto.
                     </p>
                 </div>
@@ -28,7 +28,7 @@ export default function Returns() {
                 <div className="max-w-4xl mx-auto px-6 lg:px-8">
 
                     <div className="bg-white border border-warm-gray/20 rounded-xl p-6 md:p-8 shadow-sm mb-8">
-                        <ul className="space-y-6 text-warm-gray font-light leading-relaxed md:text-lg">
+                        <ul className="space-y-6 text-warm-gray font-sans lowercase font-light leading-relaxed md:text-lg">
                             <li className="flex items-start gap-4">
                                 <span className="w-2 h-2 rounded-full bg-charcoal mt-2.5 flex-shrink-0"></span>
                                 <div>
@@ -55,7 +55,7 @@ export default function Returns() {
                             </li>
                         </ul>
 
-                        <div className="mt-10 pt-8 border-t border-warm-gray/10 text-warm-gray font-light md:text-lg">
+                        <div className="mt-10 pt-8 border-t border-warm-gray/10 text-warm-gray font-sans lowercase font-light md:text-lg">
                             <p>
                                 Si necesitas apoyo para elegir tu talla o iniciar un cambio, estaremos encantados de ayudarte.
                             </p>
@@ -67,7 +67,7 @@ export default function Returns() {
                         <RefreshCw className="text-charcoal flex-shrink-0 mt-1" size={32} />
                         <div>
                             <h3 className="font-serif text-2xl text-charcoal mb-4">¿Necesitas un cambio de talla?</h3>
-                            <p className="text-warm-gray font-light leading-relaxed md:text-lg">
+                            <p className="text-warm-gray font-sans lowercase font-light leading-relaxed md:text-lg">
                                 Escríbenos a: <a href="mailto:HELP@hdehelena.com.mx" className="text-charcoal font-medium hover:underline">HELP@hdehelena.com.mx</a>, indícanos tu número de orden y el cambio que solicitas. Recibirás las instrucciones de nuestro equipo.
                             </p>
                         </div>

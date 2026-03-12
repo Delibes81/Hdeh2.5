@@ -159,16 +159,16 @@ export default function ProductModal({
 
                 {/* Product Name & Price */}
                 <div>
-                  <h1 className="font-serif font-light text-3xl lg:text-4xl text-charcoal mb-2">
+                  <h1 className="font-montserrat uppercase text-lg lg:text-xl text-charcoal mb-2">
                     {product.name}
                   </h1>
-                  <p className="text-2xl text-warm-gray font-light">
+                  <p className="font-sans uppercase text-base lg:text-lg text-warm-gray font-light">
                     {formatPrice(product.price)}
                   </p>
                 </div>
 
                 {/* Description */}
-                <p className="text-warm-gray text-lg font-light leading-relaxed">
+                <p className="text-warm-gray text-base font-light leading-relaxed">
                   {product.description}
                 </p>
 

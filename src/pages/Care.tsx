@@ -17,7 +17,7 @@ export default function Care() {
                     <h1 className="font-serif font-light text-5xl lg:text-7xl text-charcoal mb-6">
                         Cuidados y Mantenimiento
                     </h1>
-                    <p className="text-xl text-warm-gray font-light max-w-2xl mx-auto">
+                    <p className="text-xl text-warm-gray font-sans lowercase font-light max-w-2xl mx-auto">
                         La piel auténtica mejora con el tiempo si se cuida adecuadamente. Aquí te enseñamos cómo.
                     </p>
                 </div>
@@ -29,7 +29,7 @@ export default function Care() {
 
                     {/* Intro Text */}
                     <div className="text-center mb-20 max-w-2xl mx-auto">
-                        <p className="text-lg text-warm-gray font-light leading-relaxed">
+                        <p className="text-lg text-warm-gray font-sans lowercase font-light leading-relaxed">
                             Nuestros zapatos están hechos con pieles naturales seleccionadas. Es normal que presenten pequeñas variaciones de tono o textura; son marcas de autenticidad, no defectos. Para asegurar su longevidad, sigue estos consejos.
                         </p>
                     </div>
@@ -43,7 +43,7 @@ export default function Care() {
                                 </div>
                                 <div>
                                     <h3 className="font-serif text-xl text-charcoal mb-2">Limpieza Regular</h3>
-                                    <p className="text-warm-gray font-light leading-relaxed">
+                                    <p className="text-warm-gray font-sans lowercase font-light leading-relaxed">
                                         Limpia el polvo y la suciedad después de cada uso con un paño de algodón suave y seco. Para manchas más persistentes, utiliza un paño ligeramente húmedo, pero nunca empapado.
                                     </p>
                                 </div>
@@ -55,7 +55,7 @@ export default function Care() {
                                 </div>
                                 <div>
                                     <h3 className="font-serif text-xl text-charcoal mb-2">Hidratación</h3>
-                                    <p className="text-warm-gray font-light leading-relaxed">
+                                    <p className="text-warm-gray font-sans lowercase font-light leading-relaxed">
                                         La piel necesita hidratarse. Aplica una crema incolora o cera específica para calzado de piel cada 15-20 usos. Esto mantendrá la flexibilidad y evitará grietas.
                                     </p>
                                 </div>
@@ -67,7 +67,7 @@ export default function Care() {
                                 </div>
                                 <div>
                                     <h3 className="font-serif text-xl text-charcoal mb-2">Secado y Almacenamiento</h3>
-                                    <p className="text-warm-gray font-light leading-relaxed">
+                                    <p className="text-warm-gray font-sans lowercase font-light leading-relaxed">
                                         Nunca seques tus zapatos cerca de una fuente de calor directa (radiador, sol intenso), ya que la piel puede resecarse y deformarse. Guárdalos en un lugar fresco y seco, preferiblemente en sus bolsas de tela.
                                     </p>
                                 </div>
@@ -79,7 +79,7 @@ export default function Care() {
                                 </div>
                                 <div>
                                     <h3 className="font-serif text-xl text-charcoal mb-2">Protección</h3>
-                                    <p className="text-warm-gray font-light leading-relaxed">
+                                    <p className="text-warm-gray font-sans lowercase font-light leading-relaxed">
                                         Considera usar un spray protector repelente al agua antes del primer uso, especialmente en colores claros o gamuza.
                                     </p>
                                 </div>
@@ -89,7 +89,7 @@ export default function Care() {
                         {/* Additional Tips / Visual */}
                         <div className="bg-warm-gray/5 rounded-2xl p-8 lg:p-10 border border-warm-gray/10 h-full flex flex-col justify-center">
                             <h3 className="font-serif text-2xl text-charcoal mb-6 text-center">Lo que debes evitar</h3>
-                            <ul className="space-y-4 text-warm-gray font-light">
+                            <ul className="space-y-4 text-warm-gray font-sans lowercase font-light">
                                 <li className="flex items-center gap-3">
                                     <span className="w-2 h-2 rounded-full bg-red-400"></span>
                                     Uso de lavadora o secadora.
@@ -109,7 +109,7 @@ export default function Care() {
                             </ul>
 
                             <div className="mt-10 pt-8 border-t border-warm-gray/10 text-center">
-                                <p className="text-sm text-warm-gray/70 italic">
+                                <p className="text-sm font-sans lowercase text-warm-gray/70 italic">
                                     "Un buen zapato te lleva a buenos lugares, cuídalo y te acompañará mucho tiempo."
                                 </p>
                             </div>

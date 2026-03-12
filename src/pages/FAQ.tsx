@@ -47,7 +47,7 @@ export default function FAQ() {
                     <h1 className="font-serif font-light text-5xl lg:text-7xl text-charcoal mb-3">
                         Preguntas Frecuentes
                     </h1>
-                    <p className="text-xl text-warm-gray font-light max-w-2xl mx-auto">
+                    <p className="text-xl text-warm-gray font-sans lowercase font-light max-w-2xl mx-auto">
                         Todo lo que necesitas saber sobre H de Helena
                     </p>
                 </div>
@@ -82,7 +82,7 @@ export default function FAQ() {
                                     className={`transition-all duration-300 ease-in-out overflow-hidden ${openIndex === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
                                         }`}
                                 >
-                                    <div className="p-6 pt-0 text-warm-gray font-light leading-relaxed">
+                                    <div className="p-6 pt-0 text-warm-gray font-sans lowercase font-light leading-relaxed">
                                         {faq.answer}
                                     </div>
                                 </div>

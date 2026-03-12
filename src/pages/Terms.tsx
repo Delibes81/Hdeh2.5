@@ -17,7 +17,7 @@ export default function Terms() {
                     <h1 className="font-serif font-light text-5xl lg:text-7xl text-charcoal mb-6">
                         Términos y Condiciones
                     </h1>
-                    <p className="text-xl text-warm-gray font-light max-w-2xl mx-auto">
+                    <p className="text-xl text-warm-gray font-sans lowercase font-light max-w-2xl mx-auto">
                         Por favor, lee atentamente nuestras condiciones de uso.
                     </p>
                 </div>
@@ -36,7 +36,7 @@ export default function Terms() {
                             </div>
                             <div>
                                 <h2 className="font-serif text-2xl text-charcoal mb-4">1. Ámbito de Aplicación</h2>
-                                <p className="text-warm-gray font-light leading-relaxed">
+                                <p className="text-warm-gray font-sans lowercase font-light leading-relaxed">
                                     Estas condiciones generales de venta se aplican a todas las ventas realizadas a través del sitio web H de Helena. Al realizar un pedido, aceptas estas condiciones sin reservas. Nos reservamos el derecho de modificar estos términos en cualquier momento.
                                 </p>
                             </div>
@@ -49,7 +49,7 @@ export default function Terms() {
                             </div>
                             <div>
                                 <h2 className="font-serif text-2xl text-charcoal mb-4">2. Productos y Disponibilidad</h2>
-                                <p className="text-warm-gray font-light leading-relaxed">
+                                <p className="text-warm-gray font-sans lowercase font-light leading-relaxed">
                                     Nuestros productos son artesanales y pueden presentar ligeras variaciones respecto a las fotografías. Nos esforzamos por mostrar los colores y texturas con la mayor precisión posible. La disponibilidad de los productos se indica en tiempo real, pero en caso de error de stock, te contactaremos para ofrecerte una solución o reembolso.
                                 </p>
                             </div>
@@ -62,7 +62,7 @@ export default function Terms() {
                             </div>
                             <div>
                                 <h2 className="font-serif text-2xl text-charcoal mb-4">3. Precios y Pagos</h2>
-                                <p className="text-warm-gray font-light leading-relaxed">
+                                <p className="text-warm-gray font-sans lowercase font-light leading-relaxed">
                                     Los precios se muestran en Pesos Mexicanos (MXN) e incluyen el IVA aplicable. Los gastos de envío se añaden al final del pedido. El pago se realiza de forma segura a través de Stripe, líder mundial en pagos online. Tus datos bancarios son encriptados y nunca se almacenan en nuestros servidores.
                                 </p>
                             </div>
@@ -75,7 +75,7 @@ export default function Terms() {
                             </div>
                             <div>
                                 <h2 className="font-serif text-2xl text-charcoal mb-4">4. Garantía y Responsabilidad</h2>
-                                <p className="text-warm-gray font-light leading-relaxed">
+                                <p className="text-warm-gray font-sans lowercase font-light leading-relaxed">
                                     Todos nuestros productos cuentan con la garantía legal de conformidad. H de Helena no se hace responsable de los daños resultantes del mal uso de los productos o del incumplimiento de las instrucciones de cuidado proporcionadas.
                                 </p>
                             </div>
@@ -88,7 +88,7 @@ export default function Terms() {
                             </div>
                             <div>
                                 <h2 className="font-serif text-2xl text-charcoal mb-4">5. Ley Aplicable</h2>
-                                <p className="text-warm-gray font-light leading-relaxed">
+                                <p className="text-warm-gray font-sans lowercase font-light leading-relaxed">
                                     Estas condiciones se rigen por las leyes de México. En caso de litigio, las partes se someten a la jurisdicción de los tribunales de la Ciudad de México, renunciando a cualquier otro fuero que pudiera corresponderles.
                                 </p>
                             </div>

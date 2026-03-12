@@ -18,7 +18,7 @@ export default function PhilosophySection() {
               sobre nosotros
             </h2>
 
-            <div className="space-y-6 text-warm-gray text-lg font-light leading-relaxed">
+            <div className="space-y-6 text-warm-gray text-lg font-sans lowercase font-light leading-relaxed">
               <p>
                 H de Helena nació con el sueño de reinventar el calzado mexicano, siendo una firma que celebra la autenticidad a través de piezas creadas a mano, utilizando pieles de la más alta calidad y una visión estética que fusiona color, textura y diseño atemporal. Cada par es el resultado de manos expertas y de un enfoque particular a ser unicos, pensados para acompañar historias personales, recorridos significativos y momentos que se convierten en memoria.
               </p>
@@ -34,7 +34,7 @@ export default function PhilosophySection() {
 
             <div className="pt-4">
               <div className="w-16 h-px bg-warm-gray/30 mb-4"></div>
-              <p className="text-sm text-warm-gray font-medium tracking-wide uppercase">
+              <p className="text-sm font-montserrat text-warm-gray font-medium tracking-wide uppercase">
                 Helena, Fundadora
               </p>
             </div>
