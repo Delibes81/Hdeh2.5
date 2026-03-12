@@ -51,7 +51,7 @@ export default function ProductGrid({ onAddToCart, onProductClick, limit }: Prod
           className={`text-center mb-8 lg:mb-12 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
         >
           <h2 className="font-serif font-light text-4xl lg:text-5xl text-charcoal mb-0">
-            Nuestra Colección
+            NUESTRA COLECCIÓN
           </h2>
         </div>
 
