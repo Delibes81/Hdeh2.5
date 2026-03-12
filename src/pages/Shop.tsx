@@ -57,9 +57,6 @@ export default function Shop({ onAddToCart, onProductClick }: ShopProps) {
                 </div>
 
                 <div className="relative max-w-7xl mx-auto px-6 lg:px-8 text-center">
-                    <div className="inline-block mb-4 px-4 py-2 bg-charcoal/5 rounded-full">
-                        <span className="text-sm font-medium text-charcoal tracking-widest uppercase">Nueva Temporada</span>
-                    </div>
                     <h1 className="font-serif font-light text-5xl lg:text-7xl text-charcoal">
                         El Par perfecto
                     </h1>

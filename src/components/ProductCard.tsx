@@ -48,7 +48,7 @@ export default function ProductCard({ product, onAddToCart, onProductClick, inde
       </div>
 
       {/* Product Info */}
-      <div className="space-y-2">
+      <div className="space-y-2 text-center md:text-left">
         <h3 className="font-serif font-light text-xl lg:text-2xl text-charcoal group-hover:text-warm-gray transition-colors duration-300">
           {product.name}
         </h3>
