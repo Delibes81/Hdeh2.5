@@ -50,14 +50,14 @@ export default function Shop({ onAddToCart, onProductClick }: ShopProps) {
             <SEO title="Tienda" description="Explora nuestra colección completa de zapatos de piel artesanales." url="/shop" />
 
             {/* Header Section */}
-            <section className="relative pt-32 pb-12 lg:pt-40 lg:pb-16 bg-gradient-to-br from-pale-pink via-white to-pale-pink overflow-hidden">
+            <section className="relative pt-24 pb-8 lg:pt-32 lg:pb-10 bg-gradient-to-br from-pale-pink via-white to-pale-pink overflow-hidden">
                 <div className="absolute inset-0 opacity-5">
                     <div className="absolute top-10 left-10 w-72 h-72 bg-charcoal rounded-full blur-3xl"></div>
                     <div className="absolute bottom-10 right-10 w-96 h-96 bg-warm-gray rounded-full blur-3xl"></div>
                 </div>
 
                 <div className="relative max-w-7xl mx-auto px-6 lg:px-8 text-center">
-                    <h1 className="font-serif font-light text-5xl lg:text-7xl text-charcoal">
+                    <h1 className="font-serif font-light text-4xl lg:text-6xl text-charcoal">
                         El par perfecto
                     </h1>
                 </div>
@@ -86,7 +86,7 @@ export default function Shop({ onAddToCart, onProductClick }: ShopProps) {
                             <button
                                 key={category.key}
                                 onClick={() => setSelectedCategory(category.key)}
-                                className={`font-montserrat uppercase group px-4 lg:px-6 py-2.5 rounded-full text-sm lg:text-base tracking-wide transition-all duration-300 ${selectedCategory === category.key
+                                className={`font-montserrat uppercase group px-4 lg:px-6 py-2.5 rounded-full text-xs tracking-wide transition-all duration-300 ${selectedCategory === category.key
                                     ? 'bg-charcoal text-cream shadow-lg scale-105 font-semibold'
                                     : 'bg-white text-warm-gray hover:bg-charcoal/5 hover:text-charcoal border border-warm-gray/20 font-medium'
                                     }`}

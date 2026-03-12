@@ -17,10 +17,10 @@ export default function ProductGrid({ onAddToCart, onProductClick, limit }: Prod
   const { elementRef: gridRef, isVisible: isGridVisible } = useIntersectionObserver({ threshold: 0.1 });
 
   const categories = [
-    { key: 'all', label: 'Todo' },
-    { key: 'zapatos-bajos', label: 'Zapatos bajos' },
-    { key: 'zapatos-altos', label: 'Zapatos Altos' },
-    { key: 'botas', label: 'Botas' }
+    { key: 'all', label: 'TODO' },
+    { key: 'zapatos-bajos', label: 'ZAPATOS BAJOS' },
+    { key: 'zapatos-altos', label: 'ZAPATOS ALTOS' },
+    { key: 'botas', label: 'BOTAS' }
   ];
 
   if (loading) {
@@ -61,7 +61,7 @@ export default function ProductGrid({ onAddToCart, onProductClick, limit }: Prod
             <button
               key={category.key}
               onClick={() => setSelectedCategory(category.key)}
-              className={`px-6 py-2 font-medium tracking-wide transition-all duration-300 ${selectedCategory === category.key
+              className={`font-montserrat text-xs px-6 py-2 font-medium tracking-wide transition-all duration-300 ${selectedCategory === category.key
                 ? 'text-charcoal border-b border-charcoal'
                 : 'text-warm-gray hover:text-charcoal'
                 }`}
