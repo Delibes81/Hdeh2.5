@@ -48,14 +48,15 @@ export default function ProductCard({ product, onAddToCart, onProductClick, inde
       </div>
 
       {/* Product Info */}
-      <div className="space-y-1 text-center">
-        <h3 className="font-montserrat uppercase text-sm lg:text-base tracking-wide text-charcoal group-hover:text-warm-gray transition-colors duration-300">
-          {product.name}
-        </h3>
-
-        <p className="font-sans uppercase text-warm-gray font-light text-xs lg:text-[13px]">
-          {formatPrice(product.price)}
-        </p>
+      <div className="flex flex-col items-center px-1">
+        <div className="text-left">
+          <h3 className="font-montserrat uppercase text-sm lg:text-base tracking-wide text-charcoal group-hover:text-warm-gray transition-colors duration-300">
+            {product.name}
+          </h3>
+          <p className="font-sans uppercase text-warm-gray font-light text-xs lg:text-[13px] mt-1">
+            {formatPrice(product.price)}
+          </p>
+        </div>
       </div>
     </div>
   );
