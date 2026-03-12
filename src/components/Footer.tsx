@@ -1,5 +1,5 @@
 import { useLocation, Link } from 'react-router-dom';
-import { Instagram, Mail, Phone } from 'lucide-react';
+import { Instagram } from 'lucide-react';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 
 export default function Footer() {
@@ -8,17 +8,20 @@ export default function Footer() {
   const isShopPage = location.pathname === '/shop';
 
   const footerLinks = {
-    atención: [
+    soporte: [
       { name: 'FAQ', href: '/faq' },
-      { name: 'Envíos', href: '/shipping' },
-      { name: 'Cambios y Devoluciones', href: '/returns' },
-      { name: 'Cuidados', href: '/care' }
+      { name: 'ENVÍOS', href: '/shipping' },
+      { name: 'DEVOLUCIONES', href: '/returns' }
+    ],
+    servicios: [
+      { name: 'AGENDA UNA CITA', href: 'https://wa.me/5211234567890?text=Hola,%20me%20gustar%C3%ADa%20agendar%20una%20cita' }, // Enlace WhatsApp
+      { name: 'DISEÑOS PERSONALIZADOS', href: 'https://wa.me/5211234567890?text=Hola,%20me%20gustar%C3%ADa%20recibir%20informaci%C3%B3n%20sobre%20los%20dise%C3%B1os%20personalizados' },
+      { name: 'CUIDADO Y LIMPIEZA', href: '/care' }
     ],
     compañía: [
-      { name: 'Sobre Nosotros', href: '/#philosophy' },
-      { name: 'Proceso', href: '/#process' },
-      { name: 'Sostenibilidad', href: '/#process' },
-      { name: 'Contacto', href: '/#contact' }
+      { name: 'NOSOTROS', href: '/#philosophy' },
+      { name: 'PROCESO Y SOSTENIBILIDAD', href: '/#process' },
+      { name: 'CONTACTO', href: '/#contact' }
     ]
   };
 
@@ -30,11 +33,11 @@ export default function Footer() {
           <div ref={elementRef} className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left Column: Content */}
             <div className={`text-center lg:text-left transition-all duration-1000 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-20'}`}>
-              <h3 className="font-serif font-light text-3xl lg:text-4xl mb-6 text-charcoal">
+              <h3 className="uppercase font-serif font-light text-2xl lg:text-2xl mb-6 text-charcoal">
                 Sé parte de nuestras historias
               </h3>
 
-              <p className="text-warm-gray text-lg font-light mb-8 max-w-md mx-auto lg:mx-0">
+              <p className="font-montserrat text-warm-gray text-lg font-light mb-8 max-w-md mx-auto lg:mx-0">
                 Síguenos en instagram para ser parte del proceso e inspirar nuestros pares.
               </p>
 
@@ -73,46 +76,54 @@ export default function Footer() {
         {/* Main Footer */}
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 lg:gap-16">
-            {/* Brand */}
-            <div className="md:col-span-2 space-y-6">
-              <img src="/logo.png" alt="H de Helena" className="h-16 w-auto mb-6 opacity-90" />
-
-              <p className="text-charcoal/70 font-light leading-relaxed max-w-md">
-                Creamos piezas artesanales que celebran la belleza de lo auténtico
-                y la elegancia de lo simple. Cada objeto cuenta una historia de
-                dedicación y maestría.
-              </p>
-
-              <div className="flex items-center space-x-6">
-                <a href="#" className="text-charcoal/60 hover:text-charcoal transition-colors duration-300">
-                  <Instagram size={20} strokeWidth={1.5} />
-                </a>
-                <a href="mailto:hola@hdehelena.com" className="text-charcoal/60 hover:text-charcoal transition-colors duration-300">
-                  <Mail size={20} strokeWidth={1.5} />
-                </a>
-                <a href="tel:+34123456789" className="text-charcoal/60 hover:text-charcoal transition-colors duration-300">
-                  <Phone size={20} strokeWidth={1.5} />
-                </a>
-              </div>
+            {/* Logo */}
+            <div className="flex flex-col items-center md:items-start space-y-6">
+              <img src="/logo.png" alt="H de Helena" className="h-16 w-auto opacity-90 object-contain" />
             </div>
 
-            {/* Atención al Cliente */}
+            {/* Soporte */}
             <div className="space-y-6">
-              <h4 className="font-serif text-lg text-charcoal">Atención al Cliente</h4>
-              <ul className="space-y-3">
-                {footerLinks.atención.map((link) => (
+              <h4 className="font-montserrat font-bold text-sm tracking-widest text-charcoal uppercase">Soporte</h4>
+              <ul className="space-y-4">
+                {footerLinks.soporte.map((link) => (
                   <li key={link.name}>
-                    {link.href.startsWith('#') ? (
+                    <Link
+                      to={link.href}
+                      className="font-sans text-xs md:text-sm font-medium text-charcoal hover:text-charcoal/70 transition-colors duration-300"
+                    >
+                      {link.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Servicios */}
+            <div className="space-y-6">
+              <h4 className="font-montserrat font-bold text-sm tracking-widest text-charcoal uppercase">Servicios</h4>
+              <ul className="space-y-4">
+                {footerLinks.servicios.map((link) => (
+                  <li key={link.name}>
+                    {link.href.startsWith('https') ? (
                       <a
                         href={link.href}
-                        className="text-charcoal/60 hover:text-charcoal transition-colors duration-300 font-light"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-sans text-xs md:text-sm font-medium text-charcoal hover:text-charcoal/70 transition-colors duration-300"
+                      >
+                        {link.name}
+                      </a>
+                    ) : link.href.startsWith('/#') ? (
+                      <a
+                        href={link.href}
+                        className="font-sans text-xs md:text-sm font-medium text-charcoal hover:text-charcoal/70 transition-colors duration-300"
                       >
                         {link.name}
                       </a>
                     ) : (
                       <Link
                         to={link.href}
-                        className="text-charcoal/60 hover:text-charcoal transition-colors duration-300 font-light"
+                        className="font-sans text-xs md:text-sm font-medium text-charcoal hover:text-charcoal/70 transition-colors duration-300"
                       >
                         {link.name}
                       </Link>
@@ -124,21 +135,21 @@ export default function Footer() {
 
             {/* Compañía */}
             <div className="space-y-6">
-              <h4 className="font-serif text-lg text-charcoal">Compañía</h4>
-              <ul className="space-y-3">
+              <h4 className="font-montserrat font-bold text-sm tracking-widest text-charcoal uppercase">Compañía</h4>
+              <ul className="space-y-4">
                 {footerLinks.compañía.map((link) => (
                   <li key={link.name}>
-                    {link.href.startsWith('#') ? (
+                    {link.href.startsWith('/#') ? (
                       <a
                         href={link.href}
-                        className="text-charcoal/60 hover:text-charcoal transition-colors duration-300 font-light"
+                        className="font-sans text-xs md:text-sm font-medium text-charcoal hover:text-charcoal/70 transition-colors duration-300"
                       >
                         {link.name}
                       </a>
                     ) : (
                       <Link
                         to={link.href}
-                        className="text-charcoal/60 hover:text-charcoal transition-colors duration-300 font-light"
+                        className="font-sans text-xs md:text-sm font-medium text-charcoal hover:text-charcoal/70 transition-colors duration-300"
                       >
                         {link.name}
                       </Link>
