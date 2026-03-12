@@ -61,9 +61,9 @@ export default function ProductGrid({ onAddToCart, onProductClick, limit }: Prod
             <button
               key={category.key}
               onClick={() => setSelectedCategory(category.key)}
-              className={`font-montserrat text-xs px-6 py-2 font-medium tracking-wide transition-all duration-300 ${selectedCategory === category.key
+              className={`font-montserrat text-[11px] lg:text-xs px-6 py-2 font-medium tracking-wide transition-all duration-300 ${selectedCategory === category.key
                 ? 'text-charcoal border-b border-charcoal'
-                : 'text-warm-gray hover:text-charcoal'
+                : 'text-warm-gray/60 hover:text-charcoal'
                 }`}
             >
               {category.label}
@@ -86,7 +86,7 @@ export default function ProductGrid({ onAddToCart, onProductClick, limit }: Prod
         </div>
 
         {/* View All Button */}
-        <div className="flex justify-center mt-16">
+        <div className="flex justify-center text-xs mt-16">
           <a
             href="/shop"
             className="btn-primary"

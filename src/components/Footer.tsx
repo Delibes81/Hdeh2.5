@@ -45,7 +45,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-3 px-8 py-4 rounded-full border-2 border-charcoal text-charcoal hover:bg-charcoal hover:text-white transition-all duration-300 group"
                 >
-                  <Instagram size={24} strokeWidth={1.5} className="group-hover:scale-110 transition-transform duration-300" />
+                  <Instagram size={24} strokeWidth={1.5} className="text-xs group-hover:scale-110 transition-transform duration-300" />
                   <span className="font-light text-lg">@h.de.helena</span>
                 </a>
               </div>

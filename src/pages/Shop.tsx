@@ -69,13 +69,13 @@ export default function Shop({ onAddToCart, onProductClick }: ShopProps) {
                     {/* Search Bar */}
                     <div className="mb-6">
                         <div className="relative max-w-md mx-auto">
-                            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-warm-gray" size={20} />
+                            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-warm-gray" size={16} />
                             <input
                                 type="text"
                                 placeholder="Buscar tu próximo favorito..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-12 pr-4 py-3 bg-white border border-warm-gray/20 rounded-full focus:border-charcoal focus:outline-none transition-all duration-300 text-charcoal placeholder-warm-gray/60"
+                                className="w-full pl-10 pr-4 py-2.5 bg-white border border-warm-gray/20 rounded-full focus:border-charcoal focus:outline-none transition-all duration-300 text-charcoal text-xs font-light placeholder-warm-gray/60"
                             />
                         </div>
                     </div>
