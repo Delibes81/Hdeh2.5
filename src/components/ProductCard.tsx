@@ -53,7 +53,7 @@ export default function ProductCard({ product, onAddToCart, onProductClick, inde
           {product.name}
         </h3>
 
-        <p className="font-sans uppercase text-warm-gray font-light text-xs lg:text-sm">
+        <p className="font-sans uppercase text-warm-gray font-light text-xs lg:text-[13px]">
           {formatPrice(product.price)}
         </p>
       </div>

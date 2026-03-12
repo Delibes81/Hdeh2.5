@@ -2,8 +2,8 @@ export const formatPrice = (amount: number): string => {
     const formatted = new Intl.NumberFormat('es-MX', {
         style: 'currency',
         currency: 'MXN',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
     }).format(amount);
 
     // El formateador nativo 'es-MX' a veces pone sólo "$" 

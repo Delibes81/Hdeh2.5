@@ -58,7 +58,7 @@ export default function Shop({ onAddToCart, onProductClick }: ShopProps) {
 
                 <div className="relative max-w-7xl mx-auto px-6 lg:px-8 text-center">
                     <h1 className="font-serif font-light text-5xl lg:text-7xl text-charcoal">
-                        El Par perfecto
+                        El par perfecto
                     </h1>
                 </div>
             </section>
