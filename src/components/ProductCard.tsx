@@ -31,14 +31,14 @@ export default function ProductCard({ product, onAddToCart, onProductClick, inde
     >
       {/* Product Image */}
       <div
-        className="relative aspect-[4/5] mb-6 overflow-hidden bg-white"
+        className="relative aspect-[4/5] overflow-hidden bg-white flex flex-col justify-end"
         onMouseEnter={handleImageChange}
       >
         <img
           src={product.images[imageIndex]}
           alt={product.name}
           onLoad={() => setImageLoaded(true)}
-          className={`w-full h-full object-contain p-4 transition-all duration-700 group-hover:scale-105 ${imageLoaded ? 'opacity-100 blur-0' : 'opacity-0 blur-sm'}`}
+          className={`w-full h-full object-contain transition-all duration-700 group-hover:scale-105 ${imageLoaded ? 'opacity-100 blur-0' : 'opacity-0 blur-sm'}`}
         />
 
 
@@ -48,7 +48,7 @@ export default function ProductCard({ product, onAddToCart, onProductClick, inde
       </div>
 
       {/* Product Info */}
-      <div className="space-y-2 text-center md:text-left">
+      <div className="space-y-0 text-center">
         <h3 className="font-serif font-light text-xl lg:text-2xl text-charcoal group-hover:text-warm-gray transition-colors duration-300">
           {product.name}
         </h3>
