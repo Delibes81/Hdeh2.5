@@ -12,15 +12,15 @@ export default function PhilosophySection() {
         <div ref={elementRef} className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
           {/* Text Content */}
           <div className={`space-y-8 transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-20'}`}>
-            <h2 className="font-serif uppercase font-light text-3xl md:text-3xl lg:text-3xl text-charcoal leading-tight">
+            <h2 className="font-serif uppercase font-light text-2xl md:text-2xl lg:text-2xl text-charcoal leading-tight">
               Un poquito
               <br />
               sobre nosotros
             </h2>
 
-            <div className="space-y-6 text-warm-gray text-lg font-sans lowercase font-light leading-relaxed">
+            <div className="space-y-6 text-warm-gray text-base font-sans font-light leading-relaxed">
               <p>
-                <span className="uppercase">H</span> de Helena nació con el sueño de reinventar el calzado mexicano, siendo una firma que celebra la autenticidad a través de piezas creadas a mano, utilizando pieles de la más alta calidad y una visión estética que fusiona color, textura y diseño atemporal. Cada par es el resultado de manos expertas y de un enfoque particular a ser unicos, pensados para acompañar historias personales, recorridos significativos y momentos que se convierten en memoria.
+                <span className="uppercase">H</span> de Helena nació con el sueño de reinventar el calzado mexicano, siendo una firma que celebra la autenticidad a través de piezas creadas a mano, utilizando pieles de la más alta calidad y una visión estética que fusiona color, textura y diseño atemporal. Cada par es el resultado de manos expertas y de un enfoque particular a ser únicos, pensados para acompañar historias personales, recorridos significativos y momentos que se convierten en memoria.
               </p>
 
               <p>

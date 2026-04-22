@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Package, Calendar, MapPin, ChevronDown, ChevronUp, Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { formatPrice } from '../../utils/format';
 
 interface OrderItem {
     id: string;
@@ -164,8 +165,8 @@ export default function OrderList() {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-2xl font-serif text-charcoal">Pedidos</h2>
-                    <p className="text-warm-gray text-sm mt-1">Gestiona tus ventas y envíos</p>
+                    <h2 className="font-serif text-2xl font-light uppercase tracking-wide text-charcoal">Pedidos</h2>
+                    <p className="text-warm-gray text-sm mt-1 font-sans">Gestiona tus ventas y envíos</p>
                 </div>
                 <div className="bg-white px-4 py-2 rounded-lg border border-stone/10 text-sm font-medium text-charcoal">
                     Total: {filteredOrders.length} pedidos
@@ -173,7 +174,7 @@ export default function OrderList() {
             </div>
 
             {/* Controls Bar */}
-            <div className="bg-white p-4 rounded-xl border border-stone/10 flex flex-col md:flex-row gap-4 items-center justify-between shadow-sm">
+            <div className="bg-white p-4 rounded-lg border border-stone/20 flex flex-col md:flex-row gap-4 items-center justify-between shadow-sm">
                 <div className="relative w-full md:w-96">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-warm-gray" size={18} />
                     <input
@@ -217,7 +218,7 @@ export default function OrderList() {
                 </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-stone/10 overflow-hidden">
+            <div className="bg-white rounded-lg shadow-sm border border-stone/20 overflow-hidden">
                 {paginatedOrders.length === 0 ? (
                     <div className="p-12 text-center text-warm-gray flex flex-col items-center">
                         <Package size={48} className="mb-4 opacity-30" />
@@ -237,7 +238,7 @@ export default function OrderList() {
                                             <span className="font-mono text-xs text-warm-gray bg-stone/10 px-2 py-0.5 rounded">
                                                 #{order.id.slice(0, 8)}
                                             </span>
-                                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${order.status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
+                                            <span className={`text-xs px-3 py-1 rounded-full font-sans font-bold border inline-block ${order.status === 'paid' ? 'border-charcoal bg-charcoal text-cream' : 'border-stone/20 bg-stone/5 text-charcoal'
                                                 }`}>
                                                 {order.status === 'paid' ? 'Pagado' : order.status}
                                             </span>
@@ -260,7 +261,7 @@ export default function OrderList() {
                                                     e.stopPropagation();
                                                     updateStatus(order.id, 'enviado');
                                                 }}
-                                                className="px-3 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors"
+                                                className="btn-secondary text-xs"
                                             >
                                                 Marcar Enviado
                                             </button>
@@ -268,14 +269,24 @@ export default function OrderList() {
 
                                     </div>
 
-                                    <div className="text-right min-w-[100px]">
-                                        <p className="text-lg font-serif text-charcoal font-medium">
-                                            ${order.total_amount.toFixed(2)}
-                                        </p>
-                                        <p className="text-xs text-warm-gray">
-                                            {order.order_items.length} {order.order_items.length === 1 ? 'item' : 'items'}
-                                        </p>
-                                    </div>
+                                        <div className="text-right min-w-[100px]">
+                                            <div className="text-lg font-serif text-charcoal font-medium flex items-baseline justify-end gap-1">
+                                                <span className="font-sans text-[0.8em] font-medium">$</span>
+                                                {(() => {
+                                                    const priceStr = formatPrice(order.total_amount).replace('$', '');
+                                                    const parts = priceStr.split(' ');
+                                                    return (
+                                                        <>
+                                                            <span>{parts[0]}</span>
+                                                            {parts[1] && <span className="text-xs font-sans text-warm-gray ml-1 font-normal uppercase tracking-normal">{parts[1]}</span>}
+                                                        </>
+                                                    );
+                                                })()}
+                                            </div>
+                                            <p className="text-xs text-warm-gray mt-1">
+                                                {order.order_items.length} {order.order_items.length === 1 ? 'item' : 'items'}
+                                            </p>
+                                        </div>
 
                                     <button className="text-charcoal opacity-50 hover:opacity-100">
                                         {expandedOrderId === order.id ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
@@ -332,7 +343,7 @@ export default function OrderList() {
                                                                 </p>
                                                             </div>
                                                             <p className="text-sm font-medium text-charcoal">
-                                                                ${(item.price_at_purchase * item.quantity).toFixed(2)}
+                                                                {formatPrice(item.price_at_purchase * item.quantity)}
                                                             </p>
                                                         </div>
                                                     ))}

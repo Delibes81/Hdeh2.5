@@ -131,18 +131,38 @@ export default function DashboardHome() {
         }
     };
 
-    const StatCard = ({ title, value, subtext, icon: Icon, colorClass }: any) => (
-        <div className="bg-white p-6 rounded-xl border border-stone/10 shadow-sm flex items-start justify-between">
-            <div>
-                <p className="text-sm font-medium text-warm-gray mb-1">{title}</p>
-                <h3 className="text-2xl font-serif text-charcoal">{value}</h3>
-                {subtext && <p className="text-xs text-warm-gray mt-2">{subtext}</p>}
+    const StatCard = ({ title, value, subtext, icon: Icon }: any) => {
+        // Envolvemos el símbolo $ en font-sans para que se dibuje con 1 sola línea (Libre Bodoni usa 2 líneas)
+        let displayValue: React.ReactNode = value;
+        if (typeof value === 'string' && value.includes('$')) {
+            const parts = value.split('$');
+            // parts[1] contains "20 MXN"
+            const amountParts = parts[1].split(' ');
+            const amount = amountParts[0];
+            const currency = amountParts[1] || '';
+
+            displayValue = (
+                <div className="flex items-baseline gap-1">
+                    <span className="font-sans font-medium text-[0.8em]">$</span>
+                    <span>{amount}</span>
+                    {currency && <span className="text-xs font-sans text-warm-gray ml-1 tracking-normal">{currency}</span>}
+                </div>
+            );
+        }
+
+        return (
+            <div className="bg-white p-6 rounded-lg border border-stone/20 shadow-sm flex items-start justify-between">
+                <div>
+                    <p className="text-xs font-sans uppercase tracking-wide text-warm-gray mb-1">{title}</p>
+                    <h3 className="text-3xl font-serif font-light text-charcoal">{displayValue}</h3>
+                    {subtext && <p className="text-xs font-sans text-warm-gray mt-2">{subtext}</p>}
+                </div>
+                <div className="p-3 rounded-full border border-stone/20 bg-stone/5 text-charcoal">
+                    <Icon size={20} strokeWidth={1.5} />
+                </div>
             </div>
-            <div className={`p-3 rounded-lg ${colorClass}`}>
-                <Icon size={24} />
-            </div>
-        </div>
-    );
+        );
+    };
 
     if (loading) {
         return (
@@ -155,8 +175,8 @@ export default function DashboardHome() {
     return (
         <div className="space-y-8 animate-fade-in">
             <div>
-                <h2 className="font-serif text-2xl text-charcoal">Resumen</h2>
-                <p className="text-warm-gray text-sm mt-1">Vista general del rendimiento de tu tienda.</p>
+                <h2 className="font-serif text-2xl font-light uppercase tracking-wide text-charcoal">Resumen</h2>
+                <p className="text-warm-gray text-sm mt-1 font-sans">Vista general del rendimiento de tu tienda.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -165,29 +185,26 @@ export default function DashboardHome() {
                     value={formatPrice(stats.totalSales)}
                     subtext="Ingresos brutos"
                     icon={DollarSign}
-                    colorClass="bg-emerald-100 text-emerald-700"
                 />
                 <StatCard
                     title="Pendientes de Envío"
                     value={stats.pendingOrders}
                     subtext="Pedidos para preparar"
                     icon={ShoppingBag}
-                    colorClass="bg-amber-100 text-amber-700"
                 />
                 <StatCard
                     title="Ticket Promedio"
                     value={formatPrice(stats.avgTicket)}
                     subtext="Por pedido"
                     icon={TrendingUp}
-                    colorClass="bg-blue-100 text-blue-700"
                 />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Sales Chart (2/3 width) */}
-                <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-stone/10 shadow-sm">
+                <div className="lg:col-span-2 bg-white p-6 rounded-lg border border-stone/20 shadow-sm">
                     <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-lg font-serif text-charcoal">Tendencia de Ventas</h3>
+                        <h3 className="text-lg font-serif font-light uppercase tracking-wide text-charcoal">Tendencia de Ventas</h3>
                         <div className="relative">
                             <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-warm-gray" size={14} />
                             <select
@@ -238,10 +255,10 @@ export default function DashboardHome() {
                 </div>
 
                 {/* Low Stock List (1/3 width) */}
-                <div className="bg-white p-6 rounded-xl border border-stone/10 shadow-sm flex flex-col">
+                <div className="bg-white p-6 rounded-lg border border-stone/20 shadow-sm flex flex-col">
                     <div className="flex items-center gap-2 mb-6">
-                        <AlertTriangle className="text-amber-500" size={20} />
-                        <h3 className="text-lg font-serif text-charcoal">Alertas de Stock</h3>
+                        <AlertTriangle className="text-charcoal" size={20} strokeWidth={1.5} />
+                        <h3 className="text-lg font-serif font-light uppercase tracking-wide text-charcoal">Alertas de Stock</h3>
                     </div>
 
                     {lowStockItems.length === 0 ? (
@@ -270,7 +287,7 @@ export default function DashboardHome() {
                                             Talla: {item.size?.replace(' MX', '')}
                                         </p>
                                     </div>
-                                    <div className={`text-xs font-bold px-2 py-1 rounded-full ${item.stock === 0 ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-700'
+                                    <div className={`text-xs font-sans font-bold px-3 py-1 rounded-full border ${item.stock === 0 ? 'border-charcoal bg-charcoal text-cream' : 'border-stone/20 bg-stone/5 text-charcoal'
                                         }`}>
                                         {item.stock} u.
                                     </div>

@@ -236,10 +236,10 @@ export default function ProductForm({ product, onClose, onSave }: ProductFormPro
 
     return (
         <div className="fixed inset-0 z-50 overflow-hidden flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+            <div className="bg-white rounded-lg shadow-sm border border-stone/20 w-full max-w-4xl max-h-[90vh] flex flex-col">
                 {/* Header */}
-                <div className="flex justify-between items-center p-6 border-b border-stone/10">
-                    <h2 className="font-serif text-2xl text-charcoal">
+                <div className="flex justify-between items-center p-6 border-b border-stone/20">
+                    <h2 className="font-serif text-2xl font-light uppercase tracking-wide text-charcoal">
                         {product ? 'Editar Producto' : 'Nuevo Producto'}
                     </h2>
                     <button onClick={onClose} className="text-warm-gray hover:text-charcoal">
@@ -248,22 +248,22 @@ export default function ProductForm({ product, onClose, onSave }: ProductFormPro
                 </div>
 
                 {/* Tabs */}
-                <div className="flex border-b border-stone/10 bg-stone/5">
+                <div className="flex border-b border-stone/20 bg-stone/5">
                     <button
                         onClick={() => setActiveTab('details')}
-                        className={`flex-1 py-3 text-sm font-medium transition-colors ${activeTab === 'details' ? 'bg-white border-t-2 border-charcoal text-charcoal' : 'text-warm-gray hover:text-charcoal'}`}
+                        className={`flex-1 py-3 text-xs font-sans uppercase tracking-wide font-medium transition-colors ${activeTab === 'details' ? 'bg-white border-t-2 border-charcoal text-charcoal' : 'text-warm-gray hover:text-charcoal'}`}
                     >
                         Detalles
                     </button>
                     <button
                         onClick={() => setActiveTab('variants')}
-                        className={`flex-1 py-3 text-sm font-medium transition-colors ${activeTab === 'variants' ? 'bg-white border-t-2 border-charcoal text-charcoal' : 'text-warm-gray hover:text-charcoal'}`}
+                        className={`flex-1 py-3 text-xs font-sans uppercase tracking-wide font-medium transition-colors ${activeTab === 'variants' ? 'bg-white border-t-2 border-charcoal text-charcoal' : 'text-warm-gray hover:text-charcoal'}`}
                     >
                         Tallas y Stock
                     </button>
                     <button
                         onClick={() => setActiveTab('images')}
-                        className={`flex-1 py-3 text-sm font-medium transition-colors ${activeTab === 'images' ? 'bg-white border-t-2 border-charcoal text-charcoal' : 'text-warm-gray hover:text-charcoal'}`}
+                        className={`flex-1 py-3 text-xs font-sans uppercase tracking-wide font-medium transition-colors ${activeTab === 'images' ? 'bg-white border-t-2 border-charcoal text-charcoal' : 'text-warm-gray hover:text-charcoal'}`}
                     >
                         Imágenes
                     </button>
@@ -408,9 +408,9 @@ export default function ProductForm({ product, onClose, onSave }: ProductFormPro
                                     <button
                                         type="button"
                                         onClick={handleAddVariant}
-                                        className="px-4 py-2 bg-charcoal text-white rounded hover:bg-warm-gray transition-colors flex items-center gap-2"
+                                        className="btn-primary py-2 px-6 flex items-center justify-center gap-2 text-xs"
                                     >
-                                        <Plus size={16} /> Agregar Talla
+                                        <Plus size={16} strokeWidth={1.5} /> Agregar Talla
                                     </button>
                                 </div>
 
@@ -526,11 +526,11 @@ export default function ProductForm({ product, onClose, onSave }: ProductFormPro
                 </div>
 
                 {/* Footer */}
-                <div className="p-6 border-t border-stone/10 flex justify-end gap-3 bg-stone/5">
+                <div className="p-6 border-t border-stone/20 flex justify-end gap-3 bg-stone/5">
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-6 py-2 border border-warm-gray/30 rounded text-warm-gray hover:text-charcoal transition-colors"
+                        className="btn-secondary"
                         disabled={loading}
                     >
                         Cancelar
@@ -539,7 +539,7 @@ export default function ProductForm({ product, onClose, onSave }: ProductFormPro
                         type="submit"
                         form="product-form"
                         disabled={loading}
-                        className="px-6 py-2 bg-charcoal text-cream rounded hover:bg-warm-gray transition-colors flex items-center gap-2"
+                        className="btn-primary flex items-center gap-2"
                     >
                         {loading && <Loader2 className="animate-spin" size={16} />}
                         {product ? 'Guardar Cambios' : 'Crear Producto'}

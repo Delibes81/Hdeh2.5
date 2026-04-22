@@ -42,7 +42,7 @@ export default function Header({ cart, onCartClick }: HeaderProps) {
                 <Link
                   key={item.name}
                   to={item.href}
-                  className="font-sans uppercase text-warm-gray hover:text-charcoal transition-colors duration-300 font-medium tracking-wide text-sm"
+                  className="font-sans uppercase text-warm-gray hover:text-charcoal transition-colors duration-300 font-medium tracking-wide text-xs"
                   onClick={() => {
                     if (item.href === '/') window.scrollTo(0, 0);
                   }}
@@ -53,7 +53,7 @@ export default function Header({ cart, onCartClick }: HeaderProps) {
                 <a
                   key={item.name}
                   href={item.href}
-                  className="font-sans uppercase text-warm-gray hover:text-charcoal transition-colors duration-300 font-medium tracking-wide text-sm"
+                  className="font-sans uppercase text-warm-gray hover:text-charcoal transition-colors duration-300 font-medium tracking-wide text-xs"
                 >
                   {item.name}
                 </a>
@@ -103,7 +103,7 @@ export default function Header({ cart, onCartClick }: HeaderProps) {
                       setIsMenuOpen(false);
                       if (item.href === '/') window.scrollTo(0, 0);
                     }}
-                    className="font-sans uppercase text-warm-gray hover:text-charcoal transition-colors duration-300 font-medium tracking-wide py-2"
+                    className="font-sans uppercase text-warm-gray hover:text-charcoal transition-colors duration-300 font-medium tracking-wide text-sm py-2"
                   >
                     {item.name}
                   </Link>
@@ -112,7 +112,7 @@ export default function Header({ cart, onCartClick }: HeaderProps) {
                     key={item.name}
                     href={item.href}
                     onClick={() => setIsMenuOpen(false)}
-                    className="font-sans uppercase text-warm-gray hover:text-charcoal transition-colors duration-300 font-medium tracking-wide py-2"
+                    className="font-sans uppercase text-warm-gray hover:text-charcoal transition-colors duration-300 font-medium tracking-wide text-sm py-2"
                   >
                     {item.name}
                   </a>

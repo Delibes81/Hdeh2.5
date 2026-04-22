@@ -32,14 +32,14 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen bg-off-white flex items-center justify-center p-4">
-            <div className="w-full max-w-md bg-white rounded-lg shadow-xl overflow-hidden">
+        <div className="min-h-screen bg-white flex items-center justify-center p-4">
+            <div className="w-full max-w-md bg-white rounded-lg shadow-sm border border-stone/20 overflow-hidden">
                 <div className="p-8 bg-charcoal text-cream text-center">
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-cream/10 mb-4">
                         <Lock size={32} />
                     </div>
-                    <h1 className="font-serif text-3xl font-light">Admin Access</h1>
-                    <p className="text-cream/60 mt-2 text-sm">H de Helena Management</p>
+                    <h1 className="font-serif text-3xl font-light uppercase tracking-wide">Admin Access</h1>
+                    <p className="text-cream/60 mt-2 text-sm font-sans">H de Helena Management</p>
                 </div>
 
                 <div className="p-8">
@@ -87,7 +87,7 @@ export default function Login() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full btn-primary bg-charcoal text-cream hover:bg-warm-gray flex items-center justify-center"
+                            className="w-full btn-primary flex items-center justify-center"
                         >
                             {loading ? (
                                 <>

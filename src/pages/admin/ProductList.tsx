@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { Product } from '../../types';
 import { Edit, Trash2, Plus, Search, Loader2, ArrowUpDown, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductForm from './ProductForm';
+import { formatPrice } from '../../utils/format';
 
 export default function ProductList() {
     const [products, setProducts] = useState<Product[]>([]);
@@ -125,20 +126,20 @@ export default function ProductList() {
     return (
         <div className="space-y-6 animate-fade-in">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <h2 className="font-serif text-2xl text-charcoal">Inventario</h2>
+                <h2 className="font-serif text-2xl font-light uppercase tracking-wide text-charcoal">Inventario</h2>
 
                 <button
                     onClick={handleCreate}
-                    className="btn-primary bg-charcoal text-white flex items-center justify-center gap-2"
+                    className="btn-primary flex items-center justify-center gap-2"
                 >
-                    <Plus size={18} />
+                    <Plus size={18} strokeWidth={1.5} />
                     Nuevo Producto
                 </button>
             </div>
 
             <div className="bg-white rounded-lg border border-stone/20 overflow-hidden">
                 {/* Filter Bar */}
-                <div className="p-4 border-b border-stone/10 bg-stone/5 flex flex-col md:flex-row gap-4 justify-between">
+                <div className="p-4 border-b border-stone/20 bg-stone/5 flex flex-col md:flex-row gap-4 justify-between">
                     <div className="relative max-w-md w-full">
                         <Search className="absolute left-3 top-2.5 text-warm-gray/50" size={18} />
                         <input
@@ -176,7 +177,7 @@ export default function ProductList() {
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-stone/5 text-warm-gray text-xs uppercase tracking-wider">
+                            <tr className="bg-stone/5 text-warm-gray text-xs uppercase tracking-wider font-sans">
                                 <th className="p-4 font-medium">Producto</th>
                                 <th className="p-4 font-medium">Categoría</th>
                                 <th className="p-4 font-medium">Precio</th>
@@ -184,7 +185,7 @@ export default function ProductList() {
                                 <th className="p-4 font-medium text-right">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-stone/10">
+                        <tbody className="divide-y divide-stone/20">
                             {/* Pagination Logic */}
                             {(() => {
                                 const indexOfLastItem = currentPage * itemsPerPage;
@@ -218,15 +219,15 @@ export default function ProductList() {
                                                             product.category === 'botas' ? 'Botas' : product.category}
                                                 </span>
                                             </td>
-                                            <td className="p-4 font-medium text-charcoal">${product.price}</td>
+                                            <td className="p-4 font-medium text-charcoal">{formatPrice(product.price)}</td>
                                             <td className="p-4">
-                                                <div className="flex items-center gap-2">
-                                                    <span className={`w-2 h-2 rounded-full ${isOutStock ? 'bg-red-500' : isLowStock ? 'bg-amber-500' : 'bg-emerald-500'}`}></span>
-                                                    <span className={isOutStock ? 'text-red-600' : isLowStock ? 'text-amber-600' : 'text-emerald-700'}>
+                                                <div className="mb-2">
+                                                    <span className={`text-xs font-sans font-bold px-3 py-1 rounded-full border inline-block ${isOutStock ? 'border-charcoal bg-charcoal text-cream' : isLowStock ? 'border-stone/20 bg-stone/5 text-charcoal' : 'border-stone/20 bg-transparent text-warm-gray'
+                                                        }`}>
                                                         {totalStock} unidades
                                                     </span>
                                                 </div>
-                                                <div className="text-xs text-warm-gray mt-1">
+                                                <div className="text-xs text-warm-gray">
                                                     {product.variants?.map(v => `${v.size.replace(' MX', '')}: ${v.stock}`).join(', ')}
                                                 </div>
                                             </td>
@@ -262,7 +263,7 @@ export default function ProductList() {
 
                 {/* Pagination Controls */}
                 {filteredProducts.length > 0 && (
-                    <div className="p-4 border-t border-stone/10 flex items-center justify-between">
+                    <div className="p-4 border-t border-stone/20 flex items-center justify-between">
                         <div className="text-sm text-warm-gray">
                             Mostrando <span className="font-medium text-charcoal">{Math.min((currentPage * itemsPerPage), filteredProducts.length)}</span> de <span className="font-medium text-charcoal">{filteredProducts.length}</span> productos
                         </div>

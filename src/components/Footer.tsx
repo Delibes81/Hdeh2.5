@@ -38,7 +38,7 @@ export default function Footer() {
               </h3>
 
               <p className="font-montserrat text-warm-gray text-lg font-light mb-8 max-w-md mx-auto lg:mx-0">
-                Síguenos en instagram para ser parte del proceso e inspirar nuestros pares.
+                Síguenos en Instagram para ser parte del proceso e inspirar nuestros pares.
               </p>
 
               <div>

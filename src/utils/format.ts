@@ -6,7 +6,5 @@ export const formatPrice = (amount: number): string => {
         maximumFractionDigits: 0,
     }).format(amount);
 
-    // El formateador nativo 'es-MX' a veces pone sólo "$" 
-    // Agregamos explícitamente "MXN" si no aparece
     return formatted.includes('MXN') ? formatted : `${formatted} MXN`;
 };
