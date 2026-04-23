@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Product } from '../../types';
-import { Edit, Trash2, Plus, Search, Loader2, ArrowUpDown, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Edit, Trash2, Plus, Search, Loader2, ArrowUpDown, ChevronDown, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import ProductForm from './ProductForm';
 import { formatPrice } from '../../utils/format';
 
@@ -145,13 +145,24 @@ export default function ProductList() {
                         <input
                             type="text"
                             placeholder="Buscar por nombre o categoría..."
-                            className="w-full pl-10 pr-4 py-2 border border-stone/20 rounded focus:outline-none focus:border-charcoal"
+                            className="w-full pl-10 pr-10 py-2 border border-stone/20 rounded focus:outline-none focus:border-charcoal"
                             value={searchTerm}
                             onChange={(e) => {
                                 setSearchTerm(e.target.value);
                                 setCurrentPage(1); // Reset to first page on filter change
                             }}
                         />
+                        {searchTerm && (
+                            <button
+                                onClick={() => {
+                                    setSearchTerm('');
+                                    setCurrentPage(1);
+                                }}
+                                className="absolute right-3 top-2.5 text-warm-gray/50 hover:text-charcoal transition-colors"
+                            >
+                                <X size={18} />
+                            </button>
+                        )}
                     </div>
 
                     <div className="relative w-full md:w-48">

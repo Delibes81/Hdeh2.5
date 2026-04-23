@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Product, ProductVariant } from '../../types';
 import { supabase } from '../../lib/supabase';
-import { X, Upload, Plus, Trash2, Loader2, Save, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, Upload, Plus, Trash2, Loader2, Save, ChevronLeft, ChevronRight, Edit } from 'lucide-react';
 
 const formatBytes = (bytes: number, decimals = 2) => {
     if (!+bytes) return '0 Bytes';
@@ -39,6 +39,8 @@ export default function ProductForm({ product, onClose, onSave }: ProductFormPro
     const [variants, setVariants] = useState<ProductVariant[]>(product?.variants || []);
     const [newSize, setNewSize] = useState('');
     const [newStock, setNewStock] = useState('');
+    const [editingVariantIdx, setEditingVariantIdx] = useState<number | null>(null);
+    const [editingStock, setEditingStock] = useState<string>('');
 
     // Save Handler
     const handleSubmit = async (e: React.FormEvent) => {
@@ -46,6 +48,18 @@ export default function ProductForm({ product, onClose, onSave }: ProductFormPro
         setLoading(true);
 
         try {
+            // Ensure any pending inline edit is applied
+            let finalVariants = [...variants];
+            if (editingVariantIdx !== null) {
+                const parsed = parseInt(editingStock, 10);
+                const stock = isNaN(parsed) ? 0 : parsed;
+                if (stock >= 0) {
+                    finalVariants[editingVariantIdx] = { ...finalVariants[editingVariantIdx], stock };
+                    setVariants(finalVariants);
+                }
+                setEditingVariantIdx(null);
+            }
+
             const productData = {
                 name,
                 price: parseFloat(price),
@@ -88,8 +102,8 @@ export default function ProductForm({ product, onClose, onSave }: ProductFormPro
                 await supabase.from('product_variants').delete().eq('product_id', productId);
 
                 // Insert new variants
-                if (variants.length > 0) {
-                    const variantsToInsert = variants.map(v => ({
+                if (finalVariants.length > 0) {
+                    const variantsToInsert = finalVariants.map(v => ({
                         product_id: productId,
                         size: v.size.includes('MX') ? v.size : `${v.size} MX`,
                         stock: v.stock
@@ -427,15 +441,72 @@ export default function ProductForm({ product, onClose, onSave }: ProductFormPro
                                             {variants.map((variant, idx) => (
                                                 <tr key={idx}>
                                                     <td className="p-3 font-medium">{variant.size.replace(' MX', '')}</td>
-                                                    <td className="p-3">{variant.stock}</td>
+                                                    <td className="p-3">
+                                                        {editingVariantIdx === idx ? (
+                                                            <input 
+                                                                type="number" 
+                                                                min="0"
+                                                                className="w-20 p-1 border border-stone/20 rounded outline-none" 
+                                                                value={editingStock} 
+                                                                onChange={(e) => setEditingStock(e.target.value)}
+                                                                autoFocus
+                                                            />
+                                                        ) : (
+                                                            variant.stock
+                                                        )}
+                                                    </td>
                                                     <td className="p-3 text-right">
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => removeVariant(idx)}
-                                                            className="text-warm-gray hover:text-red-600"
-                                                        >
-                                                            <Trash2 size={16} />
-                                                        </button>
+                                                        {editingVariantIdx === idx ? (
+                                                            <div className="flex justify-end gap-2">
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        const parsed = parseInt(editingStock, 10);
+                                                                        const stock = isNaN(parsed) ? 0 : parsed;
+                                                                        if (stock >= 0) {
+                                                                            const newVariants = [...variants];
+                                                                            newVariants[idx] = { ...newVariants[idx], stock };
+                                                                            setVariants(newVariants);
+                                                                        }
+                                                                        setEditingVariantIdx(null);
+                                                                    }}
+                                                                    className="text-green-600 hover:text-green-700"
+                                                                    title="Guardar"
+                                                                >
+                                                                    <Save size={16} />
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => setEditingVariantIdx(null)}
+                                                                    className="text-warm-gray hover:text-charcoal"
+                                                                    title="Cancelar"
+                                                                >
+                                                                    <X size={16} />
+                                                                </button>
+                                                            </div>
+                                                        ) : (
+                                                            <div className="flex justify-end gap-2">
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        setEditingVariantIdx(idx);
+                                                                        setEditingStock(variant.stock.toString());
+                                                                    }}
+                                                                    className="text-warm-gray hover:text-charcoal"
+                                                                    title="Editar stock"
+                                                                >
+                                                                    <Edit size={16} />
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => removeVariant(idx)}
+                                                                    className="text-warm-gray hover:text-red-600"
+                                                                    title="Eliminar"
+                                                                >
+                                                                    <Trash2 size={16} />
+                                                                </button>
+                                                            </div>
+                                                        )}
                                                     </td>
                                                 </tr>
                                             ))}
