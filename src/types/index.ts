@@ -16,6 +16,7 @@ export interface Product {
   featuredOrder?: number;
   materials: string[];
   dimensions?: string;
+  isMadeToOrder?: boolean;
   variants?: ProductVariant[];
 }
 

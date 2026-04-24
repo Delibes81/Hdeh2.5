@@ -32,6 +32,7 @@ export function useProducts() {
                         featuredOrder: item.featured_order || 0,
                         materials: item.materials || [],
                         dimensions: item.dimensions,
+                        isMadeToOrder: item.is_made_to_order,
                         variants: item.variants || []
                     }));
 

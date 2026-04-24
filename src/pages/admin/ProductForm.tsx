@@ -31,6 +31,7 @@ export default function ProductForm({ product, onClose, onSave }: ProductFormPro
     const [materialInput, setMaterialInput] = useState('');
     const [images, setImages] = useState<string[]>(product?.images || []);
     const [isFeatured, setIsFeatured] = useState(product?.isFeatured || false);
+    const [isMadeToOrder, setIsMadeToOrder] = useState(product?.isMadeToOrder || false);
     const [featuredOrder, setFeaturedOrder] = useState(product?.featuredOrder?.toString() || '0');
     const [uploading, setUploading] = useState(false);
     const [optimizationMsg, setOptimizationMsg] = useState<{ original: number; optimized: number } | null>(null);
@@ -70,6 +71,7 @@ export default function ProductForm({ product, onClose, onSave }: ProductFormPro
                 // Default flags
                 is_handcrafted: product?.isHandcrafted ?? true,
                 is_featured: isFeatured,
+                is_made_to_order: isMadeToOrder,
                 featured_order: parseInt(featuredOrder) || 0,
             };
 
@@ -351,6 +353,19 @@ export default function ProductForm({ product, onClose, onSave }: ProductFormPro
                                             <span className="text-xs text-warm-gray">(1 = Primero)</span>
                                         </div>
                                     )}
+                                </div>
+                                
+                                <div className="flex items-center gap-2 pt-2">
+                                    <input
+                                        type="checkbox"
+                                        id="isMadeToOrder"
+                                        checked={isMadeToOrder}
+                                        onChange={e => setIsMadeToOrder(e.target.checked)}
+                                        className="w-4 h-4 text-charcoal border-stone/20 rounded focus:ring-charcoal"
+                                    />
+                                    <label htmlFor="isMadeToOrder" className="text-sm font-medium text-charcoal cursor-pointer">
+                                        Producto bajo pedido (Requiere encargo por WhatsApp)
+                                    </label>
                                 </div>
 
                                 <div>
