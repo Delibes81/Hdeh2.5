@@ -82,7 +82,7 @@ export default function ProductModal({
       return;
     }
     const message = `Hola, me interesa encargar el producto de edición especial: ${product.name} en talla ${selectedSize.replace(' MX', '')}.`;
-    const whatsappUrl = `https://wa.me/5215582313623?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://wa.me/5215510821369?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
 

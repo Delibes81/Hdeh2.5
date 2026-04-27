@@ -14,8 +14,8 @@ export default function Footer() {
       { name: 'DEVOLUCIONES', href: '/returns' }
     ],
     servicios: [
-      { name: 'AGENDA UNA CITA', href: 'https://wa.me/5211234567890?text=Hola,%20me%20gustar%C3%ADa%20agendar%20una%20cita' }, // Enlace WhatsApp
-      { name: 'DISEÑOS PERSONALIZADOS', href: 'https://wa.me/5211234567890?text=Hola,%20me%20gustar%C3%ADa%20recibir%20informaci%C3%B3n%20sobre%20los%20dise%C3%B1os%20personalizados' },
+      { name: 'AGENDA UNA CITA', href: 'https://wa.me/5215510821369?text=Hola,%20me%20gustar%C3%ADa%20agendar%20una%20cita' }, // Enlace WhatsApp
+      { name: 'DISEÑOS PERSONALIZADOS', href: 'https://wa.me/5215510821369?text=Hola,%20me%20gustar%C3%ADa%20recibir%20informaci%C3%B3n%20sobre%20los%20dise%C3%B1os%20personalizados' },
       { name: 'CUIDADO Y LIMPIEZA', href: '/care' }
     ],
     compañía: [
