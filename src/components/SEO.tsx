@@ -1,4 +1,3 @@
-import { Helmet } from 'react-helmet-async';
 
 interface SEOProps {
     title?: string;
@@ -18,7 +17,7 @@ export default function SEO({
     const fullImage = image.startsWith('http') ? image : `https://hdehelena.com${image}`;
 
     return (
-        <Helmet>
+        <>
             {/* Basic Metadata */}
             <title>{siteTitle}</title>
             <meta name="description" content={description} />
@@ -39,6 +38,6 @@ export default function SEO({
 
             {/* Canonical */}
             <link rel="canonical" href={fullUrl} />
-        </Helmet>
+        </>
     );
 }

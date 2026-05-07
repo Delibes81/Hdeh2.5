@@ -1,11 +1,12 @@
-import { useLocation, Link } from 'react-router-dom';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import { Instagram } from 'lucide-react';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 
 export default function Footer() {
   const { elementRef, isVisible } = useIntersectionObserver();
-  const location = useLocation();
-  const isShopPage = location.pathname === '/shop';
+  const pathname = usePathname();
+  const isShopPage = pathname === '/shop';
 
   const footerLinks = {
     soporte: [
@@ -62,7 +63,7 @@ export default function Footer() {
                   className="w-full h-full"
                   frameBorder="0"
                   scrolling="no"
-                  allowTransparency={true}
+                  allowtransparency="true"
                   title="Instagram Feed"
                 />
               </div>
@@ -88,7 +89,7 @@ export default function Footer() {
                 {footerLinks.soporte.map((link) => (
                   <li key={link.name}>
                     <Link
-                      to={link.href}
+                      href={link.href}
                       className="font-sans text-xs md:text-sm font-medium text-charcoal hover:text-charcoal/70 transition-colors duration-300"
                     >
                       {link.name}
@@ -122,7 +123,7 @@ export default function Footer() {
                       </a>
                     ) : (
                       <Link
-                        to={link.href}
+                        href={link.href}
                         className="font-sans text-xs md:text-sm font-medium text-charcoal hover:text-charcoal/70 transition-colors duration-300"
                       >
                         {link.name}
@@ -148,7 +149,7 @@ export default function Footer() {
                       </a>
                     ) : (
                       <Link
-                        to={link.href}
+                        href={link.href}
                         className="font-sans text-xs md:text-sm font-medium text-charcoal hover:text-charcoal/70 transition-colors duration-300"
                       >
                         {link.name}
@@ -170,10 +171,10 @@ export default function Footer() {
               </p>
 
               <div className="flex items-center space-x-6 text-sm">
-                <Link to="/privacy" className="text-charcoal/50 hover:text-charcoal/70 transition-colors duration-300">
+                <Link href="/privacy" className="text-charcoal/50 hover:text-charcoal/70 transition-colors duration-300">
                   Privacidad
                 </Link>
-                <Link to="/terms" className="text-charcoal/50 hover:text-charcoal/70 transition-colors duration-300">
+                <Link href="/terms" className="text-charcoal/50 hover:text-charcoal/70 transition-colors duration-300">
                   Términos
                 </Link>
               </div>

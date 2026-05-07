@@ -1,4 +1,5 @@
-import SEO from '../components/SEO';
+'use client';
+import SEO from '../../components/SEO';
 import { Sparkles, Droplet, Sun, Shield } from 'lucide-react';
 
 export default function Care() {

@@ -1,3 +1,4 @@
+'use client';
 import { createContext, useState, useEffect, ReactNode } from 'react';
 import { Cart, Product, CartItem } from '../types';
 
@@ -16,8 +17,11 @@ export const CartContext = createContext<CartContextType | undefined>(undefined)
 export function CartProvider({ children }: { children: ReactNode }) {
     const [cart, setCart] = useState<Cart>(() => {
         try {
-            const savedCart = localStorage.getItem(CART_STORAGE_KEY);
-            return savedCart ? JSON.parse(savedCart) : { items: [], total: 0, itemCount: 0 };
+            if (typeof window !== 'undefined') {
+                const savedCart = localStorage.getItem(CART_STORAGE_KEY);
+                return savedCart ? JSON.parse(savedCart) : { items: [], total: 0, itemCount: 0 };
+            }
+            return { items: [], total: 0, itemCount: 0 };
         } catch (error) {
             console.error('Error loading cart from localStorage:', error);
             return { items: [], total: 0, itemCount: 0 };

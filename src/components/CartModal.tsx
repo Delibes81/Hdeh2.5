@@ -29,8 +29,8 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
             size: item.size,
             quantity: item.quantity
           })),
-          success_url: import.meta.env.VITE_APP_URL ? `${import.meta.env.VITE_APP_URL}/success` : window.location.origin + '/success',
-          cancel_url: import.meta.env.VITE_APP_URL ? `${import.meta.env.VITE_APP_URL}/shop` : window.location.origin + '/shop',
+          success_url: process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/success` : window.location.origin + '/success',
+          cancel_url: process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/shop` : window.location.origin + '/shop',
         },
       });
 

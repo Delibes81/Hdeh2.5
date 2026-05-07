@@ -1,6 +1,8 @@
+'use client';
 import { LogOut, Package, ShoppingBag, Settings, LayoutDashboard } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
-import { useNavigate } from 'react-router-dom';
+import { supabase } from '../../../lib/supabase';
+import { useRouter } from 'next/navigation';
+import ProtectedRoute from '../../../components/admin/ProtectedRoute';
 import OrderList from './OrderList';
 import ProductList from './ProductList';
 import DashboardHome from './DashboardHome';
@@ -9,12 +11,13 @@ import { useState } from 'react';
 type View = 'home' | 'products' | 'orders' | 'settings';
 
 export default function Dashboard() {
-    const navigate = useNavigate();
+    const router = useRouter();
+    
     const [currentView, setCurrentView] = useState<View>('home');
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
-        navigate('/admin/login');
+        router.push('/admin/login');
     };
 
     const NavItem = ({ view, icon: Icon, label }: { view: View; icon: any; label: string }) => (
@@ -31,6 +34,7 @@ export default function Dashboard() {
     );
 
     return (
+        <ProtectedRoute>
         <div className="min-h-screen bg-white flex">
             {/* Sidebar */}
             <aside className="w-64 bg-white border-r border-stone/20 hidden md:flex flex-col h-screen sticky top-0">
@@ -81,5 +85,6 @@ export default function Dashboard() {
                 </div>
             </main>
         </div>
+        </ProtectedRoute>
     );
 }

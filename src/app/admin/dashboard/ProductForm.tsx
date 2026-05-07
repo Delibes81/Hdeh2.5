@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Product, ProductVariant } from '../../types';
-import { supabase } from '../../lib/supabase';
+﻿import { useState, useEffect } from 'react';
+import { Product, ProductVariant } from '../../../types';
+import { supabase } from '../../../lib/supabase';
 import { X, Upload, Plus, Trash2, Loader2, Save, ChevronLeft, ChevronRight, Edit } from 'lucide-react';
 
 const formatBytes = (bytes: number, decimals = 2) => {
@@ -635,3 +635,4 @@ export default function ProductForm({ product, onClose, onSave }: ProductFormPro
         </div>
     );
 }
+

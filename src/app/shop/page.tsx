@@ -1,9 +1,10 @@
+'use client';
 import { useState } from 'react';
-import { Product } from '../types';
-import { useProducts } from '../hooks/useProducts';
-import ProductCard from '../components/ProductCard';
+import { Product } from '../../types';
+import { useProducts } from '../../hooks/useProducts';
+import ProductCard from '../../components/ProductCard';
 import { Search, Loader } from 'lucide-react';
-import SEO from '../components/SEO';
+import SEO from '../../components/SEO';
 
 interface ShopProps {
     onAddToCart: (product: Product) => void;

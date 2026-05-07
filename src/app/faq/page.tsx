@@ -1,6 +1,7 @@
+'use client';
 import { useState } from 'react';
 import { Plus, Minus } from 'lucide-react';
-import SEO from '../components/SEO';
+import SEO from '../../components/SEO';
 
 export default function FAQ() {
     const faqs = [

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabase';
+import { supabase } from '../../../lib/supabase';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { DollarSign, ShoppingBag, TrendingUp, AlertTriangle, Loader2, Calendar } from 'lucide-react';
-import { formatPrice } from '../../utils/format';
+import { formatPrice } from '../../../utils/format';
 
 export default function DashboardHome() {
     const [loading, setLoading] = useState(true);
@@ -219,8 +219,8 @@ export default function DashboardHome() {
                         </div>
                     </div>
 
-                    <div className="h-80 w-full">
-                        <ResponsiveContainer width="100%" height="100%">
+                    <div className="h-80 w-full min-h-[320px]">
+                        <ResponsiveContainer width="100%" height="100%" minHeight={320}>
                             <LineChart data={filteredData}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E5E5" />
                                 <XAxis
@@ -263,7 +263,7 @@ export default function DashboardHome() {
 
                     {lowStockItems.length === 0 ? (
                         <div className="flex-1 flex flex-col items-center justify-center text-warm-gray text-center py-8">
-                            <p>¡Todo en orden!</p>
+                            <p>Â¡Todo en orden!</p>
                             <p className="text-xs mt-1">No hay productos con bajo inventario.</p>
                         </div>
                     ) : (
@@ -300,3 +300,4 @@ export default function DashboardHome() {
         </div>
     );
 }
+

@@ -1,4 +1,5 @@
-import SEO from '../components/SEO';
+'use client';
+import SEO from '../../components/SEO';
 import { Lock, Eye, FileText, Database } from 'lucide-react';
 
 export default function Privacy() {

@@ -1,10 +1,11 @@
 import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { usePathname } from 'next/navigation';
 
 export default function ScrollToTop() {
-    const { pathname, hash } = useLocation();
+    const pathname = usePathname();
 
     useEffect(() => {
+        const hash = typeof window !== 'undefined' ? window.location.hash : '';
         if (!hash) {
             window.scrollTo(0, 0);
         } else {
@@ -13,7 +14,7 @@ export default function ScrollToTop() {
                 element.scrollIntoView({ behavior: 'smooth' });
             }
         }
-    }, [pathname, hash]);
+    }, [pathname]);
 
     return null;
 }

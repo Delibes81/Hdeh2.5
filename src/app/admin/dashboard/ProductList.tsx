@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
-import { Product } from '../../types';
+﻿import { useState, useEffect } from 'react';
+import { supabase } from '../../../lib/supabase';
+import { Product } from '../../../types';
 import { Edit, Trash2, Plus, Search, Loader2, ArrowUpDown, ChevronDown, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import ProductForm from './ProductForm';
-import { formatPrice } from '../../utils/format';
+import { formatPrice } from '../../../utils/format';
 
 export default function ProductList() {
     const [products, setProducts] = useState<Product[]>([]);
@@ -322,3 +322,4 @@ export default function ProductList() {
         </div >
     );
 }
+

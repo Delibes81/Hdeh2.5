@@ -1,6 +1,7 @@
 import { ShoppingBag, User, Menu, X } from 'lucide-react';
-import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Cart } from '../types';
 
 interface HeaderProps {
@@ -10,8 +11,13 @@ interface HeaderProps {
 
 export default function Header({ cart, onCartClick }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const location = useLocation();
-  const isShopPage = location.pathname === '/shop';
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+  const pathname = usePathname();
+  const isShopPage = pathname === '/shop';
 
   const navigation = [
     { name: 'Inicio', href: '/', isRoute: true },
@@ -27,7 +33,7 @@ export default function Header({ cart, onCartClick }: HeaderProps) {
           {/* Logo */}
           <div className="flex-1 flex justify-start lg:flex-none lg:absolute lg:left-1/2 lg:-translate-x-1/2">
             <Link
-              to="/"
+              href="/"
               className="block hover:opacity-80 transition-opacity"
               onClick={() => window.scrollTo(0, 0)}
             >
@@ -41,7 +47,7 @@ export default function Header({ cart, onCartClick }: HeaderProps) {
               item.isRoute ? (
                 <Link
                   key={item.name}
-                  to={item.href}
+                  href={item.href}
                   className="font-sans uppercase text-warm-gray hover:text-charcoal transition-colors duration-300 font-medium tracking-wide text-xs"
                   onClick={() => {
                     if (item.href === '/') window.scrollTo(0, 0);
@@ -69,7 +75,7 @@ export default function Header({ cart, onCartClick }: HeaderProps) {
               aria-label="Carrito de compras"
             >
               <ShoppingBag size={20} strokeWidth={1.5} />
-              {cart.itemCount > 0 && (
+              {isMounted && cart.itemCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-charcoal text-cream text-xs rounded-full w-5 h-5 flex items-center justify-center animate-scale-in">
                   {cart.itemCount}
                 </span>
@@ -98,7 +104,7 @@ export default function Header({ cart, onCartClick }: HeaderProps) {
                 item.isRoute ? (
                   <Link
                     key={item.name}
-                    to={item.href}
+                    href={item.href}
                     onClick={() => {
                       setIsMenuOpen(false);
                       if (item.href === '/') window.scrollTo(0, 0);

@@ -1,7 +1,8 @@
-import { Link } from 'react-router-dom';
+'use client';
+import Link from 'next/link';
 import { CheckCircle, ArrowRight } from 'lucide-react';
 import { useEffect } from 'react';
-import { useCart } from '../hooks/useCart';
+import { useCart } from '../../hooks/useCart';
 
 export default function Success() {
     const { clearCart } = useCart();
@@ -23,7 +24,7 @@ export default function Success() {
             </p>
 
             <Link
-                to="/shop"
+                href="/shop"
                 className="btn-primary bg-charcoal text-cream hover:bg-warm-gray inline-flex items-center gap-2"
             >
                 Volver a la tienda <ArrowRight size={18} />
