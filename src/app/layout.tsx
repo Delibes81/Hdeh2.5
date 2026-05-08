@@ -1,7 +1,31 @@
 import type { Metadata } from 'next';
+import { Inter, Libre_Bodoni, Montserrat } from 'next/font/google';
 import { CartProvider } from '../context/CartContext';
 import '../index.css';
 import ClientLayout from './ClientLayout';
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  weight: ['300', '400', '500', '600'],
+  display: 'swap',
+});
+
+const libreBodoni = Libre_Bodoni({
+  subsets: ['latin'],
+  variable: '--font-libre-bodoni',
+  weight: ['400', '500', '600', '700'],
+  style: ['normal', 'italic'],
+  display: 'swap',
+});
+
+const montserrat = Montserrat({
+  subsets: ['latin'],
+  variable: '--font-montserrat',
+  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+  style: ['normal', 'italic'],
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'H de Helena | Zapatos de Piel',
@@ -21,7 +45,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" data-scroll-behavior="smooth">
+    <html lang="es" className={`${inter.variable} ${libreBodoni.variable} ${montserrat.variable}`} data-scroll-behavior="smooth">
       <head>
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
       </head>

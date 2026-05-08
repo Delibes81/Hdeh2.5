@@ -5,12 +5,10 @@ import ProductCard from './ProductCard';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 
 interface ProductGridProps {
-  onAddToCart: (product: Product) => void;
-  onProductClick: (product: Product) => void;
   limit?: number;
 }
 
-export default function ProductGrid({ onAddToCart, onProductClick, limit }: ProductGridProps) {
+export default function ProductGrid({ limit }: ProductGridProps) {
   const { products, loading } = useProducts();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const { elementRef, isVisible } = useIntersectionObserver();
@@ -79,8 +77,6 @@ export default function ProductGrid({ onAddToCart, onProductClick, limit }: Prod
               product={product}
               index={index}
               startAnimation={isGridVisible}
-              onAddToCart={onAddToCart}
-              onProductClick={onProductClick}
             />
           ))}
         </div>

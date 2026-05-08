@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import { Product } from '../types';
 import { useCart } from '../hooks/useCart';
 
 import Header from '../components/Header';
@@ -11,38 +10,18 @@ import PhilosophySection from '../components/PhilosophySection';
 import FeaturedSection from '../components/FeaturedSection';
 import Footer from '../components/Footer';
 import CartModal from '../components/CartModal';
-import ProductModal from '../components/ProductModal';
 import RevealOnScroll from '../components/RevealOnScroll';
 import SEO from '../components/SEO';
 
 export default function Home() {
     const [isCartOpen, setIsCartOpen] = useState(false);
-    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-    const [isProductModalOpen, setIsProductModalOpen] = useState(false);
 
     const {
         cart,
-        addToCart,
         removeFromCart,
         updateQuantity,
         clearCart
     } = useCart();
-
-    // For Home components, "Add to Cart" should open the modal to select size
-    const handleAddToCart = (product: Product) => {
-        setSelectedProduct(product);
-        setIsProductModalOpen(true);
-    };
-
-    const handleProductClick = (product: Product) => {
-        setSelectedProduct(product);
-        setIsProductModalOpen(true);
-    };
-
-    const handleCloseProductModal = () => {
-        setIsProductModalOpen(false);
-        setSelectedProduct(null);
-    };
 
     return (
         <>
@@ -62,8 +41,6 @@ export default function Home() {
                 </RevealOnScroll>
 
                 <ProductGrid
-                    onAddToCart={handleAddToCart}
-                    onProductClick={handleProductClick}
                     limit={4}
                 />
 
@@ -72,10 +49,7 @@ export default function Home() {
                 </RevealOnScroll>
 
                 <RevealOnScroll>
-                    <FeaturedSection
-                        onAddToCart={handleAddToCart}
-                        onProductClick={handleProductClick}
-                    />
+                    <FeaturedSection />
                 </RevealOnScroll>
             </main>
 
@@ -90,13 +64,6 @@ export default function Home() {
                 onUpdateQuantity={updateQuantity}
                 onRemoveItem={removeFromCart}
                 onClearCart={clearCart}
-            />
-
-            <ProductModal
-                isOpen={isProductModalOpen}
-                onClose={handleCloseProductModal}
-                product={selectedProduct}
-                onAddToCart={(product, size, qty) => addToCart(product, size, qty)}
             />
         </>
     );

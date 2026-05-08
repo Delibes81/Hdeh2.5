@@ -2,19 +2,19 @@
 import { useState } from 'react';
 import { Product } from '../../types';
 import { useProducts } from '../../hooks/useProducts';
+import { useCart } from '../../hooks/useCart';
 import ProductCard from '../../components/ProductCard';
+import ProductModal from '../../components/ProductModal';
 import { Search, Loader } from 'lucide-react';
 import SEO from '../../components/SEO';
 
-interface ShopProps {
-    onAddToCart: (product: Product) => void;
-    onProductClick: (product: Product) => void;
-}
-
-export default function Shop({ onAddToCart, onProductClick }: ShopProps) {
+export default function Shop() {
     const { products, loading, error } = useProducts();
+    const { addToCart } = useCart();
     const [selectedCategory, setSelectedCategory] = useState<string>('all');
     const [searchQuery, setSearchQuery] = useState('');
+    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+    const [isProductModalOpen, setIsProductModalOpen] = useState(false);
 
     const categories = [
         { key: 'all', label: 'Todos los Estilos' },
@@ -22,6 +22,16 @@ export default function Shop({ onAddToCart, onProductClick }: ShopProps) {
         { key: 'zapatos-altos', label: 'Zapatos Altos' },
         { key: 'botas', label: 'Botas' }
     ];
+
+    const handleAddToCart = (product: Product) => {
+        setSelectedProduct(product);
+        setIsProductModalOpen(true);
+    };
+
+    const handleProductClick = (product: Product) => {
+        setSelectedProduct(product);
+        setIsProductModalOpen(true);
+    };
 
     if (loading) {
         return (
@@ -119,8 +129,8 @@ export default function Shop({ onAddToCart, onProductClick }: ShopProps) {
                             <ProductCard
                                 key={product.id}
                                 product={product}
-                                onAddToCart={onAddToCart}
-                                onProductClick={onProductClick}
+                                onAddToCart={handleAddToCart}
+                                onProductClick={handleProductClick}
                             />
                         ))}
                     </div>
@@ -148,6 +158,13 @@ export default function Shop({ onAddToCart, onProductClick }: ShopProps) {
                     )}
                 </div>
             </section>
+
+            <ProductModal
+                isOpen={isProductModalOpen}
+                onClose={() => setIsProductModalOpen(false)}
+                product={selectedProduct}
+                onAddToCart={(product, size, qty) => addToCart(product, size, qty)}
+            />
         </div>
     );
 }

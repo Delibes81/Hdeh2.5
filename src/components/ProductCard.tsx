@@ -1,16 +1,15 @@
 import { useState } from 'react';
+import Link from 'next/link';
 import { Product } from '../types';
-import { formatPrice } from '../utils/format';
+import { formatPrice, createSlug } from '../utils/format';
 
 interface ProductCardProps {
   product: Product;
-  onAddToCart?: (product: Product) => void;
-  onProductClick: (product: Product) => void;
   index?: number;
   startAnimation?: boolean;
 }
 
-export default function ProductCard({ product, onAddToCart, onProductClick, index = 0, startAnimation = true }: ProductCardProps) {
+export default function ProductCard({ product, index = 0, startAnimation = true }: ProductCardProps) {
   const [imageIndex, setImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -22,12 +21,12 @@ export default function ProductCard({ product, onAddToCart, onProductClick, inde
   };
 
   return (
-    <div
-      className={`group cursor-pointer opacity-0 fill-mode-forwards ${startAnimation ? 'animate-fade-in-up' : ''}`}
+    <Link 
+      href={`/shop/${createSlug(product.name)}`}
+      className={`group cursor-pointer opacity-0 fill-mode-forwards block ${startAnimation ? 'animate-fade-in-up' : ''}`}
       style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'forwards' }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onClick={() => onProductClick(product)}
     >
       {/* Product Image */}
       <div
@@ -58,6 +57,6 @@ export default function ProductCard({ product, onAddToCart, onProductClick, inde
           </p>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

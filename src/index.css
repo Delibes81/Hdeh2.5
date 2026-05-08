@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Libre+Bodoni:ital,wght@0,400..700;1,400..700&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Inter:wght@300;400;500;600&display=swap');
+
 
 @tailwind base;
 @tailwind components;
@@ -10,14 +10,14 @@
   }
 
   body {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: var(--font-inter), system-ui, sans-serif;
     line-height: 1.6;
     color: #000000;
     background-color: #FFFFFF;
   }
 
   .serif {
-    font-family: 'Libre Bodoni', Georgia, serif;
+    font-family: var(--font-libre-bodoni), Georgia, serif;
   }
 }
 
