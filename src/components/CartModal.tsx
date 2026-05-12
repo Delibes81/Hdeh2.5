@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useState } from 'react';
 
 import { formatPrice } from '../utils/format';
+import { Coupon } from '../types';
 
 interface CartModalProps {
   isOpen: boolean;
@@ -17,6 +18,73 @@ interface CartModalProps {
 export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onRemoveItem, onClearCart }: CartModalProps) {
   /* Checkout Logic */
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  
+  /* Coupon Logic */
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+
+  const applyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setIsApplyingCoupon(true);
+    setCouponError(null);
+    try {
+        const { data, error } = await supabase
+            .from('coupons')
+            .select('*')
+            .eq('code', couponCode.trim().toUpperCase())
+            .eq('is_active', true)
+            .single();
+
+        if (error || !data) {
+            setCouponError('Cupón inválido o inactivo');
+            setAppliedCoupon(null);
+            return;
+        }
+
+        if (data.usage_limit && data.used_count >= data.usage_limit) {
+            setCouponError('Este cupón ha superado su límite de uso');
+            setAppliedCoupon(null);
+            return;
+        }
+
+        const mappedCoupon: Coupon = {
+            id: data.id,
+            code: data.code,
+            discountType: data.discount_type,
+            discountValue: Number(data.discount_value),
+            isActive: data.is_active,
+            usageLimit: data.usage_limit,
+            usedCount: data.used_count
+        };
+
+        setAppliedCoupon(mappedCoupon);
+        setCouponError(null);
+    } catch (err: any) {
+        setCouponError('Error al validar cupón');
+        setAppliedCoupon(null);
+    } finally {
+        setIsApplyingCoupon(false);
+    }
+  };
+
+  const removeCoupon = () => {
+      setAppliedCoupon(null);
+      setCouponCode('');
+      setCouponError(null);
+  };
+
+  const calculateDiscount = () => {
+      if (!appliedCoupon) return 0;
+      if (appliedCoupon.discountType === 'percentage') {
+          return cart.total * (appliedCoupon.discountValue / 100);
+      }
+      return Math.min(appliedCoupon.discountValue, cart.total); // Max discount is total
+  };
+
+  const discountAmount = calculateDiscount();
+  const finalTotal = Math.max(0, cart.total - discountAmount);
 
   const handleCheckout = async () => {
     setIsCheckingOut(true);
@@ -29,6 +97,7 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
             size: item.size,
             quantity: item.quantity
           })),
+          couponCode: appliedCoupon?.code,
           success_url: process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/success` : window.location.origin + '/success',
           cancel_url: process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/shop` : window.location.origin + '/shop',
         },
@@ -123,9 +192,61 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
         {/* Footer */}
         {cart.items.length > 0 && (
           <div className="p-6 border-t border-stone/10 bg-stone/5 space-y-4">
-            <div className="flex justify-between items-end">
-              <span className="text-warm-gray text-sm uppercase tracking-wider">Total</span>
-              <span className="text-2xl font-medium text-charcoal">{formatPrice(cart.total)}</span>
+            
+            {/* Coupon Section */}
+            <div className="bg-white p-3 rounded-lg border border-stone-200">
+                {!appliedCoupon ? (
+                    <div>
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                placeholder="Código de descuento"
+                                value={couponCode}
+                                onChange={(e) => setCouponCode(e.target.value)}
+                                className="flex-1 px-3 py-2 text-sm border border-stone-200 rounded outline-none focus:border-charcoal uppercase"
+                            />
+                            <button
+                                onClick={applyCoupon}
+                                disabled={isApplyingCoupon || !couponCode.trim()}
+                                className="px-4 py-2 bg-charcoal text-white text-xs uppercase tracking-wider rounded font-medium disabled:opacity-50"
+                            >
+                                {isApplyingCoupon ? '...' : 'Aplicar'}
+                            </button>
+                        </div>
+                        {couponError && <p className="text-red-500 text-xs mt-2">{couponError}</p>}
+                    </div>
+                ) : (
+                    <div className="flex justify-between items-center bg-stone-50 p-2 rounded border border-stone-200">
+                        <div>
+                            <p className="text-xs font-semibold text-charcoal uppercase flex items-center gap-1">
+                                ✓ {appliedCoupon.code}
+                            </p>
+                            <p className="text-xs text-warm-gray">
+                                {appliedCoupon.discountType === 'percentage' ? `${appliedCoupon.discountValue}% de descuento` : `${formatPrice(appliedCoupon.discountValue)} de descuento`}
+                            </p>
+                        </div>
+                        <button onClick={removeCoupon} className="text-xs text-red-500 hover:text-red-700 underline">
+                            Quitar
+                        </button>
+                    </div>
+                )}
+            </div>
+
+            <div className="space-y-2 border-b border-stone/10 pb-4 mb-4">
+                <div className="flex justify-between items-end">
+                  <span className="text-warm-gray text-sm uppercase tracking-wider">Subtotal</span>
+                  <span className="text-lg text-charcoal">{formatPrice(cart.total)}</span>
+                </div>
+                {appliedCoupon && (
+                    <div className="flex justify-between items-end text-green-600">
+                      <span className="text-sm uppercase tracking-wider">Descuento</span>
+                      <span className="text-lg">- {formatPrice(discountAmount)}</span>
+                    </div>
+                )}
+                <div className="flex justify-between items-end pt-2">
+                  <span className="text-charcoal font-medium text-sm uppercase tracking-wider">Total</span>
+                  <span className="text-2xl font-medium text-charcoal">{formatPrice(finalTotal)}</span>
+                </div>
             </div>
 
             <button

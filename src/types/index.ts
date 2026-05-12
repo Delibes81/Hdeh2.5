@@ -31,3 +31,13 @@ export interface Cart {
   total: number;
   itemCount: number;
 }
+
+export interface Coupon {
+  id: string;
+  code: string;
+  discountType: 'percentage' | 'fixed';
+  discountValue: number;
+  isActive: boolean;
+  usageLimit?: number;
+  usedCount: number;
+}

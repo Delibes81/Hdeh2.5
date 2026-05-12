@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { Package, Calendar, MapPin, ChevronDown, ChevronUp, Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { formatPrice } from '../../../utils/format';
@@ -39,6 +39,13 @@ export default function OrderList() {
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+
+    // Tracking Modal State
+    const [trackingModalOpen, setTrackingModalOpen] = useState(false);
+    const [selectedOrderForTracking, setSelectedOrderForTracking] = useState<Order | null>(null);
+    const [trackingNumber, setTrackingNumber] = useState('');
+    const [carrier, setCarrier] = useState('Estafeta / FedEx');
+    const [isSendingEmail, setIsSendingEmail] = useState(false);
 
     // Filter & Sort State
     const [searchTerm, setSearchTerm] = useState('');
@@ -142,6 +149,53 @@ export default function OrderList() {
         } catch (error: any) {
             console.error('Error updating status:', error);
             alert('Error al actualizar el estado: ' + error.message);
+        }
+    };
+
+    const handleMarkAsShipped = (order: Order) => {
+        setSelectedOrderForTracking(order);
+        setTrackingModalOpen(true);
+    };
+
+    const confirmShippingAndSendEmail = async () => {
+        if (!selectedOrderForTracking || !trackingNumber) {
+            alert('Por favor ingresa un número de rastreo');
+            return;
+        }
+        setIsSendingEmail(true);
+
+        try {
+            // 1. Send Email via Resend API
+            const emailRes = await fetch('/api/send-shipping-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: selectedOrderForTracking.contact_email,
+                    customerName: selectedOrderForTracking.shipping_address?.name || 'Cliente',
+                    orderId: selectedOrderForTracking.id,
+                    trackingNumber,
+                    carrier
+                })
+            });
+
+            if (!emailRes.ok) {
+                const errData = await emailRes.json();
+                console.warn('Advertencia de email:', errData);
+                alert('Aviso: El pedido se marcará como enviado, pero hubo un error enviando el correo (' + (errData.error || '') + '). Quizá falta configurar la API KEY de Resend.');
+            }
+
+            // 2. Update Supabase Status
+            await updateStatus(selectedOrderForTracking.id, 'enviado');
+
+            setTrackingModalOpen(false);
+            setTrackingNumber('');
+            setCarrier('Estafeta / FedEx');
+        } catch (error) {
+            console.error(error);
+            alert('Error general al confirmar envío');
+        } finally {
+            setIsSendingEmail(false);
+            setSelectedOrderForTracking(null);
         }
     };
 
@@ -270,7 +324,7 @@ export default function OrderList() {
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    updateStatus(order.id, 'enviado');
+                                                    handleMarkAsShipped(order);
                                                 }}
                                                 className="btn-secondary text-xs"
                                             >
@@ -396,6 +450,62 @@ export default function OrderList() {
                     </div>
                 )}
             </div>
+
+            {/* Tracking Modal */}
+            {trackingModalOpen && selectedOrderForTracking && (
+                <div className="fixed inset-0 bg-charcoal/50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="font-serif text-xl text-charcoal">Confirmar Envío</h3>
+                            <button onClick={() => setTrackingModalOpen(false)} className="text-warm-gray hover:text-charcoal transition-colors">
+                                <X size={20} />
+                            </button>
+                        </div>
+                        
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-xs font-sans uppercase tracking-widest text-warm-gray mb-1">
+                                    Paquetería
+                                </label>
+                                <input
+                                    type="text"
+                                    value={carrier}
+                                    onChange={(e) => setCarrier(e.target.value)}
+                                    placeholder="Ej. Estafeta, FedEx, DHL"
+                                    className="w-full px-4 py-2 bg-stone/5 border border-stone/10 rounded focus:border-charcoal focus:ring-1 focus:ring-charcoal outline-none transition-all text-sm"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-sans uppercase tracking-widest text-warm-gray mb-1">
+                                    Número de Rastreo (Obligatorio)
+                                </label>
+                                <input
+                                    type="text"
+                                    value={trackingNumber}
+                                    onChange={(e) => setTrackingNumber(e.target.value)}
+                                    placeholder="Escribe el número de rastreo..."
+                                    className="w-full px-4 py-2 bg-stone/5 border border-stone/10 rounded focus:border-charcoal focus:ring-1 focus:ring-charcoal outline-none transition-all text-sm"
+                                />
+                            </div>
+                            <div className="pt-4 flex gap-3">
+                                <button
+                                    onClick={() => setTrackingModalOpen(false)}
+                                    className="flex-1 py-3 text-sm font-medium text-warm-gray hover:text-charcoal border border-stone/20 rounded hover:bg-stone/5 transition-colors"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={confirmShippingAndSendEmail}
+                                    disabled={!trackingNumber || isSendingEmail}
+                                    className="flex-1 py-3 text-sm font-medium bg-charcoal text-white rounded hover:bg-stone-800 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+                                >
+                                    {isSendingEmail ? 'Enviando...' : 'Confirmar y Notificar'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div >
     );
 }

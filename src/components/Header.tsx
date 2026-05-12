@@ -17,13 +17,13 @@ export default function Header({ cart, onCartClick }: HeaderProps) {
     setIsMounted(true);
   }, []);
   const pathname = usePathname();
-  const isShopPage = pathname === '/shop';
+  const isHome = pathname === '/';
 
   const navigation = [
-    { name: 'Inicio', href: '/', isRoute: true },
-    { name: 'Colección', href: isShopPage ? '/shop' : '#collection', isRoute: isShopPage },
-    { name: 'Sobre Nosotros', href: isShopPage ? '/#philosophy' : '#philosophy', isRoute: false },
-    { name: 'Contacto', href: '#contact', isRoute: false },
+    { name: 'Inicio', href: '/' },
+    { name: 'Colección', href: isHome ? '#collection' : '/shop' },
+    { name: 'Sobre Nosotros', href: isHome ? '#philosophy' : '/#philosophy' },
+    { name: 'Contacto', href: isHome ? '#contact' : '/#contact' },
   ];
 
   return (
@@ -41,10 +41,8 @@ export default function Header({ cart, onCartClick }: HeaderProps) {
             </Link>
           </div>
 
-          {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-12 absolute left-8">
             {navigation.map((item) => (
-              item.isRoute ? (
                 <Link
                   key={item.name}
                   href={item.href}
@@ -55,15 +53,6 @@ export default function Header({ cart, onCartClick }: HeaderProps) {
                 >
                   {item.name}
                 </Link>
-              ) : (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className="font-sans uppercase text-warm-gray hover:text-charcoal transition-colors duration-300 font-medium tracking-wide text-xs"
-                >
-                  {item.name}
-                </a>
-              )
             ))}
           </div>
 
@@ -98,10 +87,9 @@ export default function Header({ cart, onCartClick }: HeaderProps) {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="lg:hidden py-6 border-t border-stone/20 animate-fade-in">
-            <div className="flex flex-col space-y-4">
+          <div className="lg:hidden py-6 border-t border-stone/20 animate-fade-in bg-gray-200/95 backdrop-blur-sm">
+            <div className="flex flex-col space-y-4 px-6">
               {navigation.map((item) => (
-                item.isRoute ? (
                   <Link
                     key={item.name}
                     href={item.href}
@@ -113,16 +101,6 @@ export default function Header({ cart, onCartClick }: HeaderProps) {
                   >
                     {item.name}
                   </Link>
-                ) : (
-                  <a
-                    key={item.name}
-                    href={item.href}
-                    onClick={() => setIsMenuOpen(false)}
-                    className="font-sans uppercase text-warm-gray hover:text-charcoal transition-colors duration-300 font-medium tracking-wide text-sm py-2"
-                  >
-                    {item.name}
-                  </a>
-                )
               ))}
             </div>
           </div>

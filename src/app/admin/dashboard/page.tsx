@@ -6,6 +6,7 @@ import ProtectedRoute from '../../../components/admin/ProtectedRoute';
 import OrderList from './OrderList';
 import ProductList from './ProductList';
 import DashboardHome from './DashboardHome';
+import CouponManager from './CouponManager';
 import { useState } from 'react';
 
 type View = 'home' | 'products' | 'orders' | 'settings';
@@ -76,11 +77,7 @@ export default function Dashboard() {
                     {currentView === 'orders' && <OrderList />}
 
                     {currentView === 'settings' && (
-                        <div className="flex flex-col items-center justify-center h-96 text-warm-gray">
-                            <Settings size={48} className="mb-4 opacity-50" />
-                            <h2 className="text-xl font-medium mb-2">Configuración</h2>
-                            <p>Opciones de cuenta y tienda</p>
-                        </div>
+                        <CouponManager />
                     )}
                 </div>
             </main>

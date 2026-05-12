@@ -19,8 +19,8 @@ serve(async (req) => {
     }
 
     try {
-        const { items, success_url, cancel_url } = await req.json()
-        console.log("Received Checkout Request:", { items: items.length })
+        const { items, success_url, cancel_url, couponCode } = await req.json()
+        console.log("Received Checkout Request:", { items: items.length, couponCode })
 
         // Extract origin to fix relative paths
         // success_url usually looks like "https://domain.com/success"
@@ -80,11 +80,36 @@ serve(async (req) => {
             })
         }
 
+        let stripeCouponId = undefined;
+        if (couponCode) {
+            const { data: coupon, error: couponError } = await supabase
+                .from('coupons')
+                .select('*')
+                .eq('code', couponCode.toUpperCase())
+                .eq('is_active', true)
+                .single();
+                
+            if (!couponError && coupon) {
+                if (!coupon.usage_limit || coupon.used_count < coupon.usage_limit) {
+                    console.log("Creating ephemeral Stripe coupon for:", coupon.code);
+                    const stripeCoupon = await stripe.coupons.create({
+                        percent_off: coupon.discount_type === 'percentage' ? Number(coupon.discount_value) : undefined,
+                        amount_off: coupon.discount_type === 'fixed' ? Math.round(Number(coupon.discount_value) * 100) : undefined,
+                        currency: coupon.discount_type === 'fixed' ? 'mxn' : undefined,
+                        duration: 'once',
+                        name: coupon.code
+                    });
+                    stripeCouponId = stripeCoupon.id;
+                }
+            }
+        }
+
         console.log("Creating Stripe Session...")
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             line_items: lineItems,
             mode: 'payment',
+            discounts: stripeCouponId ? [{ coupon: stripeCouponId }] : undefined,
             success_url: success_url,
             cancel_url: cancel_url,
             shipping_address_collection: {
