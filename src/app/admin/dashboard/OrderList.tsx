@@ -152,6 +152,36 @@ export default function OrderList() {
         }
     };
 
+    const updateStatusAndNotifyProduction = async (order: Order) => {
+        if (!confirm('¿Marcar pedido como "En fabricación" y notificar al cliente por correo?')) return;
+        
+        try {
+            await updateStatus(order.id, 'en_fabricacion');
+
+            // Send Email via Resend API
+            const emailRes = await fetch('/api/send-production-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: order.contact_email,
+                    customerName: order.shipping_address?.name || 'Cliente',
+                    orderId: order.id
+                })
+            });
+
+            if (!emailRes.ok) {
+                const errData = await emailRes.json();
+                console.warn('Advertencia de email:', errData);
+                alert('Aviso: El pedido se marcó "En fabricación", pero hubo un error enviando el correo (' + (errData.error || '') + ').');
+            } else {
+                alert('Pedido marcado en fabricación y correo enviado exitosamente.');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Error general al confirmar fabricación');
+        }
+    };
+
     const handleMarkAsShipped = (order: Order) => {
         setSelectedOrderForTracking(order);
         setTrackingModalOpen(true);
@@ -261,6 +291,7 @@ export default function OrderList() {
                         >
                             <option value="all">Todos los estados</option>
                             <option value="paid">Pagado</option>
+                            <option value="en_fabricacion">En fabricación</option>
                             <option value="enviado">Enviado</option>
                         </select>
                         <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-warm-gray pointer-events-none" size={14} />
@@ -303,9 +334,14 @@ export default function OrderList() {
                                             <span className="font-mono text-xs text-warm-gray bg-stone/10 px-2 py-0.5 rounded">
                                                 #{order.id.slice(0, 8)}
                                             </span>
-                                            <span className={`text-xs px-3 py-1 rounded-full font-sans font-bold border inline-block ${order.status === 'paid' ? 'border-charcoal bg-charcoal text-cream' : 'border-stone/20 bg-stone/5 text-charcoal'
+                                            <span className={`text-xs px-3 py-1 rounded-full font-sans font-bold border inline-block ${
+                                                order.status === 'paid' ? 'border-charcoal bg-charcoal text-cream' : 
+                                                order.status === 'en_fabricacion' ? 'border-[#b59e75] bg-[#f8f5f0] text-[#b59e75]' : 
+                                                'border-stone/20 bg-stone/5 text-charcoal'
                                                 }`}>
-                                                {order.status === 'paid' ? 'Pagado' : order.status}
+                                                {order.status === 'paid' ? 'Pagado' : 
+                                                 order.status === 'en_fabricacion' ? 'En fabricación' : 
+                                                 order.status === 'enviado' ? 'Enviado' : order.status}
                                             </span>
                                         </div>
                                         <p className="font-medium text-charcoal">{order.contact_email}</p>
@@ -324,14 +360,24 @@ export default function OrderList() {
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
+                                                    updateStatusAndNotifyProduction(order);
+                                                }}
+                                                className="btn-secondary text-xs px-2 py-1"
+                                            >
+                                                En Fabricación
+                                            </button>
+                                        )}
+                                        {(order.status === 'paid' || order.status === 'en_fabricacion') && (
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
                                                     handleMarkAsShipped(order);
                                                 }}
-                                                className="btn-secondary text-xs"
+                                                className="btn-secondary text-xs px-2 py-1"
                                             >
                                                 Marcar Enviado
                                             </button>
                                         )}
-
                                     </div>
 
                                         <div className="text-right min-w-[100px]">

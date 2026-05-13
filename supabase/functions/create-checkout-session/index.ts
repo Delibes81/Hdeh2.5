@@ -52,7 +52,8 @@ serve(async (req) => {
                 throw new Error(`Variant not found available: ${product.name} - ${item.size}`)
             }
 
-            if (variant.stock < item.quantity) {
+            const isMTO = product.isMadeToOrder || variant.stock === 0;
+            if (!isMTO && variant.stock < item.quantity) {
                 throw new Error(`Insufficient stock for ${product.name} (${item.size}). Available: ${variant.stock}`)
             }
 
