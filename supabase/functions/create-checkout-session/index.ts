@@ -107,6 +107,7 @@ serve(async (req) => {
         console.log("Creating Stripe Session...")
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
+            locale: 'es-419',
             line_items: lineItems,
             mode: 'payment',
             discounts: stripeCouponId ? [{ coupon: stripeCouponId }] : undefined,
