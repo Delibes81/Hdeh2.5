@@ -1,6 +1,5 @@
 [build]
   command = "npm run build"
-  publish = ".next"
 
 [build.environment]
   # Tell Netlify to ignore Supabase keys in the build output (they are public by design)
