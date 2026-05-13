@@ -43,11 +43,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
             // Find variant stock
             const variant = product.variants?.find(v => v.size === size);
             const maxStock = variant?.stock || 0;
+            const isMTO = product.isMadeToOrder || maxStock === 0;
 
             let newItems: CartItem[];
             if (existingItem) {
                 const newQuantity = existingItem.quantity + quantity;
-                if (newQuantity > maxStock) {
+                if (!isMTO && newQuantity > maxStock) {
                     alert(`Lo sentimos, solo hay ${maxStock} unidades disponibles en esta talla.`);
                     return prevCart;
                 }
@@ -58,7 +59,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
                         : item
                 );
             } else {
-                if (quantity > maxStock) {
+                if (!isMTO && quantity > maxStock) {
                     alert(`Lo sentimos, solo hay ${maxStock} unidades disponibles en esta talla.`);
                     return prevCart;
                 }
@@ -107,8 +108,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
             if (itemToUpdate) {
                 const variant = itemToUpdate.product.variants?.find(v => v.size === size);
                 const maxStock = variant?.stock || 0;
+                const isMTO = itemToUpdate.product.isMadeToOrder || maxStock === 0;
 
-                if (newQuantity > maxStock) {
+                if (!isMTO && newQuantity > maxStock) {
                     alert(`Lo sentimos, solo hay ${maxStock} unidades disponibles en esta talla.`);
                     return prevCart;
                 }
