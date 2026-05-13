@@ -102,7 +102,7 @@ export default function ProductPage() {
             setError('Por favor selecciona una talla');
             return;
         }
-        
+
         const isMTO = product?.isMadeToOrder || (product?.variants?.find(v => v.size === selectedSize)?.stock === 0);
         const messageText = isMTO ? ' (sobre pedido)' : '';
         const message = `Hola, me interesa encargar el producto${messageText}: ${product.name} en talla ${selectedSize.replace(' MX', '')}.`;
@@ -124,7 +124,7 @@ export default function ProductPage() {
         setActiveAccordion(prev => prev === section ? null : section);
     };
 
-    const isSelectedOutOfStock = !product?.isMadeToOrder && selectedSize && 
+    const isSelectedOutOfStock = !product?.isMadeToOrder && selectedSize &&
         (sortedVariants.find(v => v.size === selectedSize)?.stock === 0);
 
     const showWhatsAppButton = product?.isMadeToOrder || isSelectedOutOfStock;
@@ -235,7 +235,7 @@ export default function ProductPage() {
                                 )}
                                 {!product.isMadeToOrder && isSelectedOutOfStock && (
                                     <div className="bg-stone-50 p-4 rounded-lg mb-4 text-sm text-charcoal border border-stone-200 shadow-sm animate-fade-in">
-                                        <p><strong>Talla bajo pedido:</strong> Esta talla está agotada pero podemos fabricarla especialmente para ti. El tiempo de fabricación es de hasta <strong>3 semanas</strong>.</p>
+                                        <p><strong>Talla bajo pedido:</strong> Esta talla está agotada pero podemos fabricarla especialmente para ti. El tiempo aproximado de fabricación es de <strong>3 semanas</strong>.</p>
                                     </div>
                                 )}
                                 {sortedVariants.length > 0 ? (
@@ -345,61 +345,61 @@ export default function ProductPage() {
                     <div className="lg:col-start-2 mt-12 lg:mt-16">
                         {/* Accordions */}
                         <div className="border-t border-stone-200">
-                                {/* Materials Accordion */}
-                                <div className="border-b border-stone-200">
-                                    <button
-                                        className="w-full py-5 flex items-center justify-between text-left focus:outline-none group"
-                                        onClick={() => toggleAccordion('materials')}
-                                    >
-                                        <span className="font-montserrat text-xs uppercase tracking-widest font-medium text-charcoal group-hover:text-stone-600 transition-colors">
-                                            Detalles y Materiales
-                                        </span>
-                                        {activeAccordion === 'materials' ? (
-                                            <ChevronUp size={16} className="text-warm-gray" />
-                                        ) : (
-                                            <ChevronDown size={16} className="text-warm-gray" />
+                            {/* Materials Accordion */}
+                            <div className="border-b border-stone-200">
+                                <button
+                                    className="w-full py-5 flex items-center justify-between text-left focus:outline-none group"
+                                    onClick={() => toggleAccordion('materials')}
+                                >
+                                    <span className="font-montserrat text-xs uppercase tracking-widest font-medium text-charcoal group-hover:text-stone-600 transition-colors">
+                                        Detalles y Materiales
+                                    </span>
+                                    {activeAccordion === 'materials' ? (
+                                        <ChevronUp size={16} className="text-warm-gray" />
+                                    ) : (
+                                        <ChevronDown size={16} className="text-warm-gray" />
+                                    )}
+                                </button>
+                                <div className={`overflow-hidden transition-all duration-500 ease-in-out ${activeAccordion === 'materials' ? 'max-h-96 opacity-100 pb-5' : 'max-h-0 opacity-0'}`}>
+                                    <div className="text-sm font-light text-warm-gray space-y-2">
+                                        <p>Este par es un trabajo de artesanía, diseñado para brindar comodidad y estilo.</p>
+                                        {product.materials && product.materials.length > 0 && (
+                                            <ul className="list-disc pl-4 space-y-1 mt-2">
+                                                {product.materials.map((mat, idx) => (
+                                                    <li key={idx}>{mat}</li>
+                                                ))}
+                                            </ul>
                                         )}
-                                    </button>
-                                    <div className={`overflow-hidden transition-all duration-500 ease-in-out ${activeAccordion === 'materials' ? 'max-h-96 opacity-100 pb-5' : 'max-h-0 opacity-0'}`}>
-                                        <div className="text-sm font-light text-warm-gray space-y-2">
-                                            <p>Este par es un trabajo de artesanía, diseñado para brindar comodidad y estilo.</p>
-                                            {product.materials && product.materials.length > 0 && (
-                                                <ul className="list-disc pl-4 space-y-1 mt-2">
-                                                    {product.materials.map((mat, idx) => (
-                                                        <li key={idx}>{mat}</li>
-                                                    ))}
-                                                </ul>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Shipping Accordion */}
-                                <div className="border-b border-stone-200">
-                                    <button
-                                        className="w-full py-5 flex items-center justify-between text-left focus:outline-none group"
-                                        onClick={() => toggleAccordion('shipping')}
-                                    >
-                                        <span className="font-montserrat text-xs uppercase tracking-widest font-medium text-charcoal group-hover:text-stone-600 transition-colors">
-                                            Envíos y Devoluciones
-                                        </span>
-                                        {activeAccordion === 'shipping' ? (
-                                            <ChevronUp size={16} className="text-warm-gray" />
-                                        ) : (
-                                            <ChevronDown size={16} className="text-warm-gray" />
-                                        )}
-                                    </button>
-                                    <div className={`overflow-hidden transition-all duration-500 ease-in-out ${activeAccordion === 'shipping' ? 'max-h-96 opacity-100 pb-5' : 'max-h-0 opacity-0'}`}>
-                                        <div className="text-sm font-light text-warm-gray space-y-2">
-                                            <p>• <strong>Envío gratuito</strong> en compras dentro de México.</p>
-                                            <p>• Los pedidos estándar se procesan entre 1-3 días hábiles.</p>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
 
+                            {/* Shipping Accordion */}
+                            <div className="border-b border-stone-200">
+                                <button
+                                    className="w-full py-5 flex items-center justify-between text-left focus:outline-none group"
+                                    onClick={() => toggleAccordion('shipping')}
+                                >
+                                    <span className="font-montserrat text-xs uppercase tracking-widest font-medium text-charcoal group-hover:text-stone-600 transition-colors">
+                                        Envíos y Devoluciones
+                                    </span>
+                                    {activeAccordion === 'shipping' ? (
+                                        <ChevronUp size={16} className="text-warm-gray" />
+                                    ) : (
+                                        <ChevronDown size={16} className="text-warm-gray" />
+                                    )}
+                                </button>
+                                <div className={`overflow-hidden transition-all duration-500 ease-in-out ${activeAccordion === 'shipping' ? 'max-h-96 opacity-100 pb-5' : 'max-h-0 opacity-0'}`}>
+                                    <div className="text-sm font-light text-warm-gray space-y-2">
+                                        <p>• <strong>Envío gratuito</strong> en compras dentro de México.</p>
+                                        <p>• Los pedidos estándar se procesan entre 1-3 días hábiles.</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
                     </div>
+                </div>
             </div>
         </div>
     );

@@ -81,7 +81,9 @@ export default function ProductModal({
       setError('Por favor selecciona una talla');
       return;
     }
-    const message = `Hola, me interesa encargar el producto de edición especial: ${product.name} en talla ${selectedSize.replace(' MX', '')}.`;
+    const isMTO = product?.isMadeToOrder || (product?.variants?.find(v => v.size === selectedSize)?.stock === 0);
+    const messageText = isMTO ? ' (sobre pedido)' : '';
+    const message = `Hola, me interesa encargar el producto${messageText}: ${product.name} en talla ${selectedSize.replace(' MX', '')}.`;
     const whatsappUrl = `https://wa.me/5215510821369?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
@@ -96,6 +98,11 @@ export default function ProductModal({
   const sortedVariants = product.isMadeToOrder && (!product.variants || product.variants.length === 0)
     ? defaultMadeToOrderSizes
     : product.variants?.slice().sort((a, b) => a.size.localeCompare(b.size, undefined, { numeric: true })) || [];
+
+  const isSelectedOutOfStock = !product?.isMadeToOrder && selectedSize && 
+      (sortedVariants.find(v => v.size === selectedSize)?.stock === 0);
+
+  const showWhatsAppButton = product?.isMadeToOrder || isSelectedOutOfStock;
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
@@ -200,6 +207,11 @@ export default function ProductModal({
                       </span>
                     )}
                   </h3>
+                  {!product.isMadeToOrder && isSelectedOutOfStock && (
+                      <div className="bg-stone-50 p-4 rounded-lg mb-4 text-sm text-charcoal border border-stone-200 shadow-sm animate-fade-in">
+                          <p><strong>Talla bajo pedido:</strong> Esta talla está agotada pero podemos fabricarla especialmente para ti. El tiempo aproximado de fabricación es de <strong>3 semanas</strong>.</p>
+                      </div>
+                  )}
                   {sortedVariants.length > 0 ? (
                     <div className="flex flex-wrap gap-3">
                       {sortedVariants.map((variant) => (
@@ -209,16 +221,20 @@ export default function ProductModal({
                             setSelectedSize(variant.size);
                             setError(null);
                           }}
-                          disabled={!product.isMadeToOrder && variant.stock === 0}
                           className={`min-w-[3rem] h-10 px-3 border transition-colors duration-300 flex items-center justify-center text-sm font-medium
                             ${selectedSize === variant.size
                               ? 'bg-charcoal text-cream border-charcoal'
                               : 'bg-transparent text-charcoal border-warm-gray/30 hover:border-charcoal'
                             }
-                            ${!product.isMadeToOrder && variant.stock === 0 ? 'opacity-40 cursor-not-allowed bg-stone/20' : ''}
+                            ${!product.isMadeToOrder && variant.stock === 0 ? 'relative overflow-hidden' : ''}
                           `}
                         >
                           {variant.size.replace(' MX', '')}
+                          {!product.isMadeToOrder && variant.stock === 0 && (
+                              <span className="absolute inset-0 bg-stone-100/50 flex items-center justify-center border-t border-b border-transparent pointer-events-none">
+                                  <div className="w-full h-px bg-stone-300 rotate-45 absolute"></div>
+                              </span>
+                          )}
                         </button>
                       ))}
                     </div>
@@ -229,7 +245,7 @@ export default function ProductModal({
                 </div>
 
                 {/* Quantity Selector */}
-                {!product.isMadeToOrder && (
+                {!showWhatsAppButton && (
                   <div>
                     <h3 className="font-serif text-lg text-charcoal mb-3">
                       Cantidad
@@ -256,7 +272,7 @@ export default function ProductModal({
 
                 {/* Action Buttons */}
                 <div className="space-y-4 pt-4">
-                  {product.isMadeToOrder ? (
+                  {showWhatsAppButton ? (
                     <button
                       onClick={handleWhatsAppOrder}
                       disabled={!selectedSize}
