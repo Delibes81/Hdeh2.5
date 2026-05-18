@@ -4,6 +4,8 @@ import { CartProvider } from '../context/CartContext';
 import '../index.css';
 import ClientLayout from './ClientLayout';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { Analytics } from '@vercel/analytics/react';
+
 
 
 const inter = Inter({
@@ -58,6 +60,7 @@ export default function RootLayout({
           </ClientLayout>
         </CartProvider>
         <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );
