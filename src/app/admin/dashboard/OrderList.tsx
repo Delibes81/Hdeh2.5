@@ -378,6 +378,19 @@ export default function OrderList() {
                                                 Marcar Enviado
                                             </button>
                                         )}
+                                        {(order.status === 'en_fabricacion' || order.status === 'enviado') && (
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if(confirm('¿Reiniciar estado a "Pagado" para hacer pruebas de correos?')) {
+                                                        updateStatus(order.id, 'paid');
+                                                    }
+                                                }}
+                                                className="text-[10px] px-2 py-1 text-red-500 hover:bg-red-50 border border-red-200 rounded transition-colors uppercase font-semibold tracking-wider"
+                                            >
+                                                Reset (Test)
+                                            </button>
+                                        )}
                                     </div>
 
                                         <div className="text-right min-w-[100px]">
