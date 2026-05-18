@@ -292,6 +292,7 @@ export default function OrderList() {
                             <option value="all">Todos los estados</option>
                             <option value="paid">Pagado</option>
                             <option value="en_fabricacion">En fabricación</option>
+                            <option value="preparando_envio">Preparando envío</option>
                             <option value="enviado">Enviado</option>
                         </select>
                         <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-warm-gray pointer-events-none" size={14} />
@@ -337,10 +338,12 @@ export default function OrderList() {
                                             <span className={`text-xs px-3 py-1 rounded-full font-sans font-bold border inline-block ${
                                                 order.status === 'paid' ? 'border-charcoal bg-charcoal text-cream' : 
                                                 order.status === 'en_fabricacion' ? 'border-[#b59e75] bg-[#f8f5f0] text-[#b59e75]' : 
+                                                order.status === 'preparando_envio' ? 'border-orange-500 bg-orange-50 text-orange-600' : 
                                                 'border-stone/20 bg-stone/5 text-charcoal'
                                                 }`}>
                                                 {order.status === 'paid' ? 'Pagado' : 
                                                  order.status === 'en_fabricacion' ? 'En fabricación' : 
+                                                 order.status === 'preparando_envio' ? 'Preparando envío' :
                                                  order.status === 'enviado' ? 'Enviado' : order.status}
                                             </span>
                                         </div>
@@ -371,6 +374,17 @@ export default function OrderList() {
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
+                                                    updateStatus(order.id, 'preparando_envio');
+                                                }}
+                                                className="btn-secondary text-xs px-2 py-1"
+                                            >
+                                                Preparando Envío
+                                            </button>
+                                        )}
+                                        {(order.status === 'paid' || order.status === 'en_fabricacion' || order.status === 'preparando_envio') && (
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
                                                     handleMarkAsShipped(order);
                                                 }}
                                                 className="btn-secondary text-xs px-2 py-1"
@@ -378,7 +392,7 @@ export default function OrderList() {
                                                 Marcar Enviado
                                             </button>
                                         )}
-                                        {(order.status === 'en_fabricacion' || order.status === 'enviado') && (
+                                        {(order.status === 'en_fabricacion' || order.status === 'preparando_envio' || order.status === 'enviado') && (
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
