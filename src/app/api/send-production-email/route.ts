@@ -16,7 +16,7 @@ export async function POST(request: Request) {
             );
         }
 
-        const data = await resend.emails.send({
+        const { data, error } = await resend.emails.send({
             from: 'H de Helena <pedidos@hdehelena.com>',
             to: [email],
             subject: `¡Tu pedido #${orderId.slice(0, 8)} está en fabricación!`,
@@ -25,6 +25,11 @@ export async function POST(request: Request) {
                 orderId,
             }),
         });
+
+        if (error) {
+            console.error('Error de Resend:', error);
+            return NextResponse.json({ error: error.message }, { status: 400 });
+        }
 
         return NextResponse.json({ success: true, data });
     } catch (error: any) {
