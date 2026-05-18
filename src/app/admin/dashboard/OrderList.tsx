@@ -212,6 +212,36 @@ export default function OrderList() {
         }
     };
 
+    const resetAndNotifyPayment = async (order: Order) => {
+        if (!confirm('¿Reiniciar estado a "Pagado" y enviar correo de confirmación de compra de prueba?')) return;
+        
+        try {
+            await updateStatus(order.id, 'paid');
+
+            // Send Email via Resend API
+            const emailRes = await fetch('/api/send-order-confirmation-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: order.contact_email,
+                    customerName: order.shipping_address?.name || 'Cliente',
+                    orderId: order.id
+                })
+            });
+
+            if (!emailRes.ok) {
+                const errData = await emailRes.json();
+                console.warn('Advertencia de email:', errData);
+                alert('Aviso: El pedido se reinició a "Pagado", pero hubo un error enviando el correo de confirmación (' + (errData.error || '') + ').');
+            } else {
+                alert('Pedido reiniciado a Pagado y correo de confirmación enviado exitosamente.');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Error general al reiniciar el pedido');
+        }
+    };
+
     const handleMarkAsShipped = (order: Order) => {
         setSelectedOrderForTracking(order);
         setTrackingModalOpen(true);
@@ -426,9 +456,7 @@ export default function OrderList() {
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    if(confirm('¿Reiniciar estado a "Pagado" para hacer pruebas de correos?')) {
-                                                        updateStatus(order.id, 'paid');
-                                                    }
+                                                    resetAndNotifyPayment(order);
                                                 }}
                                                 className="text-[10px] px-2 py-1 text-red-500 hover:bg-red-50 border border-red-200 rounded transition-colors uppercase font-semibold tracking-wider"
                                             >
