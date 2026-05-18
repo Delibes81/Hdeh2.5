@@ -182,6 +182,36 @@ export default function OrderList() {
         }
     };
 
+    const updateStatusAndNotifyPreparing = async (order: Order) => {
+        if (!confirm('¿Marcar pedido como "Preparando envío" y notificar al cliente por correo?')) return;
+        
+        try {
+            await updateStatus(order.id, 'preparando_envio');
+
+            // Send Email via Resend API
+            const emailRes = await fetch('/api/send-preparing-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: order.contact_email,
+                    customerName: order.shipping_address?.name || 'Cliente',
+                    orderId: order.id
+                })
+            });
+
+            if (!emailRes.ok) {
+                const errData = await emailRes.json();
+                console.warn('Advertencia de email:', errData);
+                alert('Aviso: El pedido se marcó "Preparando envío", pero hubo un error enviando el correo (' + (errData.error || '') + ').');
+            } else {
+                alert('Pedido marcado en preparación y correo enviado exitosamente.');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Error general al confirmar preparación de envío');
+        }
+    };
+
     const handleMarkAsShipped = (order: Order) => {
         setSelectedOrderForTracking(order);
         setTrackingModalOpen(true);
@@ -374,7 +404,7 @@ export default function OrderList() {
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    updateStatus(order.id, 'preparando_envio');
+                                                    updateStatusAndNotifyPreparing(order);
                                                 }}
                                                 className="btn-secondary text-xs px-2 py-1"
                                             >
