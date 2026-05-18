@@ -81,7 +81,7 @@ export default function Footer() {
                   className="w-full h-full"
                   frameBorder="0"
                   scrolling="no"
-                  allowtransparency="true"
+                  allowTransparency={true}
                   title="Instagram Feed"
                 />
               </div>
