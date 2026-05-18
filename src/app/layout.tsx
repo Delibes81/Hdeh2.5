@@ -3,6 +3,8 @@ import { Inter, Libre_Bodoni, Montserrat } from 'next/font/google';
 import { CartProvider } from '../context/CartContext';
 import '../index.css';
 import ClientLayout from './ClientLayout';
+import { SpeedInsights } from '@vercel/speed-insights/next';
+
 
 const inter = Inter({
   subsets: ['latin'],
@@ -55,6 +57,7 @@ export default function RootLayout({
             {children}
           </ClientLayout>
         </CartProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
