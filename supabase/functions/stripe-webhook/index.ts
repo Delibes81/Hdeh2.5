@@ -157,6 +157,30 @@ serve(async (req) => {
             } else {
                 console.warn("No line items found in session.");
             }
+
+            // 3. Send Order Confirmation Email
+            const siteUrl = Deno.env.get('SITE_URL') || 'https://hdehelena.com';
+            try {
+                console.log(`Solicitando email de confirmación a: ${siteUrl}/api/send-order-confirmation-email`);
+                const emailRes = await fetch(`${siteUrl}/api/send-order-confirmation-email`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: order.contact_email,
+                        customerName: order.shipping_address?.name || 'Cliente',
+                        orderId: order.id
+                    })
+                });
+                
+                if (!emailRes.ok) {
+                    const err = await emailRes.text();
+                    console.error('La API de email respondió con error:', err);
+                } else {
+                    console.log('Email de confirmación solicitado con éxito.');
+                }
+            } catch (emailErr) {
+                console.error('Error de red al intentar solicitar el email de confirmación:', emailErr);
+            }
         }
 
         return new Response(JSON.stringify({ received: true }), {
