@@ -6,7 +6,6 @@ import { useProducts } from '../../../hooks/useProducts';
 import { useCart } from '../../../hooks/useCart';
 import { Heart, Share2, Loader, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { formatPrice, createSlug } from '../../../utils/format';
-import SEO from '../../../components/SEO';
 
 export default function ProductPage() {
     const params = useParams();
@@ -129,7 +128,6 @@ export default function ProductPage() {
 
     return (
         <div className="min-h-screen bg-white pt-20 pb-16 animate-fade-in">
-            <SEO title={`${product.name} | H de Helena`} description={product.description} url={`/shop/${createSlug(product.name)}`} />
 
             {/* Breadcrumbs */}
             <div className="max-w-7xl mx-auto px-6 lg:px-8 py-6 text-xs font-sans uppercase tracking-widest text-warm-gray">

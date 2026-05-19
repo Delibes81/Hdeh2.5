@@ -32,6 +32,7 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://hdehelena.com'),
   title: 'H de Helena | Zapatos de Piel',
   description: 'Zapatos de piel artesanales. Descubre nuestra colección exclusiva de calzado hecho a mano.',
   openGraph: {
