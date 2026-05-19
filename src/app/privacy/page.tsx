@@ -1,11 +1,9 @@
 'use client';
-import SEO from '../../components/SEO';
 import { Lock, Eye, FileText, Database } from 'lucide-react';
 
 export default function Privacy() {
     return (
         <div className="min-h-screen bg-white">
-            <SEO title="Política de Privacidad" description="Cómo recopilamos, usamos y protegemos tus datos personales en H de Helena." url="/privacy" />
 
             {/* Header Section */}
             <section className="relative pt-32 pb-12 lg:pt-40 lg:pb-16 bg-gradient-to-br from-pale-pink via-white to-pale-pink overflow-hidden">

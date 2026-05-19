@@ -1,7 +1,6 @@
 'use client';
 import { useState } from 'react';
 import { Plus, Minus } from 'lucide-react';
-import SEO from '../../components/SEO';
 
 export default function FAQ() {
     const faqs = [
@@ -35,7 +34,6 @@ export default function FAQ() {
 
     return (
         <div className="min-h-screen bg-white">
-            <SEO title="Preguntas Frecuentes" description="Resuelve tus dudas sobre envíos, tallas, devoluciones y más." url="/faq" />
 
             {/* Header Section */}
             <section className="relative pt-32 pb-6 lg:pt-40 lg:pb-8 bg-gradient-to-br from-pale-pink via-white to-pale-pink overflow-hidden">

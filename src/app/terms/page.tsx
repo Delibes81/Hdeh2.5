@@ -1,11 +1,9 @@
 'use client';
-import SEO from '../../components/SEO';
 import { Scale, FileCheck, ShieldCheck, CreditCard } from 'lucide-react';
 
 export default function Terms() {
     return (
         <div className="min-h-screen bg-white">
-            <SEO title="Términos y Condiciones" description="Condiciones generales de uso y venta de H de Helena." url="/terms" />
 
             {/* Header Section */}
             <section className="relative pt-32 pb-12 lg:pt-40 lg:pb-16 bg-gradient-to-br from-pale-pink via-white to-pale-pink overflow-hidden">

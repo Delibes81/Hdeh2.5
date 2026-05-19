@@ -1,11 +1,9 @@
 'use client';
-import SEO from '../../components/SEO';
 import { Truck, Globe, Clock, Package } from 'lucide-react';
 
 export default function Shipping() {
     return (
         <div className="min-h-screen bg-white">
-            <SEO title="Envíos y Entregas" description="Información sobre nuestros métodos de envío, tiempos y costos." url="/shipping" />
 
             {/* Header Section */}
             <section className="relative pt-32 pb-6 lg:pt-40 lg:pb-8 bg-gradient-to-br from-pale-pink via-white to-pale-pink overflow-hidden">

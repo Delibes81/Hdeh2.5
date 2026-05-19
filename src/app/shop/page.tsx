@@ -5,8 +5,6 @@ import { useProducts } from '../../hooks/useProducts';
 
 import ProductCard from '../../components/ProductCard';
 import { Search, Loader } from 'lucide-react';
-import SEO from '../../components/SEO';
-
 export default function Shop() {
     const { products, loading, error } = useProducts();
 
@@ -45,7 +43,6 @@ export default function Shop() {
 
     return (
         <div className="min-h-screen bg-white">
-            <SEO title="Tienda" description="Explora nuestra colección completa de zapatos de piel artesanales." url="/shop" />
 
             {/* Header Section */}
             <section className="relative pt-24 pb-8 lg:pt-32 lg:pb-10 bg-gradient-to-br from-pale-pink via-white to-pale-pink overflow-hidden">

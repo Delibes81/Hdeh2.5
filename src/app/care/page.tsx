@@ -1,11 +1,9 @@
 'use client';
-import SEO from '../../components/SEO';
 import { Sparkles, Droplet, Sun, Shield } from 'lucide-react';
 
 export default function Care() {
     return (
         <div className="min-h-screen bg-white">
-            <SEO title="Cuidados y Mantenimiento" description="Guía para cuidar tus zapatos de piel y mantenerlos como nuevos." url="/care" />
 
             {/* Header Section */}
             <section className="relative pt-32 pb-12 lg:pt-40 lg:pb-16 bg-gradient-to-br from-pale-pink via-white to-pale-pink overflow-hidden">

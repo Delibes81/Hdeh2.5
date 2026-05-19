@@ -1,11 +1,9 @@
 'use client';
-import SEO from '../../components/SEO';
 import { RefreshCw } from 'lucide-react';
 
 export default function Returns() {
     return (
         <div className="min-h-screen bg-white">
-            <SEO title="Cambios y devoluciones" description="Política de cambios y devoluciones de H de Helena." url="/returns" />
 
             {/* Header Section */}
             <section className="relative pt-32 pb-6 lg:pt-40 lg:pb-8 bg-gradient-to-br from-pale-pink via-white to-pale-pink overflow-hidden">
