@@ -51,9 +51,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es" className={`${inter.variable} ${libreBodoni.variable} ${montserrat.variable}`} data-scroll-behavior="smooth">
-      <head>
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-      </head>
       <body>
         <CartProvider>
           <ClientLayout>
