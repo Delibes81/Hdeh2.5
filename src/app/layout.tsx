@@ -41,7 +41,10 @@ export const metadata: Metadata = {
     type: 'website',
     url: 'https://hdehelena.com/',
     images: [{ url: 'https://hdehelena.com/images/logo.png' }]
-  }
+  },
+  verification: {
+    google: 'WTJb_ScO0jfd2yDlrdiSYS54-6vPMUuRS41Rn6YGz10',
+  },
 };
 
 export default function RootLayout({
