@@ -1,5 +1,8 @@
+'use client';
 import { X, ChevronLeft, ChevronRight, Heart, Share2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { sendGAEvent } from '@next/third-parties/google';
 import { Product } from '../types';
 
 import { formatPrice } from '../utils/format';
@@ -51,6 +54,20 @@ export default function ProductModal({
     }
 
     onAddToCart(product, selectedSize, quantity);
+
+    sendGAEvent('event', 'add_to_cart', {
+      currency: 'MXN',
+      value: product.price * quantity,
+      items: [
+        {
+          item_id: product.id,
+          item_name: product.name,
+          price: product.price,
+          quantity,
+          item_size: selectedSize
+        }
+      ]
+    });
 
     // Show a brief confirmation
     const originalText = document.getElementById('add-to-cart-btn')?.textContent;
@@ -119,10 +136,12 @@ export default function ProductModal({
           <div className="grid grid-cols-1 lg:grid-cols-2 h-full max-h-[90vh]">
             {/* Image Gallery */}
             <div className="relative bg-white h-[40vh] lg:h-full lg:min-h-[600px] flex items-center justify-center">
-              <img
+              <Image
                 src={product.images[currentImageIndex]}
                 alt={product.name}
-                className="max-w-full max-h-full object-contain p-8"
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="w-full h-full object-contain p-8"
               />
 
               {/* Image Navigation */}
@@ -199,14 +218,14 @@ export default function ProductModal({
                 <div>
                   <h3 className="font-serif text-lg text-charcoal mb-3 flex flex-col">
                     Talla (MX)
-                    {product.isMadeToOrder && (
-                      <span className="text-xs font-sans text-warm-gray mt-1 normal-case tracking-normal">
-                        Producto de edición por encargo. Elige tu talla y mándanos un mensaje.
-                      </span>
-                    )}
                   </h3>
+                  {product.isMadeToOrder && (
+                    <div className="bg-stone-50 p-4 rounded-lg mb-4 text-sm text-charcoal border border-stone-200 shadow-sm animate-fade-in font-sans">
+                      <p><strong>Producto sobre pedido:</strong> Este modelo se fabricará especialmente para ti. El tiempo estimado de fabricación es de aproximadamente <strong>3 semanas</strong>.</p>
+                    </div>
+                  )}
                   {!product.isMadeToOrder && isSelectedOutOfStock && (
-                      <div className="bg-stone-50 p-4 rounded-lg mb-4 text-sm text-charcoal border border-stone-200 shadow-sm animate-fade-in">
+                      <div className="bg-stone-50 p-4 rounded-lg mb-4 text-sm text-charcoal border border-stone-200 shadow-sm animate-fade-in font-sans">
                           <p><strong>Talla bajo pedido:</strong> Esta talla está agotada pero podemos fabricarla especialmente para ti. El tiempo aproximado de fabricación es de <strong>3 semanas</strong>.</p>
                       </div>
                   )}

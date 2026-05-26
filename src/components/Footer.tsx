@@ -1,3 +1,4 @@
+'use client';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
@@ -79,9 +80,8 @@ export default function Footer() {
                 <iframe
                   src="https://www.instagram.com/h.de.helena/embed"
                   className="w-full h-full"
-                  frameBorder="0"
+                  style={{ border: 0 }}
                   scrolling="no"
-                  allowTransparency={true}
                   title="Instagram Feed"
                 />
               </div>

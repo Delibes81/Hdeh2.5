@@ -1,3 +1,4 @@
+'use client';
 import { X, ShoppingBag, Plus, Minus, ArrowRight } from 'lucide-react';
 import { Cart } from '../types';
 import { supabase } from '../lib/supabase';

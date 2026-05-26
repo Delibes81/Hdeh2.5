@@ -2,16 +2,23 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
+import { sendGAEvent } from '@next/third-parties/google';
 import { useProducts } from '../../../hooks/useProducts';
 import { useCart } from '../../../hooks/useCart';
 import { Heart, Share2, Loader, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { formatPrice, createSlug } from '../../../utils/format';
+import { Product } from '../../../types';
 
-export default function ProductClient() {
+interface ProductClientProps {
+    initialProduct?: Product;
+}
+
+export default function ProductClient({ initialProduct }: ProductClientProps = {}) {
     const params = useParams();
     const id = params.id as string;
 
-    const { products, loading, error: productsError } = useProducts();
+    const { products, loading: productsLoading, error: productsError } = useProducts();
     const { addToCart } = useCart();
 
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -22,13 +29,27 @@ export default function ProductClient() {
 
     const [activeAccordion, setActiveAccordion] = useState<string | null>('materials');
 
-    const product = products.find(p => createSlug(p.name) === id || p.id === id);
+    const product = initialProduct || products.find(p => createSlug(p.name) === id || p.id === id);
 
     useEffect(() => {
         setCurrentImageIndex(0);
         setQuantity(1);
         setSelectedSize(null);
         setError(null);
+        if (product) {
+            sendGAEvent('event', 'view_item', {
+                currency: 'MXN',
+                value: product.price,
+                items: [
+                    {
+                        item_id: product.id,
+                        item_name: product.name,
+                        price: product.price,
+                        quantity: 1
+                    }
+                ]
+            });
+        }
     }, [product]);
 
     const nextImage = () => {
@@ -45,6 +66,8 @@ export default function ProductClient() {
         }
     };
 
+    const loading = initialProduct ? false : productsLoading;
+
     if (loading) {
         return (
             <div className="min-h-screen bg-white flex items-center justify-center pt-24">
@@ -53,7 +76,7 @@ export default function ProductClient() {
         );
     }
 
-    if (productsError || !product) {
+    if ((!initialProduct && productsError) || !product) {
         return (
             <div className="min-h-screen bg-white flex items-center justify-center pt-24">
                 <div className="text-center">
@@ -72,6 +95,20 @@ export default function ProductClient() {
         }
 
         addToCart(product, selectedSize, quantity);
+
+        sendGAEvent('event', 'add_to_cart', {
+            currency: 'MXN',
+            value: product.price * quantity,
+            items: [
+                {
+                    item_id: product.id,
+                    item_name: product.name,
+                    price: product.price,
+                    quantity,
+                    item_size: selectedSize
+                }
+            ]
+        });
 
         const button = document.getElementById('add-to-cart-btn');
         if (button) {
@@ -153,9 +190,11 @@ export default function ProductClient() {
                                         : 'border-transparent opacity-60 hover:opacity-100 hover:border-warm-gray/30'
                                         }`}
                                 >
-                                    <img
+                                    <Image
                                         src={img}
                                         alt={`${product.name} - Vista ${index + 1}`}
+                                        fill
+                                        sizes="(max-width: 1024px) 80px, 96px"
                                         className="w-full h-full object-contain bg-white"
                                     />
                                 </button>
@@ -164,9 +203,12 @@ export default function ProductClient() {
 
                         {/* Main Image */}
                         <div className="flex-1 w-full bg-stone/5 relative rounded-xl overflow-hidden flex items-center justify-center min-h-[400px]">
-                            <img
+                            <Image
                                 src={product.images[currentImageIndex]}
                                 alt={product.name}
+                                fill
+                                priority
+                                sizes="(max-width: 768px) 100vw, 50vw"
                                 className="w-full h-full object-contain mix-blend-multiply scale-100"
                             />
 
@@ -225,9 +267,9 @@ export default function ProductClient() {
                                     </button>
                                 </div>
                                 {product.isMadeToOrder && (
-                                    <p className="text-sm font-sans text-warm-gray mb-4">
-                                        Producto de edición por encargo. Elige tu talla y mándanos un mensaje.
-                                    </p>
+                                    <div className="bg-stone-50 p-4 rounded-lg mb-4 text-sm text-charcoal border border-stone-200 shadow-sm animate-fade-in">
+                                        <p><strong>Producto sobre pedido:</strong> Este modelo se fabricará especialmente para ti. El tiempo estimado de fabricación es de aproximadamente <strong>3 semanas</strong>.</p>
+                                    </div>
                                 )}
                                 {!product.isMadeToOrder && isSelectedOutOfStock && (
                                     <div className="bg-stone-50 p-4 rounded-lg mb-4 text-sm text-charcoal border border-stone-200 shadow-sm animate-fade-in">

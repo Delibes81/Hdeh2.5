@@ -5,6 +5,7 @@ import '../index.css';
 import ClientLayout from './ClientLayout';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/react';
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 
 
@@ -62,6 +63,7 @@ export default function RootLayout({
         </CartProvider>
         <SpeedInsights />
         <Analytics />
+        <GoogleAnalytics gaId="G-2EBDHM951Y" />
       </body>
     </html>
   );

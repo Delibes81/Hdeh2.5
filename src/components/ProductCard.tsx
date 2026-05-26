@@ -1,5 +1,7 @@
+'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Product } from '../types';
 import { formatPrice, createSlug } from '../utils/format';
 
@@ -33,9 +35,11 @@ export default function ProductCard({ product, index = 0, startAnimation = true 
         className="relative aspect-[4/5] overflow-hidden bg-white flex flex-col justify-end"
         onMouseEnter={handleImageChange}
       >
-        <img
+        <Image
           src={product.images[imageIndex]}
           alt={product.name}
+          fill
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           onLoad={() => setImageLoaded(true)}
           className={`w-full h-full object-contain transition-all duration-700 group-hover:scale-105 ${imageLoaded ? 'opacity-100 blur-0' : 'opacity-0 blur-sm'}`}
         />
