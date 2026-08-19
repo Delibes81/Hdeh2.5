@@ -91,7 +91,15 @@ async function getAuthorizedClient(request: Request): Promise<SupabaseClient | n
     });
 
     const { data: { user }, error } = await authenticatedClient.auth.getUser(accessToken);
-    return error || !user ? null : authenticatedClient;
+    if (error || !user) return null;
+
+    const { data: adminMembership, error: adminError } = await authenticatedClient
+        .from('admin_users')
+        .select('user_id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+    return adminError || !adminMembership ? null : authenticatedClient;
 }
 
 export async function POST(request: Request) {

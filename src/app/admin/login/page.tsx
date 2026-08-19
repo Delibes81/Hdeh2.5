@@ -17,12 +17,23 @@ export default function Login() {
         setError(null);
 
         try {
-            const { error } = await supabase.auth.signInWithPassword({
+            const { data, error } = await supabase.auth.signInWithPassword({
                 email,
                 password,
             });
 
             if (error) throw error;
+
+            const { data: adminMembership, error: adminError } = await supabase
+                .from('admin_users')
+                .select('user_id')
+                .eq('user_id', data.user.id)
+                .maybeSingle();
+
+            if (adminError || !adminMembership) {
+                await supabase.auth.signOut();
+                throw new Error('Esta cuenta no tiene acceso administrativo.');
+            }
 
             router.push('/admin/dashboard');
         } catch (err: any) {

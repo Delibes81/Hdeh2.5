@@ -6,31 +6,70 @@ import { Loader2 } from 'lucide-react';
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
     const [loading, setLoading] = useState(true);
-    const [authenticated, setAuthenticated] = useState(false);
+    const [authorized, setAuthorized] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
-        const checkAuth = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            setAuthenticated(!!session);
-            setLoading(false);
+        let active = true;
+
+        const checkAdminAccess = async (userId?: string) => {
+            if (!userId) {
+                if (active) {
+                    setAuthorized(false);
+                    setLoading(false);
+                }
+                return;
+            }
+
+            const { data: adminMembership, error } = await supabase
+                .from('admin_users')
+                .select('user_id')
+                .eq('user_id', userId)
+                .maybeSingle();
+
+            if (active) {
+                setAuthorized(!error && Boolean(adminMembership));
+                setLoading(false);
+            }
+
+            if (error || !adminMembership) {
+                await supabase.auth.signOut();
+            }
         };
 
-        checkAuth();
+        const checkAuth = async () => {
+            const { data: { session }, error } = await supabase.auth.getSession();
+
+            if (error) {
+                if (active) {
+                    setAuthorized(false);
+                    setLoading(false);
+                }
+                return;
+            }
+
+            await checkAdminAccess(session?.user.id);
+        };
+
+        void checkAuth();
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setAuthenticated(!!session);
-            setLoading(false);
+            window.setTimeout(() => {
+                void checkAdminAccess(session?.user.id);
+            }, 0);
         });
 
-        return () => subscription.unsubscribe();
+        return () => {
+            active = false;
+            subscription.unsubscribe();
+        };
     }, []);
 
     useEffect(() => {
-        if (!loading && !authenticated) {
+        if (!loading && !authorized) {
             router.replace('/admin/login');
         }
-    }, [loading, authenticated, router]);
+    }, [loading, authorized, router]);
 
     if (loading) {
         return (
@@ -40,5 +79,5 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
         );
     }
 
-    return authenticated ? <>{children}</> : null;
+    return authorized ? <>{children}</> : null;
 }
