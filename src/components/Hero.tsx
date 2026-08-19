@@ -44,13 +44,11 @@ export default function Hero({ startAnimations = true }: HeroProps) {
 
       {/* Content */}
       <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
-        <h2 className={`font-serif uppercase font-light text-2xl md:text-4xl lg:text-6xl text-cream mb-24 text-shadow leading-[0.9] md:leading-[0.9] ${animationClass('animate-fade-in')}`}>
-          Tus historias empiezan
+        <h1 className={`font-serif uppercase font-light text-2xl md:text-4xl lg:text-6xl text-cream mb-24 text-shadow leading-[0.9] md:leading-[0.9] ${animationClass('animate-fade-in')}`}>
+          Tu historia empieza
           <br />
           <span className="text-2xl md:text-4xl lg:text-5xl">con un solo paso.</span>
-        </h2>
-
-
+        </h1>
 
         <button
           onClick={scrollToCollection}

@@ -20,7 +20,11 @@ async function expectNoSeriousAccessibilityViolations(page: Page, include?: stri
   expect(blockingViolations, JSON.stringify(blockingViolations, null, 2)).toEqual([]);
 }
 
-test('el catálogo y el detalle no tienen barreras serias de accesibilidad', async ({ page }) => {
+test('la portada, el catálogo y el detalle no tienen barreras serias de accesibilidad', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('heading', { level: 1, name: 'Tu historia empieza con un solo paso.' })).toBeVisible();
+  await expectNoSeriousAccessibilityViolations(page);
+
   await page.goto('/shop');
 
   const firstProduct = page.locator('a[href^="/shop/"]').first();
