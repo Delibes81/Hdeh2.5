@@ -185,15 +185,15 @@ export default function Footer() {
         <div className="border-t border-warm-gray/20">
           <div className="max-w-7xl mx-auto px-6 lg:px-8 py-6">
             <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
-              <p className="text-charcoal/50 text-sm font-light">
+              <p className="text-charcoal/70 text-sm font-light">
                 © 2026 H de Helena. Todos los derechos reservados.
               </p>
 
               <div className="flex items-center space-x-6 text-sm">
-                <Link href="/privacy" className="text-charcoal/50 hover:text-charcoal/70 transition-colors duration-300">
+                <Link href="/privacy" className="text-charcoal/70 hover:text-charcoal transition-colors duration-300">
                   Privacidad
                 </Link>
-                <Link href="/terms" className="text-charcoal/50 hover:text-charcoal/70 transition-colors duration-300">
+                <Link href="/terms" className="text-charcoal/70 hover:text-charcoal transition-colors duration-300">
                   Términos
                 </Link>
               </div>

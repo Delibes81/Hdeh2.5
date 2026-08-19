@@ -1,5 +1,5 @@
 'use client';
-import { ShoppingBag, User, Menu, X } from 'lucide-react';
+import { ShoppingBag, Menu, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -73,14 +73,12 @@ export default function Header({ cart, onCartClick }: HeaderProps) {
               )}
             </button>
 
-            <button className="p-2 text-warm-gray hover:text-charcoal transition-colors duration-300">
-              <User size={20} strokeWidth={1.5} />
-            </button>
-
             {/* Mobile menu button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="lg:hidden p-2 text-warm-gray hover:text-charcoal transition-colors duration-300"
+              aria-label={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+              aria-expanded={isMenuOpen}
             >
               {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>

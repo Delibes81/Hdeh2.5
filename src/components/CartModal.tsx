@@ -2,7 +2,7 @@
 import { X, ShoppingBag, Plus, Minus, ArrowRight } from 'lucide-react';
 import { Cart } from '../types';
 import { supabase } from '../lib/supabase';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { formatPrice } from '../utils/format';
 import { getProductionQuantity } from '../utils/inventory';
@@ -19,6 +19,7 @@ interface CartModalProps {
 }
 
 export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onRemoveItem, onClearCart }: CartModalProps) {
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
   /* Checkout Logic */
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   
@@ -27,6 +28,26 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
   const [couponError, setCouponError] = useState<string | null>(null);
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', handleKeyDown);
+    closeButtonRef.current?.focus();
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleKeyDown);
+      previouslyFocused?.focus();
+    };
+  }, [isOpen, onClose]);
 
   const applyCoupon = async () => {
     if (!couponCode.trim()) return;
@@ -126,17 +147,22 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
 
-      <div className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-xl flex flex-col animate-slide-in-right">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="cart-title"
+        className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-xl flex flex-col animate-slide-in-right"
+      >
         {/* Header */}
         <div className="p-6 border-b border-stone/10 flex justify-between items-center bg-stone/5">
-          <h2 className="font-serif text-2xl text-charcoal flex items-center gap-2">
+          <h2 id="cart-title" className="font-serif text-2xl text-charcoal flex items-center gap-2">
             <ShoppingBag size={24} />
             Tu Carrito
             <span className="text-sm font-sans font-normal text-warm-gray ml-2">({cart.itemCount} items)</span>
           </h2>
-          <button onClick={onClose} className="text-warm-gray hover:text-charcoal transition-colors">
+          <button ref={closeButtonRef} onClick={onClose} aria-label="Cerrar carrito" className="text-warm-gray hover:text-charcoal transition-colors">
             <X size={24} />
           </button>
         </div>
@@ -172,6 +198,7 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
                     <div className="flex items-center gap-3 bg-stone/5 rounded-full px-3 py-1">
                       <button
                         onClick={() => onUpdateQuantity(item.product.id, item.size, item.quantity - 1)}
+                        aria-label={`Disminuir cantidad de ${item.product.name}`}
                         className="text-warm-gray hover:text-charcoal disabled:opacity-30"
                         disabled={item.quantity <= 1}
                       >
@@ -180,13 +207,14 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
                       <span className="text-sm w-4 text-center">{item.quantity}</span>
                       <button
                         onClick={() => onUpdateQuantity(item.product.id, item.size, item.quantity + 1)}
+                        aria-label={`Aumentar cantidad de ${item.product.name}`}
                         className="text-warm-gray hover:text-charcoal"
                       >
                         <Plus size={14} />
                       </button>
                     </div>
                     <div className="text-right">
-                      <button onClick={() => onRemoveItem(item.product.id, item.size)} className="text-xs text-red-500 hover:text-red-700 mb-1 block ml-auto">
+                      <button onClick={() => onRemoveItem(item.product.id, item.size)} className="text-xs text-red-700 hover:text-red-800 mb-1 block ml-auto">
                         Eliminar
                       </button>
                       <p className="font-medium text-charcoal">{formatPrice(item.product.price * item.quantity)}</p>
@@ -210,6 +238,7 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
                             <input
                                 type="text"
                                 data-testid="coupon-input"
+                                aria-label="Código de descuento"
                                 placeholder="Código de descuento"
                                 value={couponCode}
                                 onChange={(e) => setCouponCode(e.target.value)}
@@ -224,7 +253,7 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
                                 {isApplyingCoupon ? '...' : 'Aplicar'}
                             </button>
                         </div>
-                        {couponError && <p className="text-red-500 text-xs mt-2">{couponError}</p>}
+                        {couponError && <p className="text-red-700 text-xs mt-2">{couponError}</p>}
                     </div>
                 ) : (
                     <div className="flex justify-between items-center bg-stone-50 p-2 rounded border border-stone-200">
@@ -236,7 +265,7 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
                                 {appliedCoupon.discountType === 'percentage' ? `${appliedCoupon.discountValue}% de descuento` : `${formatPrice(appliedCoupon.discountValue)} de descuento`}
                             </p>
                         </div>
-                        <button onClick={removeCoupon} className="text-xs text-red-500 hover:text-red-700 underline">
+                        <button onClick={removeCoupon} className="text-xs text-red-700 hover:text-red-800 underline">
                             Quitar
                         </button>
                     </div>

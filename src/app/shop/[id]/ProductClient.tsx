@@ -178,6 +178,7 @@ export default function ProductClient({ initialProduct }: ProductClientProps) {
                                 <>
                                     <button
                                         onClick={previousImage}
+                                        aria-label="Imagen anterior"
                                         className="absolute left-2 lg:left-4 top-1/2 -translate-y-1/2 w-10 h-10 transition-colors duration-300 flex items-center justify-center text-charcoal/40 hover:text-charcoal"
                                     >
                                         <ChevronLeft size={36} strokeWidth={1} />
@@ -185,6 +186,7 @@ export default function ProductClient({ initialProduct }: ProductClientProps) {
 
                                     <button
                                         onClick={nextImage}
+                                        aria-label="Imagen siguiente"
                                         className="absolute right-2 lg:right-4 top-1/2 -translate-y-1/2 w-10 h-10 transition-colors duration-300 flex items-center justify-center text-charcoal/40 hover:text-charcoal"
                                     >
                                         <ChevronRight size={36} strokeWidth={1} />
@@ -252,7 +254,7 @@ export default function ProductClient({ initialProduct }: ProductClientProps) {
                                                         ? 'bg-charcoal text-cream border-charcoal shadow-md scale-[1.02]'
                                                         : 'bg-white text-charcoal border-warm-gray/30 hover:border-charcoal hover:bg-stone/5'
                                                     }
-                                                    ${!product.isMadeToOrder && variant.stock <= 0 && selectedSize !== variant.size ? 'opacity-50 border-dashed bg-stone-50' : ''}
+                                                    ${!product.isMadeToOrder && variant.stock <= 0 && selectedSize !== variant.size ? 'border-dashed bg-stone-50' : ''}
                                                 `}
                                             >
                                                 {variant.size.replace(' MX', '')}
@@ -306,6 +308,8 @@ export default function ProductClient({ initialProduct }: ProductClientProps) {
                                 <div className="flex gap-4 sm:w-auto">
                                     <button
                                         onClick={() => setIsLiked(!isLiked)}
+                                        aria-label={isLiked ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+                                        aria-pressed={isLiked}
                                         className={`h-14 w-14 rounded-full border flex items-center justify-center transition-all duration-300 shrink-0
                                             ${isLiked ? 'border-red-200 bg-red-50 text-red-500 shadow-sm' : 'border-warm-gray/30 text-warm-gray hover:border-charcoal hover:text-charcoal'}`}
                                     >
@@ -316,6 +320,7 @@ export default function ProductClient({ initialProduct }: ProductClientProps) {
                                     </button>
                                     <button
                                         onClick={handleShare}
+                                        aria-label="Compartir producto"
                                         className="h-14 w-14 rounded-full border border-warm-gray/30 text-warm-gray hover:border-charcoal hover:text-charcoal flex items-center justify-center transition-all duration-300 shrink-0"
                                     >
                                         <Share2 size={20} />
