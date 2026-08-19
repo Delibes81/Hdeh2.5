@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../../lib/supabase';
 import { Lock, Mail, Loader2 } from 'lucide-react';
+import { getErrorMessage } from '../../../utils/errors';
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -36,8 +37,8 @@ export default function Login() {
             }
 
             router.push('/admin/dashboard');
-        } catch (err: any) {
-            setError(err.message || 'Error al iniciar sesión');
+        } catch (err: unknown) {
+            setError(getErrorMessage(err, 'Error al iniciar sesión'));
         } finally {
             setLoading(false);
         }

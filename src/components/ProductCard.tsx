@@ -13,7 +13,6 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, index = 0, startAnimation = true }: ProductCardProps) {
   const [imageIndex, setImageIndex] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
 
   const handleImageChange = () => {
@@ -27,8 +26,6 @@ export default function ProductCard({ product, index = 0, startAnimation = true 
       href={`/shop/${createSlug(product.name)}`}
       className={`group cursor-pointer opacity-0 fill-mode-forwards block ${startAnimation ? 'animate-fade-in-up' : ''}`}
       style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'forwards' }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
       {/* Product Image */}
       <div

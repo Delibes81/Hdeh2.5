@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import { Product } from '../../types';
 import { useProducts } from '../../hooks/useProducts';
 
 import ProductCard from '../../components/ProductCard';

@@ -8,6 +8,7 @@ import ProductList from './ProductList';
 import DashboardHome from './DashboardHome';
 import CouponManager from './CouponManager';
 import { useState } from 'react';
+import type { LucideIcon } from 'lucide-react';
 
 type View = 'home' | 'products' | 'orders' | 'settings';
 
@@ -21,7 +22,7 @@ export default function Dashboard() {
         router.push('/admin/login');
     };
 
-    const NavItem = ({ view, icon: Icon, label }: { view: View; icon: any; label: string }) => (
+    const NavItem = ({ view, icon: Icon, label }: { view: View; icon: LucideIcon; label: string }) => (
         <button
             onClick={() => setCurrentView(view)}
             className={`flex items-center space-x-3 w-full px-4 py-3 transition-colors font-sans uppercase text-sm tracking-wide font-medium ${currentView === view

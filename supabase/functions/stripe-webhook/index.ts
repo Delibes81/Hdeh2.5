@@ -235,8 +235,9 @@ serve(async (req) => {
         return new Response(JSON.stringify({ received: true }), {
             headers: { "Content-Type": "application/json" },
         })
-    } catch (err: any) {
+    } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'Error desconocido'
         console.error("Webhook processing error:", err)
-        return new Response(`Webhook Error: ${err.message}`, { status: 400 })
+        return new Response(`Webhook Error: ${errorMessage}`, { status: 400 })
     }
 })

@@ -1,15 +1,41 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { DollarSign, ShoppingBag, TrendingUp, AlertTriangle, Loader2, Calendar } from 'lucide-react';
 import { formatPrice } from '../../../utils/format';
+import type { LucideIcon } from 'lucide-react';
+
+interface SalesPoint {
+    date: string;
+    amount: number;
+    timestamp: number;
+}
+
+interface LowStockItem {
+    id: string;
+    stock: number;
+    size: string;
+    products: {
+        name: string;
+        images: string[];
+    } | Array<{
+        name: string;
+        images: string[];
+    }> | null;
+}
+
+interface StatCardProps {
+    title: string;
+    value: React.ReactNode;
+    subtext?: string;
+    icon: LucideIcon;
+}
 
 export default function DashboardHome() {
     const [loading, setLoading] = useState(true);
-    const [salesData, setSalesData] = useState<any[]>([]);
-    const [lowStockItems, setLowStockItems] = useState<any[]>([]);
+    const [salesData, setSalesData] = useState<SalesPoint[]>([]);
+    const [lowStockItems, setLowStockItems] = useState<LowStockItem[]>([]);
     const [timeRange, setTimeRange] = useState('7d');
-    const [filteredData, setFilteredData] = useState<any[]>([]);
     const [stats, setStats] = useState({
         totalSales: 0,
         pendingOrders: 0,
@@ -20,12 +46,8 @@ export default function DashboardHome() {
         fetchStats();
     }, []);
 
-    useEffect(() => {
-        filterData();
-    }, [salesData, timeRange]);
-
-    const filterData = () => {
-        if (!salesData.length) return;
+    const filteredData = useMemo(() => {
+        if (!salesData.length) return [];
 
         const now = new Date();
         const cutoff = new Date();
@@ -35,8 +57,7 @@ export default function DashboardHome() {
         } else if (timeRange === '30d') {
             cutoff.setDate(now.getDate() - 30);
         } else {
-            setFilteredData(salesData);
-            return;
+            return salesData;
         }
 
         const filtered = salesData.filter(item => {
@@ -46,8 +67,8 @@ export default function DashboardHome() {
             // Better approach: Store timestamp in salesData too.
             return item.timestamp >= cutoff.getTime();
         });
-        setFilteredData(filtered);
-    };
+        return filtered;
+    }, [salesData, timeRange]);
 
     const fetchStats = async () => {
         try {
@@ -88,7 +109,7 @@ export default function DashboardHome() {
             if (variantsError) throw variantsError;
 
             // Ensure types are safe
-            const lowStockList = variants || [];
+            const lowStockList = (variants || []) as unknown as LowStockItem[];
 
             setStats({
                 totalSales,
@@ -131,7 +152,7 @@ export default function DashboardHome() {
         }
     };
 
-    const StatCard = ({ title, value, subtext, icon: Icon }: any) => {
+    const StatCard = ({ title, value, subtext, icon: Icon }: StatCardProps) => {
         // Envolvemos el símbolo $ en font-sans para que se dibuje con 1 sola línea (Libre Bodoni usa 2 líneas)
         let displayValue: React.ReactNode = value;
         if (typeof value === 'string' && value.includes('$')) {
@@ -238,7 +259,7 @@ export default function DashboardHome() {
                                 />
                                 <Tooltip
                                     contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                                    formatter={(value: any) => [formatPrice(value || 0), 'Ventas']}
+                                    formatter={(value) => [formatPrice(Number(value) || 0), 'Ventas']}
                                 />
                                 <Line
                                     type="monotone"
@@ -268,12 +289,17 @@ export default function DashboardHome() {
                         </div>
                     ) : (
                         <div className="space-y-4 overflow-y-auto max-h-[320px] pr-2 custom-scrollbar">
-                            {lowStockItems.map((item) => (
+                            {lowStockItems.map((item) => {
+                                const relatedProduct = Array.isArray(item.products)
+                                    ? item.products[0]
+                                    : item.products;
+
+                                return (
                                 <div key={item.id} className="flex items-center gap-3 p-3 rounded-lg bg-stone/5 border border-stone/10">
                                     <div className="w-10 h-10 bg-white rounded overflow-hidden flex-shrink-0 border border-stone/10">
-                                        {item.products?.images?.[0] && (
+                                        {relatedProduct?.images?.[0] && (
                                             <img
-                                                src={item.products.images[0]}
+                                                src={relatedProduct.images[0]}
                                                 alt=""
                                                 className="w-full h-full object-cover"
                                             />
@@ -281,7 +307,7 @@ export default function DashboardHome() {
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <p className="text-sm font-medium text-charcoal truncate">
-                                            {item.products?.name}
+                                            {relatedProduct?.name}
                                         </p>
                                         <p className="text-xs text-warm-gray">
                                             Talla: {item.size?.replace(' MX', '')}
@@ -292,7 +318,8 @@ export default function DashboardHome() {
                                         {item.stock} u.
                                     </div>
                                 </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     )}
                 </div>
@@ -300,4 +327,3 @@ export default function DashboardHome() {
         </div>
     );
 }
-

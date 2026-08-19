@@ -1,4 +1,4 @@
-import { Metadata, ResolvingMetadata } from 'next';
+import { Metadata } from 'next';
 import { supabase } from '../../../lib/supabase';
 import { createSlug } from '../../../utils/format';
 
@@ -7,8 +7,7 @@ type Props = {
 };
 
 export async function generateMetadata(
-    { params }: Props,
-    parent: ResolvingMetadata
+    { params }: Props
 ): Promise<Metadata> {
     const resolvedParams = await Promise.resolve(params);
     const id = resolvedParams.id;

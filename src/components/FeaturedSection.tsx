@@ -1,11 +1,4 @@
-import { Product } from '../types';
-
-interface FeaturedSectionProps {
-  onAddToCart?: (product: Product) => void;
-  onProductClick?: (product: Product) => void;
-}
-
-export default function FeaturedSection(_props: FeaturedSectionProps) {
+export default function FeaturedSection() {
   return (
     <section className="w-full bg-stone overflow-hidden">
       <video

@@ -1,7 +1,8 @@
-﻿import { useState, useEffect } from 'react';
+﻿import { useState } from 'react';
 import { Product, ProductVariant } from '../../../types';
 import { supabase } from '../../../lib/supabase';
 import { X, Upload, Plus, Trash2, Loader2, Save, ChevronLeft, ChevronRight, Edit } from 'lucide-react';
+import { getErrorMessage } from '../../../utils/errors';
 
 const formatBytes = (bytes: number, decimals = 2) => {
     if (!+bytes) return '0 Bytes';
@@ -50,7 +51,7 @@ export default function ProductForm({ product, onClose, onSave }: ProductFormPro
 
         try {
             // Ensure any pending inline edit is applied
-            let finalVariants = [...variants];
+            const finalVariants = [...variants];
             if (editingVariantIdx !== null) {
                 const parsed = parseInt(editingStock, 10);
                 const stock = isNaN(parsed) ? 0 : parsed;
@@ -121,8 +122,8 @@ export default function ProductForm({ product, onClose, onSave }: ProductFormPro
 
             onSave();
             onClose();
-        } catch (error: any) {
-            alert('Error guardando producto: ' + error.message);
+        } catch (error: unknown) {
+            alert('Error guardando producto: ' + getErrorMessage(error, 'Error desconocido'));
         } finally {
             setLoading(false);
         }
@@ -231,8 +232,8 @@ export default function ProductForm({ product, onClose, onSave }: ProductFormPro
                 .getPublicUrl(filePath);
 
             setImages([...images, publicUrl]);
-        } catch (error: any) {
-            alert('Error subiendo imagen: ' + error.message);
+        } catch (error: unknown) {
+            alert('Error subiendo imagen: ' + getErrorMessage(error, 'Error desconocido'));
         } finally {
             setUploading(false);
         }
@@ -321,7 +322,7 @@ export default function ProductForm({ product, onClose, onSave }: ProductFormPro
                                     <label className="block text-sm font-medium text-warm-gray mb-1">Categoría</label>
                                     <select
                                         value={category}
-                                        onChange={e => setCategory(e.target.value as any)}
+                                        onChange={e => setCategory(e.target.value as Product['category'])}
                                         className="w-full p-2 border border-stone/20 rounded focus:border-charcoal outline-none bg-white"
                                     >
                                         <option value="zapatos-bajos">Zapatos bajos</option>
@@ -635,4 +636,3 @@ export default function ProductForm({ product, onClose, onSave }: ProductFormPro
         </div>
     );
 }
-

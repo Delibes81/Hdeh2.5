@@ -220,7 +220,7 @@ serve(async (req) => {
             JSON.stringify({ url: session.url }),
             { headers: { ...corsHeaders, "Content-Type": "application/json" } },
         )
-    } catch (error: any) {
+    } catch (error: unknown) {
         if (reservationToken) {
             const { error: releaseError } = await supabase.rpc('release_coupon_reservation', {
                 p_reservation_token: reservationToken,
@@ -231,9 +231,10 @@ serve(async (req) => {
             }
         }
 
+        const errorMessage = error instanceof Error ? error.message : 'No se pudo iniciar el pago'
         console.error("Function Error:", error)
         return new Response(
-            JSON.stringify({ error: error.message }),
+            JSON.stringify({ error: errorMessage }),
             { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
         )
     }

@@ -1,13 +1,15 @@
 import { useEffect, useState, useCallback } from 'react';
 
-export function useIntersectionObserver(options = {}) {
+export function useIntersectionObserver({
+    root = null,
+    rootMargin = '50px',
+    threshold = 0.1,
+}: IntersectionObserverInit = {}) {
     const [element, setElement] = useState<HTMLElement | null>(null);
     const [isVisible, setIsVisible] = useState(false);
 
     const elementRef = useCallback((node: HTMLElement | null) => {
-        if (node) {
-            setElement(node);
-        }
+        setElement(node);
     }, []);
 
     useEffect(() => {
@@ -19,9 +21,9 @@ export function useIntersectionObserver(options = {}) {
                 observer.unobserve(element);
             }
         }, {
-            threshold: 0.1,
-            rootMargin: '50px',
-            ...options
+            threshold,
+            rootMargin,
+            root,
         });
 
         observer.observe(element);
@@ -29,7 +31,7 @@ export function useIntersectionObserver(options = {}) {
         return () => {
             observer.disconnect();
         };
-    }, [element]);
+    }, [element, root, rootMargin, threshold]);
 
     return { elementRef, isVisible };
 }

@@ -6,6 +6,7 @@ import { useState } from 'react';
 
 import { formatPrice } from '../utils/format';
 import { getProductionQuantity } from '../utils/inventory';
+import { getErrorMessage } from '../utils/errors';
 import { Coupon } from '../types';
 
 interface CartModalProps {
@@ -113,9 +114,9 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
       if (data?.url) {
         window.location.href = data.url;
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Checkout Error:', error);
-      alert(`Error al iniciar pago: ${error.message}`);
+      alert(`Error al iniciar pago: ${getErrorMessage(error, 'Error desconocido')}`);
     } finally {
       setIsCheckingOut(false);
     }

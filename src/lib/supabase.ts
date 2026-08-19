@@ -1,5 +1,4 @@
 import { createClient } from '@supabase/supabase-js';
-import { Database } from '../types/supabase'; // We will need to generate this or use 'any' for now
 
 // Create a single supabase client for interacting with your database
 // Helper to clean keys from trailing spaces, newlines, carriage returns, or quotes
@@ -19,4 +18,3 @@ export const supabase = createClient(
     supabaseUrl || 'https://placeholder.supabase.co',
     supabaseAnonKey || 'placeholder'
 );
-

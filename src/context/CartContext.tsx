@@ -1,5 +1,5 @@
 'use client';
-import { createContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { Cart, Product, CartItem } from '../types';
 
 const CART_STORAGE_KEY = 'helena-cart';
@@ -103,13 +103,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
         });
     };
 
-    const clearCart = () => {
+    const clearCart = useCallback(() => {
         setCart({
             items: [],
             total: 0,
             itemCount: 0
         });
-    };
+    }, []);
 
     return (
         <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantity, clearCart }}>

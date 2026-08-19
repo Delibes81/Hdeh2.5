@@ -4,6 +4,7 @@ import { Product } from '../../../types';
 import { Edit, Trash2, Plus, Search, Loader2, ArrowUpDown, ChevronDown, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import ProductForm from './ProductForm';
 import { formatPrice } from '../../../utils/format';
+import { getErrorMessage } from '../../../utils/errors';
 
 export default function ProductList() {
     const [products, setProducts] = useState<Product[]>([]);
@@ -83,8 +84,8 @@ export default function ProductList() {
             if (error) throw error;
 
             setProducts(products.filter(p => p.id !== productId));
-        } catch (error: any) {
-            alert('Error eliminando producto: ' + error.message);
+        } catch (error: unknown) {
+            alert('Error eliminando producto: ' + getErrorMessage(error, 'Error desconocido'));
         }
     };
 
@@ -322,4 +323,3 @@ export default function ProductList() {
         </div >
     );
 }
-

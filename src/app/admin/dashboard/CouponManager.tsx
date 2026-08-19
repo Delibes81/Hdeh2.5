@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { Plus, Trash2, Edit2, CheckCircle, XCircle } from 'lucide-react';
+import { getErrorMessage } from '../../../utils/errors';
 
 interface Coupon {
   id: string;
@@ -41,8 +42,8 @@ export default function CouponManager() {
 
       if (error) throw error;
       setCoupons(data || []);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'No se pudieron cargar los cupones.'));
     } finally {
       setLoading(false);
     }
@@ -77,8 +78,8 @@ export default function CouponManager() {
       setEditingId(null);
       setIsFormOpen(false);
       fetchCoupons();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err: unknown) {
+      alert(`Error: ${getErrorMessage(err, 'No se pudo guardar el cupón.')}`);
     }
   };
 
@@ -91,8 +92,8 @@ export default function CouponManager() {
 
       if (error) throw error;
       fetchCoupons();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err: unknown) {
+      alert(`Error: ${getErrorMessage(err, 'No se pudo actualizar el cupón.')}`);
     }
   };
 
@@ -106,8 +107,8 @@ export default function CouponManager() {
 
       if (error) throw error;
       fetchCoupons();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err: unknown) {
+      alert(`Error: ${getErrorMessage(err, 'No se pudo eliminar el cupón.')}`);
     }
   };
 
@@ -155,6 +156,12 @@ export default function CouponManager() {
           <Plus size={16} /> Nuevo Cupón
         </button>
       </div>
+
+      {error && (
+        <div className="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+          {error}
+        </div>
+      )}
 
       {isFormOpen && (
         <form onSubmit={handleSaveCoupon} className="bg-stone-50 p-6 rounded-lg border border-stone-200 grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -3,6 +3,7 @@ import { supabase } from '../../../lib/supabase';
 import { createSlug, formatPrice } from '../../../utils/format';
 import ProductClient from './ProductClient';
 import { Product } from '../../../types';
+import { mapProductRow, type ProductRow } from '../../../utils/products';
 
 async function getProduct(id: string): Promise<Product | null> {
     const { data: rawProducts, error } = await supabase
@@ -14,29 +15,10 @@ async function getProduct(id: string): Promise<Product | null> {
         return null;
     }
 
-    const rawProduct = rawProducts.find((p: any) => createSlug(p.name) === id || p.id === id);
+    const rawProduct = rawProducts.find((product) => createSlug(product.name) === id || product.id === id);
     if (!rawProduct) return null;
 
-    // Map Supabase snake_case to TypeScript camelCase
-    return {
-        id: rawProduct.id,
-        name: rawProduct.name,
-        price: Number(rawProduct.price),
-        category: rawProduct.category,
-        images: rawProduct.images || [],
-        description: rawProduct.description,
-        isHandcrafted: rawProduct.is_handcrafted,
-        isFeatured: rawProduct.is_featured,
-        featuredOrder: rawProduct.featured_order || 0,
-        materials: rawProduct.materials || [],
-        dimensions: rawProduct.dimensions,
-        isMadeToOrder: rawProduct.is_made_to_order,
-        variants: (rawProduct.variants || []).map((v: any) => ({
-            id: v.id,
-            size: v.size,
-            stock: v.stock
-        }))
-    };
+    return mapProductRow(rawProduct as ProductRow);
 }
 
 const getCategoryInfo = (category: string | null | undefined) => {
@@ -162,4 +144,3 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         </>
     );
 }
-

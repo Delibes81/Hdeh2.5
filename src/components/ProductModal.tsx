@@ -94,18 +94,6 @@ export default function ProductModal({
     }
   };
 
-  const handleWhatsAppOrder = () => {
-    if (!selectedSize) {
-      setError('Por favor selecciona una talla');
-      return;
-    }
-    const isMTO = getProductionQuantity(product, selectedSize, quantity) > 0;
-    const messageText = isMTO ? ' (sobre pedido)' : '';
-    const message = `Hola, me interesa encargar el producto${messageText}: ${product.name} en talla ${selectedSize.replace(' MX', '')}.`;
-    const whatsappUrl = `https://wa.me/5215510821369?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
-  };
-
   // Standard sizes for Made to Order if no variants exist
   const defaultMadeToOrderSizes = ['3', '3.5', '4', '4.5', '5', '5.5', '6', '6.5'].map(size => ({
     id: `mto-${size}`,

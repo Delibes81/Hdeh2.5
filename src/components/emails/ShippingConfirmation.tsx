@@ -9,7 +9,6 @@ import {
   Preview,
   Section,
   Text,
-  Button,
 } from '@react-email/components';
 
 interface ShippingConfirmationProps {

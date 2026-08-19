@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { isCouponUsageAvailable } from '../../../../utils/coupons';
 
 type CouponRow = {
     id: string;
@@ -65,7 +66,7 @@ export async function POST(request: Request) {
 
             if (reservationsError) throw reservationsError;
 
-            if ((data.used_count ?? 0) + (count ?? 0) >= data.usage_limit) {
+            if (!isCouponUsageAvailable(data.usage_limit, data.used_count, count)) {
                 return NextResponse.json(
                     { valid: false, error: 'Este cupón ha alcanzado su límite de uso' },
                     { headers: noStoreHeaders },

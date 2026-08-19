@@ -10,7 +10,7 @@ export default function Success() {
     useEffect(() => {
         // Clear cart on successful purchase
         clearCart();
-    }, []);
+    }, [clearCart]);
 
     return (
         <div className="min-h-[80vh] flex flex-col items-center justify-center p-4 text-center">
