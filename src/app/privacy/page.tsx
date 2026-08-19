@@ -69,7 +69,19 @@ export default function Privacy() {
                                 <li>Responder a tus consultas de atención al cliente.</li>
                                 <li>Enviarte novedades y promociones (solo si has dado tu consentimiento).</li>
                                 <li>Mejorar nuestro sitio web y prevenir fraudes.</li>
+                                <li>Medir visitas, interacción con productos y conversiones mediante Google Analytics, Vercel Analytics y Meta Pixel.</li>
                             </ul>
+                        </div>
+
+                        {/* Analytics and advertising */}
+                        <div>
+                            <h2 className="font-serif text-2xl text-charcoal mb-4 flex items-center gap-3">
+                                <Eye className="text-warm-gray" size={24} strokeWidth={1.5} />
+                                Analítica y Publicidad
+                            </h2>
+                            <p className="text-warm-gray font-light leading-relaxed">
+                                Utilizamos cookies y tecnologías de terceros, incluyendo Meta Pixel, para conocer el rendimiento del sitio, medir acciones como visitas a productos o compras y mejorar la relevancia de nuestras campañas publicitarias. Puedes limitar estas tecnologías mediante la configuración de tu navegador y las preferencias disponibles en cada plataforma.
+                            </p>
                         </div>
 
                         {/* Your Rights */}

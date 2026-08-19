@@ -27,7 +27,7 @@ test('un cliente puede preparar su compra sin iniciar un cargo real', async ({ p
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ url: 'http://localhost:3000/success' }),
+      body: JSON.stringify({ url: 'http://localhost:3000/success?session_id=cs_test_checkout' }),
     });
   });
 
@@ -58,6 +58,6 @@ test('un cliente puede preparar su compra sin iniciar un cargo real', async ({ p
   await expect(page.getByText('20% de descuento')).toBeVisible();
 
   await page.getByTestId('checkout').click();
-  await expect(page).toHaveURL('/success');
+  await expect(page).toHaveURL('/success?session_id=cs_test_checkout');
   await expect(page.getByRole('heading', { name: '¡Gracias por tu compra!' })).toBeVisible();
 });

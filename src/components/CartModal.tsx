@@ -8,6 +8,7 @@ import { formatPrice } from '../utils/format';
 import { getProductionQuantity } from '../utils/inventory';
 import { getErrorMessage } from '../utils/errors';
 import { Coupon } from '../types';
+import { savePendingMetaPurchase, trackMetaEvent } from '../lib/metaPixel';
 
 interface CartModalProps {
   isOpen: boolean;
@@ -112,8 +113,24 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
   const finalTotal = Math.max(0, cart.total - discountAmount);
 
   const handleCheckout = async () => {
+    const metaCheckout = {
+      content_ids: cart.items.map(item => item.product.id),
+      content_type: 'product' as const,
+      contents: cart.items.map(item => ({
+        id: item.product.id,
+        quantity: item.quantity,
+        item_price: item.product.price,
+      })),
+      currency: 'MXN' as const,
+      num_items: cart.itemCount,
+      value: finalTotal,
+    };
+
+    trackMetaEvent('InitiateCheckout', metaCheckout);
     setIsCheckingOut(true);
     try {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') || window.location.origin;
+
       // 1. Call Edge Function
       const { data, error } = await supabase.functions.invoke('create-checkout-session', {
         body: {
@@ -123,8 +140,8 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
             quantity: item.quantity
           })),
           couponCode: appliedCoupon?.code,
-          success_url: process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/success` : window.location.origin + '/success',
-          cancel_url: process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/shop` : window.location.origin + '/shop',
+          success_url: `${appUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: `${appUrl}/shop`,
         },
       });
 
@@ -133,6 +150,7 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
 
       // 2. Redirect to Stripe
       if (data?.url) {
+        savePendingMetaPurchase(metaCheckout);
         window.location.href = data.url;
       }
     } catch (error: unknown) {

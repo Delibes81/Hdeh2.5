@@ -16,6 +16,9 @@ export default defineConfig({
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
+    env: {
+      NEXT_PUBLIC_META_PIXEL_ID: '123456789012345',
+    },
   },
   projects: [
     {

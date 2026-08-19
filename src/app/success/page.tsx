@@ -3,11 +3,28 @@ import Link from 'next/link';
 import { CheckCircle, ArrowRight } from 'lucide-react';
 import { useEffect } from 'react';
 import { useCart } from '../../hooks/useCart';
+import {
+    clearPendingMetaPurchase,
+    readPendingMetaPurchase,
+    trackMetaEvent,
+} from '../../lib/metaPixel';
 
 export default function Success() {
     const { clearCart } = useCart();
 
     useEffect(() => {
+        const sessionId = new URLSearchParams(window.location.search).get('session_id');
+        const purchase = readPendingMetaPurchase();
+
+        if (sessionId && purchase) {
+            const trackedPurchaseKey = `hdehelena-meta-purchase-${sessionId}`;
+            if (!sessionStorage.getItem(trackedPurchaseKey)) {
+                trackMetaEvent('Purchase', purchase);
+                sessionStorage.setItem(trackedPurchaseKey, 'true');
+            }
+            clearPendingMetaPurchase();
+        }
+
         // Clear cart on successful purchase
         clearCart();
     }, [clearCart]);

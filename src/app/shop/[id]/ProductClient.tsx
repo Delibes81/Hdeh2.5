@@ -8,6 +8,7 @@ import { Heart, Share2, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from
 import { formatPrice } from '../../../utils/format';
 import { getProductionQuantity } from '../../../utils/inventory';
 import { Product } from '../../../types';
+import { trackMetaEvent } from '../../../lib/metaPixel';
 
 interface ProductClientProps {
     initialProduct: Product;
@@ -43,6 +44,13 @@ export default function ProductClient({ initialProduct }: ProductClientProps) {
                         quantity: 1
                     }
                 ]
+            });
+            trackMetaEvent('ViewContent', {
+                content_ids: [product.id],
+                content_name: product.name,
+                content_type: 'product',
+                currency: 'MXN',
+                value: product.price,
             });
         }
     }, [product]);
@@ -81,6 +89,14 @@ export default function ProductClient({ initialProduct }: ProductClientProps) {
                     item_size: selectedSize
                 }
             ]
+        });
+        trackMetaEvent('AddToCart', {
+            content_ids: [product.id],
+            content_name: product.name,
+            content_type: 'product',
+            contents: [{ id: product.id, quantity, item_price: product.price }],
+            currency: 'MXN',
+            value: product.price * quantity,
         });
 
         const button = document.getElementById('add-to-cart-btn');
