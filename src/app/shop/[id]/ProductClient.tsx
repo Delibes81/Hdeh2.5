@@ -1,25 +1,19 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { sendGAEvent } from '@next/third-parties/google';
-import { useProducts } from '../../../hooks/useProducts';
 import { useCart } from '../../../hooks/useCart';
-import { Heart, Share2, Loader, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
-import { formatPrice, createSlug } from '../../../utils/format';
+import { Heart, Share2, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
+import { formatPrice } from '../../../utils/format';
 import { getProductionQuantity } from '../../../utils/inventory';
 import { Product } from '../../../types';
 
 interface ProductClientProps {
-    initialProduct?: Product;
+    initialProduct: Product;
 }
 
-export default function ProductClient({ initialProduct }: ProductClientProps = {}) {
-    const params = useParams();
-    const id = params.id as string;
-
-    const { products, loading: productsLoading, error: productsError } = useProducts();
+export default function ProductClient({ initialProduct }: ProductClientProps) {
     const { addToCart } = useCart();
 
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -30,7 +24,7 @@ export default function ProductClient({ initialProduct }: ProductClientProps = {
 
     const [activeAccordion, setActiveAccordion] = useState<string | null>('materials');
 
-    const product = initialProduct || products.find(p => createSlug(p.name) === id || p.id === id);
+    const product = initialProduct;
 
     useEffect(() => {
         setCurrentImageIndex(0);
@@ -66,28 +60,6 @@ export default function ProductClient({ initialProduct }: ProductClientProps = {
             );
         }
     };
-
-    const loading = initialProduct ? false : productsLoading;
-
-    if (loading) {
-        return (
-            <div className="min-h-screen bg-white flex items-center justify-center pt-24">
-                <Loader className="w-8 h-8 animate-spin text-charcoal" />
-            </div>
-        );
-    }
-
-    if ((!initialProduct && productsError) || !product) {
-        return (
-            <div className="min-h-screen bg-white flex items-center justify-center pt-24">
-                <div className="text-center">
-                    <h1 className="font-serif text-3xl mb-4 text-charcoal">Producto no encontrado</h1>
-                    <p className="text-warm-gray mb-6">El producto que buscas no existe o ha sido removido.</p>
-                    <Link href="/shop" className="btn-primary inline-block">Volver a la tienda</Link>
-                </div>
-            </div>
-        );
-    }
 
     const handleAddToCart = () => {
         if (!selectedSize) {

@@ -98,7 +98,7 @@ export default function Footer() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 lg:gap-16">
             {/* Logo */}
             <div className="flex flex-col items-center md:items-start space-y-6">
-              <Image src="/logo.png" alt="H de Helena" width={160} height={64} className="h-16 w-auto opacity-90 object-contain" />
+              <Image src="/logo.png" alt="H de Helena" width={160} height={64} className="h-16 w-auto opacity-90 object-contain" style={{ width: 'auto' }} />
             </div>
 
             {/* Soporte */}

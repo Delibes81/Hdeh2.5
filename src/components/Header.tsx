@@ -39,7 +39,7 @@ export default function Header({ cart, onCartClick }: HeaderProps) {
               className="block hover:opacity-80 transition-opacity"
               onClick={() => window.scrollTo(0, 0)}
             >
-              <Image src="/logo.png" alt="H de Helena" width={160} height={64} className="h-12 lg:h-16 w-auto" priority />
+              <Image src="/logo.png" alt="H de Helena" width={160} height={64} className="h-12 lg:h-16 w-auto" style={{ width: 'auto' }} priority />
             </Link>
           </div>
 

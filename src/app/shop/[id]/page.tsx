@@ -4,8 +4,9 @@ import { createSlug, formatPrice } from '../../../utils/format';
 import ProductClient from './ProductClient';
 import { Product } from '../../../types';
 import { mapProductRow, type ProductRow } from '../../../utils/products';
+import { cache } from 'react';
 
-async function getProduct(id: string): Promise<Product | null> {
+const getProduct = cache(async (id: string): Promise<Product | null> => {
     const { data: rawProducts, error } = await supabase
         .from('products')
         .select('*, variants:product_variants(*)');
@@ -19,7 +20,7 @@ async function getProduct(id: string): Promise<Product | null> {
     if (!rawProduct) return null;
 
     return mapProductRow(rawProduct as ProductRow);
-}
+});
 
 const getCategoryInfo = (category: string | null | undefined) => {
     const categoryDisplayNames: Record<string, string> = {
