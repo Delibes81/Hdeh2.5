@@ -1,0 +1,48 @@
+
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-inter), system-ui, sans-serif;
+    line-height: 1.6;
+    color: #000000;
+    background-color: #FFFFFF;
+  }
+
+  .serif {
+    font-family: var(--font-libre-bodoni), Georgia, serif;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-8 py-3 rounded-full border border-charcoal text-charcoal bg-transparent hover:bg-charcoal hover:text-cream transition-all duration-300 font-montserrat uppercase font-medium tracking-wide;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-2 rounded-full text-warm-gray hover:text-charcoal transition-colors duration-300 font-montserrat uppercase font-medium;
+  }
+
+  .card-hover {
+    @apply transition-all duration-500 hover:scale-105 hover:shadow-xl;
+  }
+
+  .text-shadow {
+    text-shadow: 0 4px 16px rgba(0, 0, 0, 0.8);
+  }
+
+}
+
+@keyframes scrollDown {
+  0% { transform: scaleY(0); transform-origin: top; }
+  50% { transform: scaleY(1); transform-origin: top; }
+  51% { transform: scaleY(1); transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}

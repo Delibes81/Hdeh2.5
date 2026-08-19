@@ -1,0 +1,193 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1"
+import Stripe from 'https://esm.sh/stripe@14.21.0'
+
+const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') as string, {
+    apiVersion: '2023-10-16',
+})
+const supabaseUrl = Deno.env.get('SUPABASE_URL') as string
+const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') as string
+
+// We NEED Service Role key here to bypass RLS and update stock/orders freely
+const supabase = createClient(supabaseUrl, supabaseServiceRoleKey)
+
+serve(async (req) => {
+    const signature = req.headers.get('stripe-signature')
+
+    if (!signature) {
+        return new Response('Error: missing stripe-signature header', { status: 400 })
+    }
+
+    try {
+        const body = await req.text()
+        const endpointSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')
+
+        let event;
+
+        // Verify signature
+        if (endpointSecret) {
+            try {
+                event = await stripe.webhooks.constructEventAsync(body, signature, endpointSecret)
+            } catch (err: any) {
+                console.error(`Webhook signature verification failed: ${err.message}`)
+                return new Response(`Webhook Error: ${err.message}`, { status: 400 })
+            }
+        } else {
+            // Fallback for local testing/skipping signature if secret not set (NOT RECOMMENDED FOR PROD)
+            const json = JSON.parse(body)
+            event = json
+        }
+
+        if (event.type === 'checkout.session.completed') {
+            const sessionEvent = event.data.object
+
+            // Fetch the session again to ensure expansion of line_items and fresh data
+            // CRITICAL: We expand 'line_items.data.price.product' to get the metadata we added in create-checkout-session
+            const session = await stripe.checkout.sessions.retrieve(sessionEvent.id, {
+                expand: ['line_items.data.price.product', 'payment_intent', 'customer_details']
+            })
+
+            const customerEmail = session.customer_details?.email || sessionEvent.customer_details?.email
+            const customerPhone = session.customer_details?.phone || sessionEvent.customer_details?.phone
+            const shippingDetails = session.shipping_details || sessionEvent.shipping_details
+            // Ensure payment_intent is a string
+            const paymentId = typeof session.payment_intent === 'string'
+                ? session.payment_intent
+                : session.payment_intent?.id
+
+            // 0. Idempotency Check: Prevent duplicate orders
+            const { data: existingOrder } = await supabase
+                .from('orders')
+                .select('id')
+                .eq('payment_intent_id', paymentId)
+                .single()
+
+            if (existingOrder) {
+                console.log(`Order already exists for payment ${paymentId}`)
+                return new Response(JSON.stringify({ received: true, message: 'Order already exists' }), {
+                    headers: { "Content-Type": "application/json" },
+                })
+            }
+
+            // 1. Create Order
+            const { data: order, error: orderError } = await supabase
+                .from('orders')
+                .insert({
+                    status: 'paid', // Captured immediately
+                    total_amount: session.amount_total ? session.amount_total / 100 : 0,
+                    contact_email: customerEmail,
+                    contact_phone: customerPhone, // Saving phone number
+                    shipping_address: shippingDetails, // Store full object including Name & Address
+                    payment_intent_id: paymentId
+                })
+                .select()
+                .single()
+
+            if (orderError) throw orderError
+
+            // 2. Process Items & Deduct Stock
+            if (session.line_items?.data) {
+                console.log(`Processing ${session.line_items.data.length} line items...`)
+                for (const item of session.line_items.data) {
+                    let dbById = null;
+                    let size = null;
+                    const quantity = item.quantity || 1;
+
+                    // A. Try getting Metadata (Most Reliable)
+                    // We added metadata: { productId, size } to the product_data in create-checkout-session
+                    // Because we expanded 'line_items.data.price.product', this should be available on item.price.product
+                    // @ts-ignore
+                    const stripeProduct = item.price?.product;
+
+                    if (stripeProduct && typeof stripeProduct === 'object' && stripeProduct.metadata) {
+                        const metaProductId = stripeProduct.metadata.productId;
+                        const metaSize = stripeProduct.metadata.size;
+
+                        if (metaProductId && metaSize) {
+                            console.log(`Found Metadata: ID ${metaProductId}, Size ${metaSize}`);
+                            size = metaSize;
+                            const { data } = await supabase.from('products').select('id, variants:product_variants(*)').eq('id', metaProductId).single();
+                            dbById = data;
+                        }
+                    }
+
+                    // B. Fallback to Name Parsing if Metadata fail
+                    if (!dbById) {
+                        const description = item.description || ''
+                        console.log(`Metadata failed, trying regex on: ${description}`);
+                        // Expect format: "Product Name (Size)"
+                        const sizeMatch = description.match(/\(([^)]+)\)$/) // Match content inside parens
+                        const parsedSize = sizeMatch ? sizeMatch[1] : null
+                        const productName = description.replace(/\s\([^)]+\)$/, '').trim()
+
+                        if (parsedSize && productName) {
+                            size = parsedSize;
+                            const { data } = await supabase.from('products').select('id, variants:product_variants(*)').eq('name', productName).single();
+                            dbById = data;
+                        }
+                    }
+
+                    if (dbById && size) {
+                        // Insert Order Item
+                        const { error: itemInsertError } = await supabase.from('order_items').insert({
+                            order_id: order.id,
+                            product_id: dbById.id,
+                            quantity: quantity,
+                            size: size,
+                            price_at_purchase: (item.amount_total || 0) / 100 / quantity
+                        })
+
+                        if (itemInsertError) {
+                            console.error(`Error inserting order item: ${itemInsertError.message}`)
+                        }
+
+                        // Decrease Stock
+                        const variant = dbById.variants.find((v: any) => v.size === size)
+                        if (variant) {
+                            await supabase.from('product_variants')
+                                .update({ stock: variant.stock - quantity })
+                                .eq('id', variant.id)
+                        } else {
+                            console.warn(`Variant not found for stock deduction: ${size}`)
+                        }
+                    } else {
+                        console.error('Could not identify product/size for item:', item.description);
+                    }
+                }
+            } else {
+                console.warn("No line items found in session.");
+            }
+
+            // 3. Send Order Confirmation Email
+            const siteUrl = Deno.env.get('SITE_URL') || 'https://hdehelena.com';
+            try {
+                console.log(`Solicitando email de confirmación a: ${siteUrl}/api/send-order-confirmation-email`);
+                const emailRes = await fetch(`${siteUrl}/api/send-order-confirmation-email`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: order.contact_email,
+                        customerName: order.shipping_address?.name || 'Cliente',
+                        orderId: order.id
+                    })
+                });
+                
+                if (!emailRes.ok) {
+                    const err = await emailRes.text();
+                    console.error('La API de email respondió con error:', err);
+                } else {
+                    console.log('Email de confirmación solicitado con éxito.');
+                }
+            } catch (emailErr) {
+                console.error('Error de red al intentar solicitar el email de confirmación:', emailErr);
+            }
+        }
+
+        return new Response(JSON.stringify({ received: true }), {
+            headers: { "Content-Type": "application/json" },
+        })
+    } catch (err: any) {
+        console.error("Webhook processing error:", err)
+        return new Response(`Webhook Error: ${err.message}`, { status: 400 })
+    }
+})
