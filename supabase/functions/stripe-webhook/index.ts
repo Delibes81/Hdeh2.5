@@ -17,6 +17,19 @@ const stripe = new Stripe(stripeSecretKey, {
 // We NEED Service Role key here to bypass RLS and update stock/orders freely
 const supabase = createClient(supabaseUrl, supabaseServiceRoleKey)
 
+type AtomicOrderItem = {
+    product_id: string
+    size: string
+    quantity: number
+    price_at_purchase: number
+}
+
+type AtomicOrderResult = {
+    order_id: string
+    created: boolean
+    requires_production: boolean
+}
+
 serve(async (req) => {
     if (req.method !== 'POST') {
         return new Response('Method not allowed', {
@@ -102,109 +115,87 @@ serve(async (req) => {
                 throw new Error(`Checkout session ${session.id} is missing customer or shipping details`)
             }
 
-            // 0. Idempotency Check: Prevent duplicate orders
-            const { data: existingOrder, error: existingOrderError } = await supabase
-                .from('orders')
-                .select('id')
-                .eq('payment_intent_id', paymentReference)
-                .maybeSingle()
+            // Resolve every Stripe line item before starting the database transaction.
+            const orderItems: AtomicOrderItem[] = []
+            console.log(`Resolving ${session.line_items.data.length} line items...`)
 
-            if (existingOrderError) throw existingOrderError
+            for (const item of session.line_items.data) {
+                const quantity = item.quantity || 0
+                if (!Number.isInteger(quantity) || quantity <= 0) {
+                    throw new Error(`Invalid quantity in checkout session ${session.id}`)
+                }
 
-            if (existingOrder) {
+                let productId: string | null = null
+                let size: string | null = null
+                const stripeProduct = item.price?.product
+
+                if (stripeProduct && typeof stripeProduct === 'object' && stripeProduct.metadata) {
+                    productId = stripeProduct.metadata.productId || null
+                    size = stripeProduct.metadata.size || null
+                }
+
+                // Backwards-compatible fallback for sessions created before metadata was added.
+                if (!productId || !size) {
+                    const description = item.description || ''
+                    const sizeMatch = description.match(/\(([^)]+)\)$/)
+                    const parsedSize = sizeMatch ? sizeMatch[1] : null
+                    const productName = description.replace(/\s\([^)]+\)$/, '').trim()
+
+                    if (parsedSize && productName) {
+                        const { data: fallbackProduct, error: fallbackError } = await supabase
+                            .from('products')
+                            .select('id')
+                            .eq('name', productName)
+                            .single()
+
+                        if (fallbackError) throw fallbackError
+                        productId = fallbackProduct.id
+                        size = parsedSize
+                    }
+                }
+
+                if (!productId || !size) {
+                    throw new Error(`Could not identify product and size for line item ${item.id}`)
+                }
+
+                orderItems.push({
+                    product_id: productId,
+                    size,
+                    quantity,
+                    price_at_purchase: (item.amount_total || 0) / 100 / quantity,
+                })
+            }
+
+            // One PostgreSQL transaction creates the order and items, locks each
+            // variant, allocates available stock, and records the manufacturing gap.
+            const { data: rawOrderResult, error: atomicOrderError } = await supabase.rpc(
+                'create_paid_order_atomic',
+                {
+                    p_payment_intent_id: paymentReference,
+                    p_total_amount: session.amount_total ? session.amount_total / 100 : 0,
+                    p_contact_email: customerEmail,
+                    p_contact_phone: customerPhone,
+                    p_shipping_address: shippingDetails,
+                    p_items: orderItems,
+                },
+            )
+
+            if (atomicOrderError) throw atomicOrderError
+
+            const orderResult = rawOrderResult as AtomicOrderResult | null
+            if (!orderResult?.order_id) {
+                throw new Error(`Atomic order creation returned no order for ${session.id}`)
+            }
+
+            if (!orderResult.created) {
                 console.log(`Order already exists for payment ${paymentReference}`)
                 return new Response(JSON.stringify({ received: true, message: 'Order already exists' }), {
                     headers: { "Content-Type": "application/json" },
                 })
             }
 
-            // 1. Create Order
-            const { data: order, error: orderError } = await supabase
-                .from('orders')
-                .insert({
-                    status: 'paid', // Captured immediately
-                    total_amount: session.amount_total ? session.amount_total / 100 : 0,
-                    contact_email: customerEmail,
-                    contact_phone: customerPhone, // Saving phone number
-                    shipping_address: shippingDetails, // Store full object including Name & Address
-                    payment_intent_id: paymentReference
-                })
-                .select()
-                .single()
-
-            if (orderError) throw orderError
-
-            // 2. Process Items & Deduct Stock
-            if (session.line_items?.data) {
-                console.log(`Processing ${session.line_items.data.length} line items...`)
-                for (const item of session.line_items.data) {
-                    let dbById = null;
-                    let size = null;
-                    const quantity = item.quantity || 1;
-
-                    // A. Try getting Metadata (Most Reliable)
-                    // We added metadata: { productId, size } to the product_data in create-checkout-session
-                    // Because we expanded 'line_items.data.price.product', this should be available on item.price.product
-                    // @ts-ignore
-                    const stripeProduct = item.price?.product;
-
-                    if (stripeProduct && typeof stripeProduct === 'object' && stripeProduct.metadata) {
-                        const metaProductId = stripeProduct.metadata.productId;
-                        const metaSize = stripeProduct.metadata.size;
-
-                        if (metaProductId && metaSize) {
-                            console.log(`Found Metadata: ID ${metaProductId}, Size ${metaSize}`);
-                            size = metaSize;
-                            const { data } = await supabase.from('products').select('id, variants:product_variants(*)').eq('id', metaProductId).single();
-                            dbById = data;
-                        }
-                    }
-
-                    // B. Fallback to Name Parsing if Metadata fail
-                    if (!dbById) {
-                        const description = item.description || ''
-                        console.log(`Metadata failed, trying regex on: ${description}`);
-                        // Expect format: "Product Name (Size)"
-                        const sizeMatch = description.match(/\(([^)]+)\)$/) // Match content inside parens
-                        const parsedSize = sizeMatch ? sizeMatch[1] : null
-                        const productName = description.replace(/\s\([^)]+\)$/, '').trim()
-
-                        if (parsedSize && productName) {
-                            size = parsedSize;
-                            const { data } = await supabase.from('products').select('id, variants:product_variants(*)').eq('name', productName).single();
-                            dbById = data;
-                        }
-                    }
-
-                    if (dbById && size) {
-                        // Insert Order Item
-                        const { error: itemInsertError } = await supabase.from('order_items').insert({
-                            order_id: order.id,
-                            product_id: dbById.id,
-                            quantity: quantity,
-                            size: size,
-                            price_at_purchase: (item.amount_total || 0) / 100 / quantity
-                        })
-
-                        if (itemInsertError) {
-                            console.error(`Error inserting order item: ${itemInsertError.message}`)
-                        }
-
-                        // Decrease Stock
-                        const variant = dbById.variants.find((v: any) => v.size === size)
-                        if (variant) {
-                            await supabase.from('product_variants')
-                                .update({ stock: variant.stock - quantity })
-                                .eq('id', variant.id)
-                        } else {
-                            console.warn(`Variant not found for stock deduction: ${size}`)
-                        }
-                    } else {
-                        console.error('Could not identify product/size for item:', item.description);
-                    }
-                }
-            } else {
-                console.warn("No line items found in session.");
+            if (orderResult.requires_production) {
+                console.log(`Order ${orderResult.order_id} includes made-to-order units`)
             }
 
             // 3. Send Order Confirmation Email
@@ -223,7 +214,7 @@ serve(async (req) => {
                         'x-order-email-secret': orderEmailApiSecret,
                     },
                     body: JSON.stringify({
-                        orderId: order.id,
+                        orderId: orderResult.order_id,
                         status: 'paid',
                     })
                 });

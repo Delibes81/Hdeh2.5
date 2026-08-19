@@ -20,6 +20,11 @@ serve(async (req) => {
 
     try {
         const { items, success_url, cancel_url, couponCode } = await req.json()
+
+        if (!Array.isArray(items) || items.length === 0) {
+            throw new Error('At least one checkout item is required')
+        }
+
         console.log("Received Checkout Request:", { items: items.length, couponCode })
 
         // Extract origin to fix relative paths
@@ -31,6 +36,10 @@ serve(async (req) => {
         const lineItems = []
 
         for (const item of items) {
+            if (!Number.isInteger(item.quantity) || item.quantity <= 0) {
+                throw new Error('Item quantity must be a positive integer')
+            }
+
             const { data: product, error: prodError } = await supabase
                 .from('products')
                 .select('*')
@@ -50,11 +59,6 @@ serve(async (req) => {
 
             if (varError || !variant) {
                 throw new Error(`Variant not found available: ${product.name} - ${item.size}`)
-            }
-
-            const isMTO = product.isMadeToOrder || variant.stock === 0;
-            if (!isMTO && variant.stock < item.quantity) {
-                throw new Error(`Insufficient stock for ${product.name} (${item.size}). Available: ${variant.stock}`)
             }
 
             // Fix Image URL (Stripe requires absolute URL)

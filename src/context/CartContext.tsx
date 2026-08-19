@@ -40,29 +40,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
                 item.product.id === product.id && item.size === size
             );
 
-            // Find variant stock
-            const variant = product.variants?.find(v => v.size === size);
-            const maxStock = variant?.stock || 0;
-            const isMTO = product.isMadeToOrder || maxStock === 0;
-
             let newItems: CartItem[];
             if (existingItem) {
                 const newQuantity = existingItem.quantity + quantity;
-                if (!isMTO && newQuantity > maxStock) {
-                    alert(`Lo sentimos, solo hay ${maxStock} unidades disponibles en esta talla.`);
-                    return prevCart;
-                }
-
                 newItems = prevCart.items.map(item =>
                     item.product.id === product.id && item.size === size
                         ? { ...item, quantity: newQuantity }
                         : item
                 );
             } else {
-                if (!isMTO && quantity > maxStock) {
-                    alert(`Lo sentimos, solo hay ${maxStock} unidades disponibles en esta talla.`);
-                    return prevCart;
-                }
                 newItems = [...prevCart.items, { product, size, quantity }];
             }
 
@@ -100,22 +86,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
         }
 
         setCart(prevCart => {
-            // Check stock before updating
-            const itemToUpdate = prevCart.items.find(item =>
-                item.product.id === productId && item.size === size
-            );
-
-            if (itemToUpdate) {
-                const variant = itemToUpdate.product.variants?.find(v => v.size === size);
-                const maxStock = variant?.stock || 0;
-                const isMTO = itemToUpdate.product.isMadeToOrder || maxStock === 0;
-
-                if (!isMTO && newQuantity > maxStock) {
-                    alert(`Lo sentimos, solo hay ${maxStock} unidades disponibles en esta talla.`);
-                    return prevCart;
-                }
-            }
-
             const newItems = prevCart.items.map(item =>
                 item.product.id === productId && item.size === size
                     ? { ...item, quantity: newQuantity }

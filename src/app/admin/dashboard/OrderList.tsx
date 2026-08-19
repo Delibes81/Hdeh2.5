@@ -8,6 +8,8 @@ interface OrderItem {
     quantity: number;
     price_at_purchase: number;
     size: string;
+    inventory_quantity: number;
+    production_quantity: number;
     products: {
         name: string;
         images: string[];
@@ -76,6 +78,8 @@ export default function OrderList() {
             quantity,
             price_at_purchase,
             size,
+            inventory_quantity,
+            production_quantity,
             products (
                 name,
                 images
@@ -498,6 +502,18 @@ export default function OrderList() {
                                                                 <p className="text-xs text-warm-gray mt-1">
                                                                     Talla: {item.size} | Cantidad: {item.quantity}
                                                                 </p>
+                                                                <div className="flex flex-wrap gap-2 mt-2">
+                                                                    {item.inventory_quantity > 0 && (
+                                                                        <span className="text-[11px] px-2 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                                                            Inventario: {item.inventory_quantity}
+                                                                        </span>
+                                                                    )}
+                                                                    {item.production_quantity > 0 && (
+                                                                        <span className="text-[11px] px-2 py-1 rounded-full bg-amber-50 text-amber-900 border border-amber-200 font-medium">
+                                                                            Fabricar: {item.production_quantity}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                             <p className="text-sm font-medium text-charcoal">
                                                                 {formatPrice(item.price_at_purchase * item.quantity)}

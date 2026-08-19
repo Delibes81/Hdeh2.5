@@ -8,6 +8,7 @@ import { useProducts } from '../../../hooks/useProducts';
 import { useCart } from '../../../hooks/useCart';
 import { Heart, Share2, Loader, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { formatPrice, createSlug } from '../../../utils/format';
+import { getProductionQuantity } from '../../../utils/inventory';
 import { Product } from '../../../types';
 
 interface ProductClientProps {
@@ -139,7 +140,7 @@ export default function ProductClient({ initialProduct }: ProductClientProps = {
             return;
         }
 
-        const isMTO = product?.isMadeToOrder || (product?.variants?.find(v => v.size === selectedSize)?.stock === 0);
+        const isMTO = getProductionQuantity(product, selectedSize, quantity) > 0;
         const messageText = isMTO ? ' (sobre pedido)' : '';
         const message = `Hola, me interesa encargar el producto${messageText}: ${product.name} en talla ${selectedSize.replace(' MX', '')}.`;
         const whatsappUrl = `https://wa.me/5215510821369?text=${encodeURIComponent(message)}`;
@@ -160,8 +161,9 @@ export default function ProductClient({ initialProduct }: ProductClientProps = {
         setActiveAccordion(prev => prev === section ? null : section);
     };
 
-    const isSelectedOutOfStock = !product?.isMadeToOrder && selectedSize &&
-        (sortedVariants.find(v => v.size === selectedSize)?.stock === 0);
+    const productionQuantity = selectedSize
+        ? getProductionQuantity(product, selectedSize, quantity)
+        : 0;
 
     return (
         <div className="min-h-screen bg-white pt-20 pb-16 animate-fade-in">
@@ -271,9 +273,9 @@ export default function ProductClient({ initialProduct }: ProductClientProps = {
                                         <p><strong>Producto sobre pedido:</strong> Este modelo se fabricará especialmente para ti. El tiempo estimado de fabricación es de aproximadamente <strong>3 semanas</strong>.</p>
                                     </div>
                                 )}
-                                {!product.isMadeToOrder && isSelectedOutOfStock && (
+                                {!product.isMadeToOrder && productionQuantity > 0 && (
                                     <div className="bg-stone-50 p-4 rounded-lg mb-4 text-sm text-charcoal border border-stone-200 shadow-sm animate-fade-in">
-                                        <p><strong>Talla bajo pedido:</strong> Esta talla está agotada pero podemos fabricarla especialmente para ti. El tiempo aproximado de fabricación es de <strong>3 semanas</strong>.</p>
+                                        <p><strong>Fabricación requerida:</strong> {productionQuantity} {productionQuantity === 1 ? 'unidad se fabricará' : 'unidades se fabricarán'} especialmente para ti. El tiempo aproximado de fabricación es de <strong>3 semanas</strong>.</p>
                                     </div>
                                 )}
                                 {sortedVariants.length > 0 ? (
@@ -290,7 +292,7 @@ export default function ProductClient({ initialProduct }: ProductClientProps = {
                                                         ? 'bg-charcoal text-cream border-charcoal shadow-md scale-[1.02]'
                                                         : 'bg-white text-charcoal border-warm-gray/30 hover:border-charcoal hover:bg-stone/5'
                                                     }
-                                                    ${!product.isMadeToOrder && variant.stock === 0 && selectedSize !== variant.size ? 'opacity-50 border-dashed bg-stone-50' : ''}
+                                                    ${!product.isMadeToOrder && variant.stock <= 0 && selectedSize !== variant.size ? 'opacity-50 border-dashed bg-stone-50' : ''}
                                                 `}
                                             >
                                                 {variant.size.replace(' MX', '')}

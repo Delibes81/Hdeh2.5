@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 import { useState } from 'react';
 
 import { formatPrice } from '../utils/format';
+import { getProductionQuantity } from '../utils/inventory';
 import { Coupon } from '../types';
 
 interface CartModalProps {
@@ -159,6 +160,11 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
                     <h3 className="font-medium text-charcoal">{item.product.name}</h3>
                     <p className="text-sm text-warm-gray">{item.product.category}</p>
                     <p className="text-sm font-medium text-warm-gray mt-1">Talla: {item.size}</p>
+                    {getProductionQuantity(item.product, item.size, item.quantity) > 0 && (
+                      <p className="text-xs font-medium text-amber-800 mt-1">
+                        {getProductionQuantity(item.product, item.size, item.quantity)} {getProductionQuantity(item.product, item.size, item.quantity) === 1 ? 'unidad requiere' : 'unidades requieren'} fabricación
+                      </p>
+                    )}
                   </div>
                   <div className="flex justify-between items-end">
                     <div className="flex items-center gap-3 bg-stone/5 rounded-full px-3 py-1">
