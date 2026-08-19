@@ -25,3 +25,7 @@ dist-ssr
 # Next.js
 .next
 out
+tsconfig.tsbuildinfo
+playwright-report
+test-results
+blob-report

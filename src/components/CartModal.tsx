@@ -209,6 +209,7 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
                         <div className="flex gap-2">
                             <input
                                 type="text"
+                                data-testid="coupon-input"
                                 placeholder="Código de descuento"
                                 value={couponCode}
                                 onChange={(e) => setCouponCode(e.target.value)}
@@ -216,6 +217,7 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
                             />
                             <button
                                 onClick={applyCoupon}
+                                data-testid="apply-coupon"
                                 disabled={isApplyingCoupon || !couponCode.trim()}
                                 className="px-4 py-2 bg-charcoal text-white text-xs uppercase tracking-wider rounded font-medium disabled:opacity-50"
                             >
@@ -260,6 +262,7 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
 
             <button
               onClick={handleCheckout}
+              data-testid="checkout"
               disabled={isCheckingOut}
               className="w-full btn-primary bg-charcoal text-cream hover:bg-warm-gray py-4 flex items-center justify-center gap-2"
             >

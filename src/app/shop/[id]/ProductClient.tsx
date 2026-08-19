@@ -270,6 +270,7 @@ export default function ProductClient({ initialProduct }: ProductClientProps = {
                                         {sortedVariants.map((variant) => (
                                             <button
                                                 key={variant.id}
+                                                data-testid="product-size"
                                                 onClick={() => {
                                                     setSelectedSize(variant.size);
                                                     setError(null);
@@ -320,6 +321,7 @@ export default function ProductClient({ initialProduct }: ProductClientProps = {
                             <div className="flex flex-col sm:flex-row gap-4 mb-0">
                                 <button
                                     id="add-to-cart-btn"
+                                    data-testid="add-to-cart"
                                     onClick={handleAddToCart}
                                     disabled={!selectedSize}
                                     className={`w-full sm:flex-1 h-14 shrink-0 bg-charcoal text-cream rounded-full font-montserrat text-xs uppercase font-semibold tracking-widest flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 hover:bg-stone-800
