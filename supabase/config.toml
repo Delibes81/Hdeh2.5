@@ -1,0 +1,4 @@
+# Stripe cannot send a Supabase user JWT. This endpoint is public at the
+# platform layer and authenticates every request with Stripe's signature.
+[functions.stripe-webhook]
+verify_jwt = false

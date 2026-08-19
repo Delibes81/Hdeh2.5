@@ -23,7 +23,7 @@ El sistema permite a los usuarios explorar colecciones, solicitar productos "sob
     *   Row Level Security (RLS) para proteger las transacciones
     *   Supabase Storage para alojamiento de imágenes optimizado
 *   **Pagos**: Stripe (Integrado vía Supabase Edge Functions / API Routes)
-*   **Despliegue (Hosting)**: Optimizado para plataformas como Vercel o Netlify
+*   **Despliegue (Hosting)**: Vercel, conectado directamente al dominio oficial `https://hdehelena.com`
 
 ## 3. Arquitectura del Proyecto
 

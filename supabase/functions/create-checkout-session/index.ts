@@ -111,6 +111,9 @@ serve(async (req) => {
             locale: 'es-419',
             line_items: lineItems,
             mode: 'payment',
+            metadata: {
+                source: 'hdehelena-store',
+            },
             discounts: stripeCouponId ? [{ coupon: stripeCouponId }] : undefined,
             success_url: success_url,
             cancel_url: cancel_url,

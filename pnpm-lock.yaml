@@ -48,9 +48,6 @@ importers:
       '@eslint/js':
         specifier: ^9.9.1
         version: 9.39.5
-      '@netlify/plugin-nextjs':
-        specifier: ^5.15.11
-        version: 5.15.13
       '@types/node':
         specifier: ^26.2.0
         version: 26.2.0
@@ -326,10 +323,6 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
-
-  '@netlify/plugin-nextjs@5.15.13':
-    resolution: {integrity: sha512-gBmWtgG13ZW4ytNMCvacfwZemtdtV/Ekc+6RBYvI5fndjmDvKxgFHylsw7oli+PHMGAtNqaJrN8QccGnDReu6A==}
-    engines: {node: '>=18.0.0'}
 
   '@next/env@16.3.1':
     resolution: {integrity: sha512-35G3xwkQUb2oETSDjFXGrVugknoayLFBh7vSE+yAcl9IP2zT9wyGwq7297AYHR11kJld807t5f8AJBs6WBzXsQ==}
@@ -1895,8 +1888,6 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
-
-  '@netlify/plugin-nextjs@5.15.13': {}
 
   '@next/env@16.3.1': {}
 

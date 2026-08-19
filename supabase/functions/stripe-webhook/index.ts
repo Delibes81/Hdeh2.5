@@ -2,40 +2,51 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1"
 import Stripe from 'https://esm.sh/stripe@14.21.0'
 
-const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') as string, {
+const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY')
+const supabaseUrl = Deno.env.get('SUPABASE_URL')
+const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+
+if (!stripeSecretKey || !supabaseUrl || !supabaseServiceRoleKey) {
+    throw new Error('Missing required Stripe or Supabase environment variables')
+}
+
+const stripe = new Stripe(stripeSecretKey, {
     apiVersion: '2023-10-16',
 })
-const supabaseUrl = Deno.env.get('SUPABASE_URL') as string
-const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') as string
 
 // We NEED Service Role key here to bypass RLS and update stock/orders freely
 const supabase = createClient(supabaseUrl, supabaseServiceRoleKey)
 
 serve(async (req) => {
+    if (req.method !== 'POST') {
+        return new Response('Method not allowed', {
+            status: 405,
+            headers: { Allow: 'POST' },
+        })
+    }
+
     const signature = req.headers.get('stripe-signature')
+    const endpointSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')
 
     if (!signature) {
         return new Response('Error: missing stripe-signature header', { status: 400 })
     }
 
+    if (!endpointSecret) {
+        console.error('STRIPE_WEBHOOK_SECRET is not configured')
+        return new Response('Webhook is not configured', { status: 500 })
+    }
+
     try {
         const body = await req.text()
-        const endpointSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')
+        let event: Stripe.Event
 
-        let event;
-
-        // Verify signature
-        if (endpointSecret) {
-            try {
-                event = await stripe.webhooks.constructEventAsync(body, signature, endpointSecret)
-            } catch (err: any) {
-                console.error(`Webhook signature verification failed: ${err.message}`)
-                return new Response(`Webhook Error: ${err.message}`, { status: 400 })
-            }
-        } else {
-            // Fallback for local testing/skipping signature if secret not set (NOT RECOMMENDED FOR PROD)
-            const json = JSON.parse(body)
-            event = json
+        try {
+            event = await stripe.webhooks.constructEventAsync(body, signature, endpointSecret)
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : 'Invalid signature'
+            console.error(`Webhook signature verification failed: ${message}`)
+            return new Response('Webhook signature verification failed', { status: 400 })
         }
 
         if (event.type === 'checkout.session.completed') {
@@ -47,6 +58,37 @@ serve(async (req) => {
                 expand: ['line_items.data.price.product', 'payment_intent', 'customer_details']
             })
 
+            const paymentAccepted = session.payment_status === 'paid'
+                || session.payment_status === 'no_payment_required'
+
+            if (session.status !== 'complete' || !paymentAccepted) {
+                console.warn(`Ignoring incomplete or unpaid checkout session ${session.id}`)
+                return new Response(JSON.stringify({ received: true, ignored: 'payment_not_completed' }), {
+                    headers: { "Content-Type": "application/json" },
+                })
+            }
+
+            if (!session.line_items?.data?.length) {
+                throw new Error(`Checkout session ${session.id} has no line items`)
+            }
+
+            const hasStoreMetadata = session.metadata?.source === 'hdehelena-store'
+                || session.line_items.data.every((item) => {
+                    const product = item.price?.product
+                    return typeof product === 'object'
+                        && product !== null
+                        && 'metadata' in product
+                        && Boolean(product.metadata?.productId)
+                        && Boolean(product.metadata?.size)
+                })
+
+            if (!hasStoreMetadata) {
+                console.warn(`Ignoring checkout session ${session.id} from an unknown source`)
+                return new Response(JSON.stringify({ received: true, ignored: 'unknown_source' }), {
+                    headers: { "Content-Type": "application/json" },
+                })
+            }
+
             const customerEmail = session.customer_details?.email || sessionEvent.customer_details?.email
             const customerPhone = session.customer_details?.phone || sessionEvent.customer_details?.phone
             const shippingDetails = session.shipping_details || sessionEvent.shipping_details
@@ -54,16 +96,23 @@ serve(async (req) => {
             const paymentId = typeof session.payment_intent === 'string'
                 ? session.payment_intent
                 : session.payment_intent?.id
+            const paymentReference = paymentId || `checkout_session:${session.id}`
+
+            if (!customerEmail || !shippingDetails) {
+                throw new Error(`Checkout session ${session.id} is missing customer or shipping details`)
+            }
 
             // 0. Idempotency Check: Prevent duplicate orders
-            const { data: existingOrder } = await supabase
+            const { data: existingOrder, error: existingOrderError } = await supabase
                 .from('orders')
                 .select('id')
-                .eq('payment_intent_id', paymentId)
-                .single()
+                .eq('payment_intent_id', paymentReference)
+                .maybeSingle()
+
+            if (existingOrderError) throw existingOrderError
 
             if (existingOrder) {
-                console.log(`Order already exists for payment ${paymentId}`)
+                console.log(`Order already exists for payment ${paymentReference}`)
                 return new Response(JSON.stringify({ received: true, message: 'Order already exists' }), {
                     headers: { "Content-Type": "application/json" },
                 })
@@ -78,7 +127,7 @@ serve(async (req) => {
                     contact_email: customerEmail,
                     contact_phone: customerPhone, // Saving phone number
                     shipping_address: shippingDetails, // Store full object including Name & Address
-                    payment_intent_id: paymentId
+                    payment_intent_id: paymentReference
                 })
                 .select()
                 .single()
@@ -160,15 +209,22 @@ serve(async (req) => {
 
             // 3. Send Order Confirmation Email
             const siteUrl = Deno.env.get('SITE_URL') || 'https://hdehelena.com';
+            const orderEmailApiSecret = Deno.env.get('ORDER_EMAIL_API_SECRET');
             try {
-                console.log(`Solicitando email de confirmación a: ${siteUrl}/api/send-order-confirmation-email`);
-                const emailRes = await fetch(`${siteUrl}/api/send-order-confirmation-email`, {
+                if (!orderEmailApiSecret) {
+                    throw new Error('ORDER_EMAIL_API_SECRET no está configurado');
+                }
+
+                console.log(`Solicitando email de confirmación a: ${siteUrl}/api/orders/send-status-email`);
+                const emailRes = await fetch(`${siteUrl}/api/orders/send-status-email`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-order-email-secret': orderEmailApiSecret,
+                    },
                     body: JSON.stringify({
-                        email: order.contact_email,
-                        customerName: order.shipping_address?.name || 'Cliente',
-                        orderId: order.id
+                        orderId: order.id,
+                        status: 'paid',
                     })
                 });
                 

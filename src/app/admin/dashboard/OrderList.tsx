@@ -35,6 +35,8 @@ interface Order {
     order_items: OrderItem[];
 }
 
+type NotifiableOrderStatus = 'paid' | 'en_fabricacion' | 'preparando_envio' | 'enviado';
+
 export default function OrderList() {
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
@@ -134,21 +136,42 @@ export default function OrderList() {
 
     const updateStatus = async (orderId: string, newStatus: string) => {
         console.log(`Updating status for ${orderId} to ${newStatus}`);
-        try {
-            const { error } = await supabase
-                .from('orders')
-                .update({ status: newStatus })
-                .eq('id', orderId);
+        const { error } = await supabase
+            .from('orders')
+            .update({ status: newStatus })
+            .eq('id', orderId);
 
-            if (error) {
-                console.error('Supabase update error:', error);
-                throw error;
-            }
-            // Refetch to update UI
-            fetchOrders();
-        } catch (error: any) {
-            console.error('Error updating status:', error);
-            alert('Error al actualizar el estado: ' + error.message);
+        if (error) {
+            console.error('Supabase update error:', error);
+            throw error;
+        }
+
+        await fetchOrders();
+    };
+
+    const sendStatusEmail = async (
+        orderId: string,
+        status: NotifiableOrderStatus,
+        details?: { trackingNumber?: string; carrier?: string },
+    ) => {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+        if (sessionError || !session?.access_token) {
+            throw new Error('La sesión administrativa expiró. Inicia sesión nuevamente.');
+        }
+
+        const response = await fetch('/api/orders/send-status-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session.access_token}`,
+            },
+            body: JSON.stringify({ orderId, status, ...details }),
+        });
+
+        if (!response.ok) {
+            const result = await response.json().catch(() => null) as { error?: string } | null;
+            throw new Error(result?.error || 'No se pudo enviar el correo');
         }
     };
 
@@ -157,28 +180,12 @@ export default function OrderList() {
         
         try {
             await updateStatus(order.id, 'en_fabricacion');
-
-            // Send Email via Resend API
-            const emailRes = await fetch('/api/send-production-email', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email: order.contact_email,
-                    customerName: order.shipping_address?.name || 'Cliente',
-                    orderId: order.id
-                })
-            });
-
-            if (!emailRes.ok) {
-                const errData = await emailRes.json();
-                console.warn('Advertencia de email:', errData);
-                alert('Aviso: El pedido se marcó "En fabricación", pero hubo un error enviando el correo (' + (errData.error || '') + ').');
-            } else {
-                alert('Pedido marcado en fabricación y correo enviado exitosamente.');
-            }
-        } catch (error) {
+            await sendStatusEmail(order.id, 'en_fabricacion');
+            alert('Pedido marcado en fabricación y correo enviado exitosamente.');
+        } catch (error: unknown) {
             console.error(error);
-            alert('Error general al confirmar fabricación');
+            const message = error instanceof Error ? error.message : 'Error inesperado';
+            alert(`No se pudo completar la notificación de fabricación: ${message}`);
         }
     };
 
@@ -187,28 +194,12 @@ export default function OrderList() {
         
         try {
             await updateStatus(order.id, 'preparando_envio');
-
-            // Send Email via Resend API
-            const emailRes = await fetch('/api/send-preparing-email', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email: order.contact_email,
-                    customerName: order.shipping_address?.name || 'Cliente',
-                    orderId: order.id
-                })
-            });
-
-            if (!emailRes.ok) {
-                const errData = await emailRes.json();
-                console.warn('Advertencia de email:', errData);
-                alert('Aviso: El pedido se marcó "Preparando envío", pero hubo un error enviando el correo (' + (errData.error || '') + ').');
-            } else {
-                alert('Pedido marcado en preparación y correo enviado exitosamente.');
-            }
-        } catch (error) {
+            await sendStatusEmail(order.id, 'preparando_envio');
+            alert('Pedido marcado en preparación y correo enviado exitosamente.');
+        } catch (error: unknown) {
             console.error(error);
-            alert('Error general al confirmar preparación de envío');
+            const message = error instanceof Error ? error.message : 'Error inesperado';
+            alert(`No se pudo completar la notificación de preparación: ${message}`);
         }
     };
 
@@ -217,28 +208,12 @@ export default function OrderList() {
         
         try {
             await updateStatus(order.id, 'paid');
-
-            // Send Email via Resend API
-            const emailRes = await fetch('/api/send-order-confirmation-email', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email: order.contact_email,
-                    customerName: order.shipping_address?.name || 'Cliente',
-                    orderId: order.id
-                })
-            });
-
-            if (!emailRes.ok) {
-                const errData = await emailRes.json();
-                console.warn('Advertencia de email:', errData);
-                alert('Aviso: El pedido se reinició a "Pagado", pero hubo un error enviando el correo de confirmación (' + (errData.error || '') + ').');
-            } else {
-                alert('Pedido reiniciado a Pagado y correo de confirmación enviado exitosamente.');
-            }
-        } catch (error) {
+            await sendStatusEmail(order.id, 'paid');
+            alert('Pedido reiniciado a Pagado y correo de confirmación enviado exitosamente.');
+        } catch (error: unknown) {
             console.error(error);
-            alert('Error general al reiniciar el pedido');
+            const message = error instanceof Error ? error.message : 'Error inesperado';
+            alert(`No se pudo completar el reinicio del pedido: ${message}`);
         }
     };
 
@@ -255,34 +230,20 @@ export default function OrderList() {
         setIsSendingEmail(true);
 
         try {
-            // 1. Send Email via Resend API
-            const emailRes = await fetch('/api/send-shipping-email', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email: selectedOrderForTracking.contact_email,
-                    customerName: selectedOrderForTracking.shipping_address?.name || 'Cliente',
-                    orderId: selectedOrderForTracking.id,
-                    trackingNumber,
-                    carrier
-                })
-            });
-
-            if (!emailRes.ok) {
-                const errData = await emailRes.json();
-                console.warn('Advertencia de email:', errData);
-                alert('Aviso: El pedido se marcará como enviado, pero hubo un error enviando el correo (' + (errData.error || '') + '). Quizá falta configurar la API KEY de Resend.');
-            }
-
-            // 2. Update Supabase Status
             await updateStatus(selectedOrderForTracking.id, 'enviado');
+            await sendStatusEmail(selectedOrderForTracking.id, 'enviado', {
+                trackingNumber,
+                carrier,
+            });
 
             setTrackingModalOpen(false);
             setTrackingNumber('');
             setCarrier('Estafeta / FedEx');
-        } catch (error) {
+            alert('Pedido marcado como enviado y correo enviado exitosamente.');
+        } catch (error: unknown) {
             console.error(error);
-            alert('Error general al confirmar envío');
+            const message = error instanceof Error ? error.message : 'Error inesperado';
+            alert(`No se pudo completar la confirmación de envío: ${message}`);
         } finally {
             setIsSendingEmail(false);
             setSelectedOrderForTracking(null);
@@ -640,4 +601,3 @@ export default function OrderList() {
         </div >
     );
 }
-
