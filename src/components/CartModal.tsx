@@ -32,38 +32,39 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
     setIsApplyingCoupon(true);
     setCouponError(null);
     try {
-        const { data, error } = await supabase
-            .from('coupons')
-            .select('*')
-            .eq('code', couponCode.trim().toUpperCase())
-            .eq('is_active', true)
-            .single();
+        const response = await fetch('/api/coupons/validate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: couponCode }),
+        });
+        const result = await response.json() as {
+            valid?: boolean;
+            error?: string;
+            coupon?: {
+                code: string;
+                discountType: 'percentage' | 'fixed';
+                discountValue: number;
+            };
+        };
 
-        if (error || !data) {
-            setCouponError('Cupón inválido o inactivo');
-            setAppliedCoupon(null);
-            return;
-        }
-
-        if (data.usage_limit && data.used_count >= data.usage_limit) {
-            setCouponError('Este cupón ha superado su límite de uso');
+        if (!response.ok || !result.valid || !result.coupon) {
+            setCouponError(result.error || 'Cupón inválido o inactivo');
             setAppliedCoupon(null);
             return;
         }
 
         const mappedCoupon: Coupon = {
-            id: data.id,
-            code: data.code,
-            discountType: data.discount_type,
-            discountValue: Number(data.discount_value),
-            isActive: data.is_active,
-            usageLimit: data.usage_limit,
-            usedCount: data.used_count
+            id: result.coupon.code,
+            code: result.coupon.code,
+            discountType: result.coupon.discountType,
+            discountValue: result.coupon.discountValue,
+            isActive: true,
+            usedCount: 0,
         };
 
         setAppliedCoupon(mappedCoupon);
         setCouponError(null);
-    } catch (err: any) {
+    } catch {
         setCouponError('Error al validar cupón');
         setAppliedCoupon(null);
     } finally {

@@ -169,7 +169,7 @@ serve(async (req) => {
             // One PostgreSQL transaction creates the order and items, locks each
             // variant, allocates available stock, and records the manufacturing gap.
             const { data: rawOrderResult, error: atomicOrderError } = await supabase.rpc(
-                'create_paid_order_atomic',
+                'create_paid_order_atomic_v2',
                 {
                     p_payment_intent_id: paymentReference,
                     p_total_amount: session.amount_total ? session.amount_total / 100 : 0,
@@ -177,6 +177,8 @@ serve(async (req) => {
                     p_contact_phone: customerPhone,
                     p_shipping_address: shippingDetails,
                     p_items: orderItems,
+                    p_coupon_code: session.metadata?.coupon_code || null,
+                    p_coupon_reservation_token: session.metadata?.coupon_reservation_token || null,
                 },
             )
 

@@ -6,7 +6,16 @@ const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') as string, {
     apiVersion: '2023-10-16',
 })
 const supabaseUrl = Deno.env.get('SUPABASE_URL') as string
-const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') as string
+const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') as string
+const supabase = createClient(supabaseUrl, supabaseServiceRoleKey)
+
+type ReservedCoupon = {
+    valid: boolean
+    reason?: 'invalid' | 'usage_limit'
+    code?: string
+    discount_type?: 'percentage' | 'fixed'
+    discount_value?: number | string
+}
 
 serve(async (req) => {
     const corsHeaders = {
@@ -17,6 +26,8 @@ serve(async (req) => {
     if (req.method === 'OPTIONS') {
         return new Response('ok', { headers: corsHeaders })
     }
+
+    let reservationToken: string | null = null
 
     try {
         const { items, success_url, cancel_url, couponCode } = await req.json()
@@ -30,8 +41,6 @@ serve(async (req) => {
         // Extract origin to fix relative paths
         // success_url usually looks like "https://domain.com/success"
         const origin = new URL(success_url).origin
-
-        const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
         const lineItems = []
 
@@ -85,28 +94,39 @@ serve(async (req) => {
             })
         }
 
-        let stripeCouponId = undefined;
+        let stripeCouponId: string | undefined;
+        let couponCodeForSession: string | undefined;
         if (couponCode) {
-            const { data: coupon, error: couponError } = await supabase
-                .from('coupons')
-                .select('*')
-                .eq('code', couponCode.toUpperCase())
-                .eq('is_active', true)
-                .single();
-                
-            if (!couponError && coupon) {
-                if (!coupon.usage_limit || coupon.used_count < coupon.usage_limit) {
-                    console.log("Creating ephemeral Stripe coupon for:", coupon.code);
-                    const stripeCoupon = await stripe.coupons.create({
-                        percent_off: coupon.discount_type === 'percentage' ? Number(coupon.discount_value) : undefined,
-                        amount_off: coupon.discount_type === 'fixed' ? Math.round(Number(coupon.discount_value) * 100) : undefined,
-                        currency: coupon.discount_type === 'fixed' ? 'mxn' : undefined,
-                        duration: 'once',
-                        name: coupon.code
-                    });
-                    stripeCouponId = stripeCoupon.id;
-                }
+            reservationToken = crypto.randomUUID()
+            const reservationExpiresAt = new Date(Date.now() + 36 * 60 * 1000).toISOString()
+            const { data: rawCoupon, error: couponError } = await supabase.rpc(
+                'reserve_coupon_for_checkout',
+                {
+                    p_code: String(couponCode),
+                    p_reservation_token: reservationToken,
+                    p_expires_at: reservationExpiresAt,
+                },
+            )
+
+            if (couponError) throw couponError
+
+            const coupon = rawCoupon as ReservedCoupon | null
+            if (!coupon?.valid || !coupon.code || !coupon.discount_type) {
+                throw new Error(coupon?.reason === 'usage_limit'
+                    ? 'Este cupón ha alcanzado su límite de uso'
+                    : 'Cupón inválido o inactivo')
             }
+
+            console.log("Creating Stripe coupon for reserved code:", coupon.code);
+            const stripeCoupon = await stripe.coupons.create({
+                percent_off: coupon.discount_type === 'percentage' ? Number(coupon.discount_value) : undefined,
+                amount_off: coupon.discount_type === 'fixed' ? Math.round(Number(coupon.discount_value) * 100) : undefined,
+                currency: coupon.discount_type === 'fixed' ? 'mxn' : undefined,
+                duration: 'once',
+                name: coupon.code
+            });
+            stripeCouponId = stripeCoupon.id;
+            couponCodeForSession = coupon.code;
         }
 
         console.log("Creating Stripe Session...")
@@ -117,8 +137,13 @@ serve(async (req) => {
             mode: 'payment',
             metadata: {
                 source: 'hdehelena-store',
+                ...(couponCodeForSession && reservationToken ? {
+                    coupon_code: couponCodeForSession,
+                    coupon_reservation_token: reservationToken,
+                } : {}),
             },
             discounts: stripeCouponId ? [{ coupon: stripeCouponId }] : undefined,
+            expires_at: Math.floor(Date.now() / 1000) + (31 * 60),
             success_url: success_url,
             cancel_url: cancel_url,
             shipping_address_collection: {
@@ -196,6 +221,16 @@ serve(async (req) => {
             { headers: { ...corsHeaders, "Content-Type": "application/json" } },
         )
     } catch (error: any) {
+        if (reservationToken) {
+            const { error: releaseError } = await supabase.rpc('release_coupon_reservation', {
+                p_reservation_token: reservationToken,
+            })
+
+            if (releaseError) {
+                console.error('Could not release coupon reservation:', releaseError)
+            }
+        }
+
         console.error("Function Error:", error)
         return new Response(
             JSON.stringify({ error: error.message }),
