@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Cart } from '../types';
+import Image from 'next/image';
 
 interface HeaderProps {
   cart: Cart;
@@ -38,7 +39,7 @@ export default function Header({ cart, onCartClick }: HeaderProps) {
               className="block hover:opacity-80 transition-opacity"
               onClick={() => window.scrollTo(0, 0)}
             >
-              <img src="/logo.png" alt="H de Helena" className="h-12 lg:h-16 w-auto" />
+              <Image src="/logo.png" alt="H de Helena" width={160} height={64} className="h-12 lg:h-16 w-auto" priority />
             </Link>
           </div>
 

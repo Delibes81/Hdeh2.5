@@ -1,4 +1,5 @@
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
+import Image from 'next/image';
 
 export default function PhilosophySection() {
   const { elementRef, isVisible } = useIntersectionObserver({
@@ -42,10 +43,12 @@ export default function PhilosophySection() {
 
           {/* Image */}
           <div className={`relative h-[500px] lg:h-[600px] group transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'}`}>
-            <img
+            <Image
               src="/images/artesano.webp"
               alt="Artesano trabajando"
-              className="w-full h-full object-cover rounded-xl shadow-lg transition-transform duration-700 group-hover:scale-[1.02]"
+              fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              className="object-cover rounded-xl shadow-lg transition-transform duration-700 group-hover:scale-[1.02]"
             />
           </div>
         </div>

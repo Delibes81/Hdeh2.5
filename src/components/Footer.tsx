@@ -1,6 +1,7 @@
 'use client';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 
 const Instagram = ({ size = 24, strokeWidth = 2, className = "" }) => (
@@ -97,7 +98,7 @@ export default function Footer() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 lg:gap-16">
             {/* Logo */}
             <div className="flex flex-col items-center md:items-start space-y-6">
-              <img src="/logo.png" alt="H de Helena" className="h-16 w-auto opacity-90 object-contain" />
+              <Image src="/logo.png" alt="H de Helena" width={160} height={64} className="h-16 w-auto opacity-90 object-contain" />
             </div>
 
             {/* Soporte */}

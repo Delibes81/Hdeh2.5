@@ -1,4 +1,5 @@
 import { ChevronDown } from 'lucide-react';
+import Image from 'next/image';
 
 interface HeroProps {
   startAnimations?: boolean;
@@ -18,14 +19,26 @@ export default function Hero({ startAnimations = true }: HeroProps) {
     <section id="home" className="relative h-screen flex items-center justify-center overflow-hidden">
       {/* Hero Image */}
       <div className="absolute inset-0">
-        <picture>
-          <source media="(min-width: 768px)" srcSet="/images/Herohdeh.webp" />
-          <img
+        <div className="hidden md:block w-full h-full relative">
+          <Image
+            src="/images/Herohdeh.webp"
+            alt="Artesanía elegante"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-left"
+          />
+        </div>
+        <div className="md:hidden w-full h-full relative">
+          <Image
             src="/images/hdehmobilehero.webp"
             alt="Artesanía elegante"
-            className="w-full h-full object-cover object-left"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-left"
           />
-        </picture>
+        </div>
         <div className="absolute inset-0 bg-black/20"></div>
       </div>
 
