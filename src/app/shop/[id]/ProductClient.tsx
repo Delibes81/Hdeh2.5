@@ -171,6 +171,7 @@ export default function ProductClient({ initialProduct }: ProductClientProps) {
                                         src={img}
                                         alt={`${product.name} - Vista ${index + 1}`}
                                         fill
+                                        unoptimized
                                         sizes="(max-width: 1024px) 80px, 96px"
                                         className="w-full h-full object-contain bg-white"
                                     />
@@ -184,7 +185,9 @@ export default function ProductClient({ initialProduct }: ProductClientProps) {
                                 src={product.images[currentImageIndex]}
                                 alt={product.name}
                                 fill
-                                priority
+                                unoptimized
+                                loading="eager"
+                                fetchPriority="high"
                                 sizes="(max-width: 768px) 100vw, 50vw"
                                 className="w-full h-full object-contain mix-blend-multiply scale-100"
                             />

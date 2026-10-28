@@ -130,6 +130,7 @@ export default function ProductModal({
                 src={product.images[currentImageIndex]}
                 alt={product.name}
                 fill
+                unoptimized
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className="w-full h-full object-contain p-8"
               />

@@ -36,6 +36,7 @@ export default function ProductCard({ product, index = 0, startAnimation = true 
           src={product.images[imageIndex]}
           alt={product.name}
           fill
+          unoptimized
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           onLoad={() => setImageLoaded(true)}
           className={`w-full h-full object-contain transition-all duration-700 group-hover:scale-105 ${imageLoaded ? 'opacity-100 blur-0' : 'opacity-0 blur-sm'}`}
