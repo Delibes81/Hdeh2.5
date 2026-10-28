@@ -24,7 +24,9 @@ export default function Hero({ startAnimations = true }: HeroProps) {
             src="/images/Herohdeh.webp"
             alt="Artesanía elegante"
             fill
-            priority
+            unoptimized
+            loading="eager"
+            fetchPriority="high"
             sizes="100vw"
             className="object-cover object-left"
           />
@@ -34,7 +36,9 @@ export default function Hero({ startAnimations = true }: HeroProps) {
             src="/images/hdehmobilehero.webp"
             alt="Artesanía elegante"
             fill
-            priority
+            unoptimized
+            loading="eager"
+            fetchPriority="high"
             sizes="100vw"
             className="object-cover object-left"
           />

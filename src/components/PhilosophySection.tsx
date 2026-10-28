@@ -47,6 +47,7 @@ export default function PhilosophySection() {
               src="/images/artesano.webp"
               alt="Artesano trabajando"
               fill
+              unoptimized
               sizes="(max-width: 1024px) 100vw, 50vw"
               className="object-cover rounded-xl shadow-lg transition-transform duration-700 group-hover:scale-[1.02]"
             />
