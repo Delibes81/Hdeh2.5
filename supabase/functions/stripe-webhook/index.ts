@@ -139,14 +139,16 @@ serve(async (req) => {
                             console.error(`Error inserting order item: ${itemInsertError.message}`)
                         }
 
-                        // Decrease Stock
-                        const variant = dbById.variants.find((v: any) => v.size === size)
-                        if (variant) {
+                        // Decrease Stock: solo si la talla está registrada y tiene piezas.
+                        // Si no tiene piezas (o no existe), se vendió sobre pedido y el
+                        // stock se queda igual; nunca se deja en negativo.
+                        const variant = (dbById.variants || []).find((v: any) => v.size === size)
+                        if (variant && variant.stock > 0) {
                             await supabase.from('product_variants')
-                                .update({ stock: variant.stock - quantity })
+                                .update({ stock: Math.max(0, variant.stock - quantity) })
                                 .eq('id', variant.id)
-                        } else {
-                            console.warn(`Variant not found for stock deduction: ${size}`)
+                        } else if (!variant) {
+                            console.log(`Talla ${size} sin registrar (producto sobre pedido): no se descuenta stock`)
                         }
                     } else {
                         console.error('Could not identify product/size for item:', item.description);

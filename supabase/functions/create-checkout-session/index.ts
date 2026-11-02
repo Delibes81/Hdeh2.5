@@ -43,19 +43,30 @@ serve(async (req) => {
                 throw new Error(`Product not found: ${item.productId}`)
             }
 
+            if (!Number.isInteger(item.quantity) || item.quantity < 1) {
+                throw new Error(`Cantidad inválida para ${product.name}`)
+            }
+
             const { data: variant, error: varError } = await supabase
                 .from('product_variants')
                 .select('*')
                 .eq('product_id', item.productId)
                 .eq('size', item.size)
-                .single()
+                .maybeSingle()
 
-            if (varError || !variant) {
+            if (varError) throw varError
+
+            // Producto "sobre pedido" (columna is_made_to_order): se puede pagar
+            // aunque la talla no esté registrada o no tenga stock.
+            const isMadeToOrderProduct = product.is_made_to_order === true
+
+            if (!variant && !isMadeToOrderProduct) {
                 throw new Error(`Variant not found available: ${product.name} - ${item.size}`)
             }
 
-            const isMTO = product.isMadeToOrder || variant.stock === 0;
-            if (!isMTO && variant.stock < item.quantity) {
+            // Una talla sin piezas (stock 0 o menos) se vende sobre pedido;
+            // si tiene piezas, no se pueden pedir más de las que hay.
+            if (variant && !isMadeToOrderProduct && variant.stock > 0 && variant.stock < item.quantity) {
                 throw new Error(`Insufficient stock for ${product.name} (${item.size}). Available: ${variant.stock}`)
             }
 
