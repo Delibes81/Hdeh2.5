@@ -168,7 +168,16 @@ serve(async (req) => {
                     body: JSON.stringify({
                         email: order.contact_email,
                         customerName: order.shipping_address?.name || 'Cliente',
-                        orderId: order.id
+                        orderId: order.id,
+                        // Datos para el aviso interno de nueva compra a la tienda
+                        notifyAdmin: true,
+                        customerPhone: order.contact_phone,
+                        totalAmount: order.total_amount,
+                        shippingAddress: order.shipping_address,
+                        items: (session.line_items?.data || []).map((item: any) => ({
+                            description: item.description || 'Producto',
+                            quantity: item.quantity || 1,
+                        }))
                     })
                 });
                 

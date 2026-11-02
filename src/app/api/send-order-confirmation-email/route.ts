@@ -1,14 +1,28 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import OrderConfirmationEmail from '../../../components/emails/OrderConfirmation';
+import AdminOrderNotificationEmail from '../../../components/emails/AdminOrderNotification';
 
 const resendApiKey = process.env.RESEND_API_KEY || 're_placeholder';
 const resend = new Resend(resendApiKey);
 
+// Correo de la tienda que recibe el aviso de cada nueva compra
+const ADMIN_NOTIFICATION_EMAIL =
+    process.env.ADMIN_NOTIFICATION_EMAIL || 'hdehelenamx@gmail.com';
+
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const { email, customerName, orderId } = body;
+        const {
+            email,
+            customerName,
+            orderId,
+            notifyAdmin,
+            customerPhone,
+            totalAmount,
+            items,
+            shippingAddress,
+        } = body;
 
         if (!email || !orderId) {
             return NextResponse.json(
@@ -27,12 +41,42 @@ export async function POST(req: Request) {
             }),
         });
 
-        if (error) {
-            console.error('Error de Resend al confirmar compra:', error);
-            return NextResponse.json({ error: error.message }, { status: 400 });
+        // Aviso interno de nueva compra (solo cuando lo solicita el webhook de Stripe).
+        // Si falla, no se bloquea la confirmación al cliente.
+        let adminNotified = false;
+        if (notifyAdmin) {
+            try {
+                const { error: adminError } = await resend.emails.send({
+                    from: 'H de Helena <pedidos@hdehelena.com>',
+                    to: [ADMIN_NOTIFICATION_EMAIL],
+                    replyTo: email,
+                    subject: `🛍️ Nueva compra #${orderId.slice(0, 8)} - ${customerName || 'Cliente'}`,
+                    react: AdminOrderNotificationEmail({
+                        orderId,
+                        customerName: customerName || 'Cliente',
+                        customerEmail: email,
+                        customerPhone,
+                        totalAmount,
+                        items: Array.isArray(items) ? items : [],
+                        shippingAddress,
+                    }),
+                });
+                if (adminError) {
+                    console.error('Error de Resend al avisar a la tienda:', adminError);
+                } else {
+                    adminNotified = true;
+                }
+            } catch (adminErr) {
+                console.error('Error enviando aviso de compra a la tienda:', adminErr);
+            }
         }
 
-        return NextResponse.json({ success: true, data });
+        if (error) {
+            console.error('Error de Resend al confirmar compra:', error);
+            return NextResponse.json({ error: error.message, adminNotified }, { status: 400 });
+        }
+
+        return NextResponse.json({ success: true, data, adminNotified });
     } catch (error: any) {
         console.error('Error enviando email de confirmación de compra:', error);
         return NextResponse.json(
