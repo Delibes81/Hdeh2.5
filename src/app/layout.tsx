@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter, Libre_Bodoni, Montserrat } from 'next/font/google';
+import localFont from 'next/font/local';
 import { CartProvider } from '../context/CartContext';
 import '../index.css';
 import ClientLayout from './ClientLayout';
@@ -9,26 +9,31 @@ import { GoogleAnalytics } from '@next/third-parties/google';
 
 
 
-const inter = Inter({
-  subsets: ['latin'],
+// Fuentes incluidas en el proyecto (src/fonts) para que la compilación no
+// dependa de descargar Google Fonts. Son archivos variables, subset latino.
+const inter = localFont({
+  src: '../fonts/inter-latin.woff2',
   variable: '--font-inter',
-  weight: ['300', '400', '500', '600'],
+  weight: '300 600',
+  style: 'normal',
   display: 'swap',
 });
 
-const libreBodoni = Libre_Bodoni({
-  subsets: ['latin'],
+const libreBodoni = localFont({
+  src: [
+    { path: '../fonts/libre-bodoni-latin.woff2', weight: '400 700', style: 'normal' },
+    { path: '../fonts/libre-bodoni-italic-latin.woff2', weight: '400 700', style: 'italic' },
+  ],
   variable: '--font-libre-bodoni',
-  weight: ['400', '500', '600', '700'],
-  style: ['normal', 'italic'],
   display: 'swap',
 });
 
-const montserrat = Montserrat({
-  subsets: ['latin'],
+const montserrat = localFont({
+  src: [
+    { path: '../fonts/montserrat-latin.woff2', weight: '100 900', style: 'normal' },
+    { path: '../fonts/montserrat-italic-latin.woff2', weight: '100 900', style: 'italic' },
+  ],
   variable: '--font-montserrat',
-  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
-  style: ['normal', 'italic'],
   display: 'swap',
 });
 
