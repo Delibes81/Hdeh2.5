@@ -1,5 +1,6 @@
 -- Cupones: validar sin exponer la tabla y contar usos de forma atómica.
--- Ejecutar en Supabase → SQL Editor ANTES de publicar el código que usa estas funciones.
+-- PASO 1. Ejecutar en Supabase → SQL Editor ANTES de publicar el código que usa estas funciones.
+-- (El paso 2, quitar la lectura pública, está en secure_coupons_paso2.sql)
 
 -- 1. Validar un cupón por código (devuelve solo ese cupón si está activo)
 create or replace function public.validate_coupon(p_code text)
@@ -41,6 +42,3 @@ $$;
 
 revoke all on function public.increment_coupon_usage(text) from public, anon, authenticated;
 grant execute on function public.increment_coupon_usage(text) to service_role;
-
--- 3. Quitar la lectura pública de la tabla de cupones
-drop policy if exists "Public can read active coupons" on public.coupons;
