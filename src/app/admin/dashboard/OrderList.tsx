@@ -36,6 +36,10 @@ interface Order {
     order_items: OrderItem[];
 }
 
+// Botón "Reset (Test)": reinicia el pedido a Pagado y repite los correos de
+// compra (cliente + aviso a la tienda). Cambiar a true solo para hacer pruebas.
+const SHOW_TEST_RESET_BUTTON = false;
+
 export default function OrderList() {
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
@@ -464,6 +468,7 @@ export default function OrderList() {
                                                 Marcar Enviado
                                             </button>
                                         )}
+                                        {SHOW_TEST_RESET_BUTTON && (
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
@@ -473,6 +478,7 @@ export default function OrderList() {
                                             >
                                                 Reset (Test)
                                             </button>
+                                        )}
                                     </div>
 
                                         <div className="text-right min-w-[100px]">
