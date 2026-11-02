@@ -214,7 +214,7 @@ export default function OrderList() {
     };
 
     const resetAndNotifyPayment = async (order: Order) => {
-        if (!confirm('¿Reiniciar estado a "Pagado" y enviar correo de confirmación de compra de prueba?')) return;
+        if (!confirm(`¿Reiniciar el pedido a "Pagado" y repetir los correos de compra?\n\n• Confirmación al cliente: ${order.contact_email}\n• Aviso de nueva compra a la tienda\n\nÚsalo solo con pedidos de prueba: el cliente recibirá el correo.`)) return;
         
         try {
             await updateStatus(order.id, 'paid');
@@ -226,16 +226,27 @@ export default function OrderList() {
                 body: JSON.stringify({
                     email: order.contact_email,
                     customerName: order.shipping_address?.name || 'Cliente',
-                    orderId: order.id
+                    orderId: order.id,
+                    // Repetir también el aviso de nueva compra a la tienda
+                    notifyAdmin: true,
+                    customerPhone: order.contact_phone,
+                    totalAmount: order.total_amount,
+                    shippingAddress: order.shipping_address,
+                    items: (order.order_items || []).map(item => ({
+                        description: `${item.products?.name || 'Producto'} (${item.size})`,
+                        quantity: item.quantity,
+                    })),
                 })
             });
 
+            const result = await emailRes.json().catch(() => ({}));
             if (!emailRes.ok) {
-                const errData = await emailRes.json();
-                console.warn('Advertencia de email:', errData);
-                alert('Aviso: El pedido se reinició a "Pagado", pero hubo un error enviando el correo de confirmación (' + (errData.error || '') + ').');
+                console.warn('Advertencia de email:', result);
+                alert('Aviso: El pedido se reinició a "Pagado", pero hubo un error enviando el correo de confirmación (' + (result.error || '') + ').');
+            } else if (!result.adminNotified) {
+                alert('Pedido reiniciado a Pagado. Se envió la confirmación al cliente, pero falló el aviso a la tienda.');
             } else {
-                alert('Pedido reiniciado a Pagado y correo de confirmación enviado exitosamente.');
+                alert('Pedido reiniciado a Pagado. Se enviaron la confirmación al cliente y el aviso a la tienda.');
             }
         } catch (error) {
             console.error(error);
@@ -453,7 +464,6 @@ export default function OrderList() {
                                                 Marcar Enviado
                                             </button>
                                         )}
-                                        {(order.status === 'en_fabricacion' || order.status === 'preparando_envio' || order.status === 'enviado') && (
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
@@ -463,7 +473,6 @@ export default function OrderList() {
                                             >
                                                 Reset (Test)
                                             </button>
-                                        )}
                                     </div>
 
                                         <div className="text-right min-w-[100px]">

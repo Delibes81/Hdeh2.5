@@ -46,10 +46,10 @@ export async function POST(req: Request) {
             }),
         });
 
-        // Aviso interno de nueva compra (solo cuando lo solicita el webhook de Stripe).
-        // Si falla, no se bloquea la confirmación al cliente.
+        // Aviso interno de nueva compra (lo pide el webhook de Stripe, o un admin
+        // desde el botón "Reset (Test)"). Si falla, no bloquea la confirmación al cliente.
         let adminNotified = false;
-        if (notifyAdmin && fromWebhook) {
+        if (notifyAdmin) {
             try {
                 const { error: adminError } = await resend.emails.send({
                     from: 'H de Helena <pedidos@hdehelena.com>',
