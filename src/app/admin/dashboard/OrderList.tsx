@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { Package, Calendar, MapPin, ChevronDown, ChevronUp, Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { formatPrice } from '../../../utils/format';
+import { adminHeaders } from '../../../lib/adminHeaders';
 
 interface OrderItem {
     id: string;
@@ -161,7 +162,7 @@ export default function OrderList() {
             // Send Email via Resend API
             const emailRes = await fetch('/api/send-production-email', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: await adminHeaders(),
                 body: JSON.stringify({
                     email: order.contact_email,
                     customerName: order.shipping_address?.name || 'Cliente',
@@ -191,7 +192,7 @@ export default function OrderList() {
             // Send Email via Resend API
             const emailRes = await fetch('/api/send-preparing-email', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: await adminHeaders(),
                 body: JSON.stringify({
                     email: order.contact_email,
                     customerName: order.shipping_address?.name || 'Cliente',
@@ -221,7 +222,7 @@ export default function OrderList() {
             // Send Email via Resend API
             const emailRes = await fetch('/api/send-order-confirmation-email', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: await adminHeaders(),
                 body: JSON.stringify({
                     email: order.contact_email,
                     customerName: order.shipping_address?.name || 'Cliente',
@@ -258,7 +259,7 @@ export default function OrderList() {
             // 1. Send Email via Resend API
             const emailRes = await fetch('/api/send-shipping-email', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: await adminHeaders(),
                 body: JSON.stringify({
                     email: selectedOrderForTracking.contact_email,
                     customerName: selectedOrderForTracking.shipping_address?.name || 'Cliente',

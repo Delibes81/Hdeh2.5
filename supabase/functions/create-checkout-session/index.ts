@@ -7,6 +7,8 @@ const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') as string, {
 })
 const supabaseUrl = Deno.env.get('SUPABASE_URL') as string
 const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') as string
+// Los cupones ya no son legibles públicamente: se consultan con la service role key
+const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') as string
 
 serve(async (req) => {
     const corsHeaders = {
@@ -82,8 +84,10 @@ serve(async (req) => {
         }
 
         let stripeCouponId = undefined;
+        let appliedCouponCode: string | undefined = undefined;
         if (couponCode) {
-            const { data: coupon, error: couponError } = await supabase
+            const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey)
+            const { data: coupon, error: couponError } = await supabaseAdmin
                 .from('coupons')
                 .select('*')
                 .eq('code', couponCode.toUpperCase())
@@ -101,6 +105,7 @@ serve(async (req) => {
                         name: coupon.code
                     });
                     stripeCouponId = stripeCoupon.id;
+                    appliedCouponCode = coupon.code;
                 }
             }
         }
@@ -112,6 +117,8 @@ serve(async (req) => {
             line_items: lineItems,
             mode: 'payment',
             discounts: stripeCouponId ? [{ coupon: stripeCouponId }] : undefined,
+            // El webhook usa este dato para contar el uso del cupón
+            metadata: appliedCouponCode ? { couponCode: appliedCouponCode } : undefined,
             success_url: success_url,
             cancel_url: cancel_url,
             shipping_address_collection: {

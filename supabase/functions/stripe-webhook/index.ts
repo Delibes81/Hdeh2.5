@@ -22,20 +22,18 @@ serve(async (req) => {
         const body = await req.text()
         const endpointSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')
 
-        let event;
+        // Sin el secreto no se puede comprobar que el evento venga de Stripe: se rechaza.
+        if (!endpointSecret) {
+            console.error('STRIPE_WEBHOOK_SECRET no está configurado; se rechaza el evento.')
+            return new Response('Webhook Error: STRIPE_WEBHOOK_SECRET not configured', { status: 500 })
+        }
 
-        // Verify signature
-        if (endpointSecret) {
-            try {
-                event = await stripe.webhooks.constructEventAsync(body, signature, endpointSecret)
-            } catch (err: any) {
-                console.error(`Webhook signature verification failed: ${err.message}`)
-                return new Response(`Webhook Error: ${err.message}`, { status: 400 })
-            }
-        } else {
-            // Fallback for local testing/skipping signature if secret not set (NOT RECOMMENDED FOR PROD)
-            const json = JSON.parse(body)
-            event = json
+        let event;
+        try {
+            event = await stripe.webhooks.constructEventAsync(body, signature, endpointSecret)
+        } catch (err: any) {
+            console.error(`Webhook signature verification failed: ${err.message}`)
+            return new Response(`Webhook Error: ${err.message}`, { status: 400 })
         }
 
         if (event.type === 'checkout.session.completed') {
@@ -158,13 +156,26 @@ serve(async (req) => {
                 console.warn("No line items found in session.");
             }
 
+            // 2b. Contar el uso del cupón (si se aplicó uno)
+            const couponCode = session.metadata?.couponCode
+            if (couponCode) {
+                const { error: couponError } = await supabase.rpc('increment_coupon_usage', { p_code: couponCode })
+                if (couponError) {
+                    console.error(`No se pudo contar el uso del cupón ${couponCode}:`, couponError.message)
+                }
+            }
+
             // 3. Send Order Confirmation Email
             const siteUrl = Deno.env.get('SITE_URL') || 'https://hdehelena.com';
             try {
                 console.log(`Solicitando email de confirmación a: ${siteUrl}/api/send-order-confirmation-email`);
                 const emailRes = await fetch(`${siteUrl}/api/send-order-confirmation-email`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // Clave compartida con Vercel para autorizar el envío de correos
+                        'x-email-webhook-secret': Deno.env.get('EMAIL_WEBHOOK_SECRET') || '',
+                    },
                     body: JSON.stringify({
                         email: order.contact_email,
                         customerName: order.shipping_address?.name || 'Cliente',

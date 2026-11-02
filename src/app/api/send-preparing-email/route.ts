@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
+import { isAdminRequest, unauthorized } from '../../../lib/apiAuth';
 import PreparingShippingEmail from '../../../components/emails/PreparingShipping';
 
 // Usamos un placeholder en build time o si la llave no está configurada, para no romper el compilador.
@@ -7,6 +8,8 @@ const resendApiKey = process.env.RESEND_API_KEY || 're_placeholder';
 const resend = new Resend(resendApiKey);
 
 export async function POST(req: Request) {
+    if (!(await isAdminRequest(req))) return unauthorized();
+
     try {
         const body = await req.json();
         const { email, customerName, orderId } = body;

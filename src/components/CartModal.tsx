@@ -31,12 +31,11 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
     setIsApplyingCoupon(true);
     setCouponError(null);
     try {
-        const { data, error } = await supabase
-            .from('coupons')
-            .select('*')
-            .eq('code', couponCode.trim().toUpperCase())
-            .eq('is_active', true)
-            .single();
+        // Valida el código con una función de la base de datos: la tabla de
+        // cupones ya no es legible públicamente (ver secure_coupons.sql)
+        const { data: rows, error } = await supabase
+            .rpc('validate_coupon', { p_code: couponCode.trim() });
+        const data = Array.isArray(rows) ? rows[0] : null;
 
         if (error || !data) {
             setCouponError('Cupón inválido o inactivo');

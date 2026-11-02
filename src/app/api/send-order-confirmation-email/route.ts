@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import OrderConfirmationEmail from '../../../components/emails/OrderConfirmation';
 import AdminOrderNotificationEmail from '../../../components/emails/AdminOrderNotification';
+import { hasEmailWebhookSecret, isAdminRequest, unauthorized } from '../../../lib/apiAuth';
 
 const resendApiKey = process.env.RESEND_API_KEY || 're_placeholder';
 const resend = new Resend(resendApiKey);
@@ -11,6 +12,10 @@ const ADMIN_NOTIFICATION_EMAIL =
     process.env.ADMIN_NOTIFICATION_EMAIL || 'hdehelenamx@gmail.com';
 
 export async function POST(req: Request) {
+    // Solo el webhook de Stripe (con la clave compartida) o un admin con sesión
+    const fromWebhook = hasEmailWebhookSecret(req);
+    if (!fromWebhook && !(await isAdminRequest(req))) return unauthorized();
+
     try {
         const body = await req.json();
         const {
@@ -44,7 +49,7 @@ export async function POST(req: Request) {
         // Aviso interno de nueva compra (solo cuando lo solicita el webhook de Stripe).
         // Si falla, no se bloquea la confirmación al cliente.
         let adminNotified = false;
-        if (notifyAdmin) {
+        if (notifyAdmin && fromWebhook) {
             try {
                 const { error: adminError } = await resend.emails.send({
                     from: 'H de Helena <pedidos@hdehelena.com>',
