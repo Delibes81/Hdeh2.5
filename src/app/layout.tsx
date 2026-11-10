@@ -6,6 +6,7 @@ import ClientLayout from './ClientLayout';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/react';
 import { GoogleAnalytics } from '@next/third-parties/google';
+import MetaPixel from '../components/MetaPixel';
 
 
 
@@ -69,6 +70,7 @@ export default function RootLayout({
         <SpeedInsights />
         <Analytics />
         <GoogleAnalytics gaId="G-2EBDHM951Y" />
+        <MetaPixel />
       </body>
     </html>
   );

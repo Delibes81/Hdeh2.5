@@ -3,11 +3,16 @@ import Link from 'next/link';
 import { CheckCircle, ArrowRight } from 'lucide-react';
 import { useEffect } from 'react';
 import { useCart } from '../../hooks/useCart';
+import { trackPurchaseFromPending } from '../../lib/tracking';
 
 export default function Success() {
     const { clearCart } = useCart();
 
     useEffect(() => {
+        // Registrar la compra en el pixel de Meta / Google Analytics (una sola vez)
+        const sessionId = new URLSearchParams(window.location.search).get('session_id');
+        trackPurchaseFromPending(sessionId);
+
         // Clear cart on successful purchase
         clearCart();
     }, []);

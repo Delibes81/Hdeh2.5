@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { sendGAEvent } from '@next/third-parties/google';
+import { trackMeta } from '../../../lib/tracking';
 import { useProducts } from '../../../hooks/useProducts';
 import { useCart } from '../../../hooks/useCart';
 import { Heart, Share2, Loader, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -37,6 +38,13 @@ export default function ProductClient({ initialProduct }: ProductClientProps = {
         setSelectedSize(null);
         setError(null);
         if (product) {
+            trackMeta('ViewContent', {
+                content_ids: [product.id],
+                content_name: product.name,
+                content_type: 'product',
+                value: product.price,
+                currency: 'MXN',
+            });
             sendGAEvent('event', 'view_item', {
                 currency: 'MXN',
                 value: product.price,
@@ -95,6 +103,14 @@ export default function ProductClient({ initialProduct }: ProductClientProps = {
         }
 
         addToCart(product, selectedSize, quantity);
+
+        trackMeta('AddToCart', {
+            content_ids: [product.id],
+            content_name: product.name,
+            content_type: 'product',
+            value: product.price * quantity,
+            currency: 'MXN',
+        });
 
         sendGAEvent('event', 'add_to_cart', {
             currency: 'MXN',

@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 import { useState } from 'react';
 
 import { formatPrice } from '../utils/format';
+import { trackBeginCheckout } from '../lib/tracking';
 import { Coupon } from '../types';
 
 interface CartModalProps {
@@ -89,6 +90,20 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
   const handleCheckout = async () => {
     setIsCheckingOut(true);
     try {
+      // 0. Pixel de Meta / Google Analytics: inicio de pago (y se guardan los
+      // datos para registrar la compra al volver a la página de gracias)
+      trackBeginCheckout(
+        finalTotal,
+        cart.items.map(item => ({
+          id: item.product.id,
+          name: item.product.name,
+          price: item.product.price,
+          quantity: item.quantity,
+          size: item.size,
+        })),
+        appliedCoupon?.code
+      );
+
       // 1. Call Edge Function
       const { data, error } = await supabase.functions.invoke('create-checkout-session', {
         body: {
@@ -98,7 +113,8 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
             quantity: item.quantity
           })),
           couponCode: appliedCoupon?.code,
-          success_url: process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/success` : window.location.origin + '/success',
+          // Stripe reemplaza {CHECKOUT_SESSION_ID}: se usa como ID de la compra en el pixel
+          success_url: (process.env.NEXT_PUBLIC_APP_URL || window.location.origin) + '/success?session_id={CHECKOUT_SESSION_ID}',
           cancel_url: process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/shop` : window.location.origin + '/shop',
         },
       });

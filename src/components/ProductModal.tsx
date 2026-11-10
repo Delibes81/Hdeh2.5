@@ -3,6 +3,7 @@ import { X, ChevronLeft, ChevronRight, Heart, Share2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { sendGAEvent } from '@next/third-parties/google';
+import { trackMeta } from '../lib/tracking';
 import { Product } from '../types';
 
 import { formatPrice } from '../utils/format';
@@ -54,6 +55,14 @@ export default function ProductModal({
     }
 
     onAddToCart(product, selectedSize, quantity);
+
+    trackMeta('AddToCart', {
+      content_ids: [product.id],
+      content_name: product.name,
+      content_type: 'product',
+      value: product.price * quantity,
+      currency: 'MXN',
+    });
 
     sendGAEvent('event', 'add_to_cart', {
       currency: 'MXN',
