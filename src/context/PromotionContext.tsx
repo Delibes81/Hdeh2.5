@@ -21,10 +21,23 @@ export function PromotionProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         let cancelled = false;
-        fetchActivePromotion(supabase)
-            .then(p => { if (!cancelled) setLoaded(p); })
-            .catch(() => { /* sin promoción: precios normales */ });
-        return () => { cancelled = true; };
+        const load = () => {
+            fetchActivePromotion(supabase)
+                .then(p => { if (!cancelled) setLoaded(p); })
+                .catch(() => { /* sin promoción: precios normales */ });
+        };
+        load();
+
+        // Si se cambia la promoción en el panel, las páginas abiertas se
+        // actualizan al volver a la pestaña o cada 5 minutos
+        const onVisible = () => { if (document.visibilityState === 'visible') load(); };
+        document.addEventListener('visibilitychange', onVisible);
+        const interval = setInterval(load, 5 * 60 * 1000);
+        return () => {
+            cancelled = true;
+            document.removeEventListener('visibilitychange', onVisible);
+            clearInterval(interval);
+        };
     }, []);
 
     // Si la promoción termina mientras la página está abierta, se vuelve a pintar

@@ -1,5 +1,5 @@
 'use client';
-import { LogOut, Package, ShoppingBag, Settings, LayoutDashboard } from 'lucide-react';
+import { LogOut, Package, ShoppingBag, Settings, LayoutDashboard, Percent } from 'lucide-react';
 import { supabase } from '../../../lib/supabase';
 import { useRouter } from 'next/navigation';
 import ProtectedRoute from '../../../components/admin/ProtectedRoute';
@@ -7,9 +7,18 @@ import OrderList from './OrderList';
 import ProductList from './ProductList';
 import DashboardHome from './DashboardHome';
 import CouponManager from './CouponManager';
+import PromotionManager from './PromotionManager';
 import { useState } from 'react';
 
-type View = 'home' | 'products' | 'orders' | 'settings';
+type View = 'home' | 'products' | 'orders' | 'promotions' | 'settings';
+
+const MOBILE_TABS: { view: View; label: string }[] = [
+    { view: 'home', label: 'Inicio' },
+    { view: 'products', label: 'Productos' },
+    { view: 'orders', label: 'Pedidos' },
+    { view: 'promotions', label: 'Promociones' },
+    { view: 'settings', label: 'Cupones' },
+];
 
 export default function Dashboard() {
     const router = useRouter();
@@ -48,6 +57,7 @@ export default function Dashboard() {
                     <NavItem view="home" icon={LayoutDashboard} label="Inicio" />
                     <NavItem view="products" icon={Package} label="Productos" />
                     <NavItem view="orders" icon={ShoppingBag} label="Pedidos" />
+                    <NavItem view="promotions" icon={Percent} label="Promociones" />
                     <NavItem view="settings" icon={Settings} label="Configuración" />
                 </nav>
 
@@ -70,11 +80,29 @@ export default function Dashboard() {
                     <button onClick={handleLogout} className="text-warm-gray"><LogOut size={20} /></button>
                 </div>
 
+                {/* Mobile Tabs */}
+                <div className="md:hidden flex gap-2 overflow-x-auto px-4 py-3 border-b border-stone/20 bg-white">
+                    {MOBILE_TABS.map(tab => (
+                        <button
+                            key={tab.view}
+                            onClick={() => setCurrentView(tab.view)}
+                            className={`shrink-0 px-3 py-1.5 rounded-full text-xs uppercase tracking-wide border transition-colors ${currentView === tab.view
+                                ? 'bg-charcoal text-cream border-charcoal'
+                                : 'text-warm-gray border-stone/30'
+                                }`}
+                        >
+                            {tab.label}
+                        </button>
+                    ))}
+                </div>
+
                 <div className="p-6 md:p-8 max-w-7xl mx-auto">
                     {currentView === 'home' && <DashboardHome />}
                     {currentView === 'products' && <ProductList />}
 
                     {currentView === 'orders' && <OrderList />}
+
+                    {currentView === 'promotions' && <PromotionManager />}
 
                     {currentView === 'settings' && (
                         <CouponManager />
