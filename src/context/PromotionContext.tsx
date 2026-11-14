@@ -1,34 +1,47 @@
 'use client';
-import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
+import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { applyDiscount, fetchActivePromotion, isPromotionLive, Promotion } from '../lib/promotion';
+import {
+    applyDiscount,
+    bannerPromotion,
+    bestPromotionFor,
+    fetchActivePromotions,
+    isPromotionLive,
+    Promotion,
+} from '../lib/promotion';
 
 interface PromotionContextType {
-    // Promoción vigente en este momento, o null
-    promotion: Promotion | null;
-    // Precio a cobrar (con descuento si hay promoción)
-    getPrice: (basePrice: number) => number;
+    // Promociones vigentes en este momento
+    promotions: Promotion[];
+    // Promoción que se anuncia en la franja, o null
+    banner: Promotion | null;
+    // Promoción que le toca a un producto (la de mayor descuento), o null
+    getPromotion: (productId: string) => Promotion | null;
+    // Precio a cobrar por un producto (con descuento si le toca promoción)
+    getPrice: (productId: string, basePrice: number) => number;
 }
 
 const PromotionContext = createContext<PromotionContextType>({
-    promotion: null,
-    getPrice: (basePrice) => basePrice,
+    promotions: [],
+    banner: null,
+    getPromotion: () => null,
+    getPrice: (_productId, basePrice) => basePrice,
 });
 
 export function PromotionProvider({ children }: { children: ReactNode }) {
-    const [loaded, setLoaded] = useState<Promotion | null>(null);
+    const [loaded, setLoaded] = useState<Promotion[]>([]);
     const [, setTick] = useState(0);
 
     useEffect(() => {
         let cancelled = false;
         const load = () => {
-            fetchActivePromotion(supabase)
+            fetchActivePromotions(supabase)
                 .then(p => { if (!cancelled) setLoaded(p); })
-                .catch(() => { /* sin promoción: precios normales */ });
+                .catch(() => { /* sin promociones: precios normales */ });
         };
         load();
 
-        // Si se cambia la promoción en el panel, las páginas abiertas se
+        // Si se cambia una promoción en el panel, las páginas abiertas se
         // actualizan al volver a la pestaña o cada 5 minutos
         const onVisible = () => { if (document.visibilityState === 'visible') load(); };
         document.addEventListener('visibilitychange', onVisible);
@@ -40,24 +53,27 @@ export function PromotionProvider({ children }: { children: ReactNode }) {
         };
     }, []);
 
-    // Si la promoción termina mientras la página está abierta, se vuelve a pintar
+    // Si una promoción termina mientras la página está abierta, se vuelve a pintar
     useEffect(() => {
-        if (!loaded?.endsAt) return;
-        const ms = new Date(loaded.endsAt).getTime() - Date.now();
-        if (ms <= 0 || ms > 2_147_000_000) return;
-        const t = setTimeout(() => setTick(n => n + 1), ms + 1000);
+        const ends = loaded
+            .map(p => (p.endsAt ? new Date(p.endsAt).getTime() - Date.now() : -1))
+            .filter(ms => ms > 0 && ms < 2_147_000_000);
+        if (ends.length === 0) return;
+        const t = setTimeout(() => setTick(n => n + 1), Math.min(...ends) + 1000);
         return () => clearTimeout(t);
     }, [loaded]);
 
-    const promotion = isPromotionLive(loaded) ? loaded : null;
+    const promotions = loaded.filter(p => isPromotionLive(p));
 
-    const getPrice = useCallback(
-        (basePrice: number) => (promotion ? applyDiscount(basePrice, promotion.discountPercent) : basePrice),
-        [promotion]
-    );
+    const getPromotion = (productId: string) => bestPromotionFor(promotions, productId);
+
+    const getPrice = (productId: string, basePrice: number) => {
+        const promotion = getPromotion(productId);
+        return promotion ? applyDiscount(basePrice, promotion.discountPercent) : basePrice;
+    };
 
     return (
-        <PromotionContext.Provider value={{ promotion, getPrice }}>
+        <PromotionContext.Provider value={{ promotions, banner: bannerPromotion(promotions), getPromotion, getPrice }}>
             {children}
         </PromotionContext.Provider>
     );

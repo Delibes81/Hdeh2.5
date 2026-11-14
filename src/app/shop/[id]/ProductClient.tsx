@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -24,6 +24,9 @@ export default function ProductClient({ initialProduct }: ProductClientProps = {
     const { products, loading: productsLoading, error: productsError } = useProducts();
     const { addToCart } = useCart();
     const { getPrice } = usePromotion();
+    // Última versión de getPrice para el evento de "producto visto" (sin volver a dispararlo)
+    const getPriceRef = useRef(getPrice);
+    getPriceRef.current = getPrice;
 
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [quantity, setQuantity] = useState(1);
@@ -41,21 +44,22 @@ export default function ProductClient({ initialProduct }: ProductClientProps = {
         setSelectedSize(null);
         setError(null);
         if (product) {
+            const viewPrice = getPriceRef.current(product.id, product.price);
             trackMeta('ViewContent', {
                 content_ids: [product.id],
                 content_name: product.name,
                 content_type: 'product',
-                value: getPrice(product.price),
+                value: viewPrice,
                 currency: 'MXN',
             });
             sendGAEvent('event', 'view_item', {
                 currency: 'MXN',
-                value: getPrice(product.price),
+                value: viewPrice,
                 items: [
                     {
                         item_id: product.id,
                         item_name: product.name,
-                        price: getPrice(product.price),
+                        price: viewPrice,
                         quantity: 1
                     }
                 ]
@@ -111,18 +115,18 @@ export default function ProductClient({ initialProduct }: ProductClientProps = {
             content_ids: [product.id],
             content_name: product.name,
             content_type: 'product',
-            value: getPrice(product.price) * quantity,
+            value: getPrice(product.id, product.price) * quantity,
             currency: 'MXN',
         });
 
         sendGAEvent('event', 'add_to_cart', {
             currency: 'MXN',
-            value: getPrice(product.price) * quantity,
+            value: getPrice(product.id, product.price) * quantity,
             items: [
                 {
                     item_id: product.id,
                     item_name: product.name,
-                    price: getPrice(product.price),
+                    price: getPrice(product.id, product.price),
                     quantity,
                     item_size: selectedSize
                 }
@@ -268,7 +272,7 @@ export default function ProductClient({ initialProduct }: ProductClientProps = {
                                 {product.name}
                             </h1>
                             <p className="font-sans uppercase text-2xl text-warm-gray font-light tracking-wide mb-8">
-                                <PriceTag price={product.price} />
+                                <PriceTag productId={product.id} price={product.price} />
                             </p>
 
                             <p className="text-warm-gray text-base font-light leading-relaxed mb-10">

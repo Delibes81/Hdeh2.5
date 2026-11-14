@@ -80,12 +80,17 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
 
   /* Promoción de toda la tienda: precios rebajados y, si no se permiten, sin cupones.
      La función de pago aplica las mismas reglas, así que esto es solo lo que se muestra. */
-  const { promotion, getPrice } = usePromotion();
-  const couponsBlocked = !!promotion && !promotion.allowCoupons;
+  const { getPromotion, getPrice } = usePromotion();
+  // Promoción de cada artículo del carrito (la de mayor descuento que le toque)
+  const itemPromotions = cart.items.map(item => getPromotion(item.product.id)).filter(p => p !== null);
+  // Si algún artículo está rebajado por una promoción que no permite cupones,
+  // el cupón no aplica a todo el carrito (la función de pago aplica la misma regla)
+  const couponsBlocked = itemPromotions.some(p => !p.allowCoupons);
+  const promotionPercents = Array.from(new Set(itemPromotions.map(p => p.discountPercent)));
   const activeCoupon = couponsBlocked ? null : appliedCoupon;
 
   const baseSubtotal = cart.items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-  const saleSubtotal = cart.items.reduce((sum, item) => sum + getPrice(item.product.price) * item.quantity, 0);
+  const saleSubtotal = cart.items.reduce((sum, item) => sum + getPrice(item.product.id, item.product.price) * item.quantity, 0);
   const promotionSavings = baseSubtotal - saleSubtotal;
 
   const calculateDiscount = () => {
@@ -109,7 +114,7 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
         cart.items.map(item => ({
           id: item.product.id,
           name: item.product.name,
-          price: getPrice(item.product.price),
+          price: getPrice(item.product.id, item.product.price),
           quantity: item.quantity,
           size: item.size,
         })),
@@ -209,7 +214,7 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
                         Eliminar
                       </button>
                       <p className="font-medium text-charcoal">
-                        <PriceTag price={item.product.price} quantity={item.quantity} className="justify-end" originalClassName="text-xs" />
+                        <PriceTag productId={item.product.id} price={item.product.price} quantity={item.quantity} className="justify-end" originalClassName="text-xs" />
                       </p>
                     </div>
                   </div>
@@ -226,7 +231,7 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
             {/* Coupon Section */}
             {couponsBlocked ? (
                 <p className="text-xs text-warm-gray text-center">
-                    Los cupones no aplican durante la promoción de {promotion?.discountPercent}% de descuento.
+                    Los cupones no aplican: tu carrito tiene modelos con descuento de promoción.
                 </p>
             ) : (
             <div className="bg-white p-3 rounded-lg border border-stone-200">
@@ -273,9 +278,11 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
                   <span className="text-warm-gray text-sm uppercase tracking-wider">Subtotal</span>
                   <span className="text-lg text-charcoal">{formatPrice(baseSubtotal)}</span>
                 </div>
-                {promotion && promotionSavings > 0 && (
+                {promotionSavings > 0 && (
                     <div className="flex justify-between items-end text-red-700">
-                      <span className="text-sm uppercase tracking-wider">Descuento {promotion.discountPercent}%</span>
+                      <span className="text-sm uppercase tracking-wider">
+                        Descuento{promotionPercents.length === 1 ? ` ${promotionPercents[0]}%` : ' de promoción'}
+                      </span>
                       <span className="text-lg">- {formatPrice(promotionSavings)}</span>
                     </div>
                 )}

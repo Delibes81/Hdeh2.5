@@ -30,23 +30,46 @@ serve(async (req) => {
 
         const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-        // Promoción de toda la tienda (tabla promotions). Misma consulta y mismo
-        // redondeo que src/lib/promotion.ts en la página: si cambias uno, cambia el otro.
+        // Promociones vigentes (tablas promotions y promotion_products). Mismas reglas y
+        // mismo redondeo que src/lib/promotion.ts en la página: si cambias uno, cambia el otro.
+        // - Una promoción aplica a toda la tienda ('all') o a modelos elegidos ('selected').
+        // - A cada modelo le toca la de mayor descuento (nunca se suman).
         const nowIso = new Date().toISOString()
-        const { data: promoRows } = await supabase
+        const promoQuery = (select: string) => supabase
             .from('promotions')
-            .select('*')
+            .select(select)
             .eq('is_active', true)
             .lte('starts_at', nowIso)
             .or(`ends_at.is.null,ends_at.gt.${nowIso}`)
             .order('discount_percent', { ascending: false })
-            .limit(1)
-        const promoRow = promoRows?.[0]
-        const promoPercent = promoRow ? Number(promoRow.discount_percent) : 0
-        const promotion = promoPercent > 0 && promoPercent < 100 ? promoRow : null
-        if (promotion) {
-            console.log(`Promoción vigente: ${promotion.name} (${promoPercent}%)`)
+        let { data: promoRows, error: promoError } = await promoQuery('*, promotion_products(product_id)')
+        if (promoError) {
+            // Sin la tabla promotion_products: todas aplican a toda la tienda
+            ({ data: promoRows, error: promoError } = await promoQuery('*'))
         }
+        const promotions = (promoRows || [])
+            .map((row: any) => ({
+                name: String(row.name),
+                percent: Number(row.discount_percent),
+                allowCoupons: row.allow_coupons === true,
+                appliesTo: row.applies_to === 'selected' ? 'selected' : 'all',
+                productIds: (row.promotion_products || []).map((pp: any) => String(pp.product_id)),
+            }))
+            .filter((p: any) => p.percent > 0 && p.percent < 100)
+            .filter((p: any) => p.appliesTo === 'all' || p.productIds.length > 0)
+
+        const bestPromotionFor = (productId: string) => {
+            let best: any = null
+            for (const p of promotions) {
+                if (p.appliesTo !== 'all' && !p.productIds.includes(String(productId))) continue
+                if (!best || p.percent > best.percent) best = p
+            }
+            return best
+        }
+        if (promotions.length > 0) {
+            console.log('Promociones vigentes:', promotions.map((p: any) => `${p.name} (${p.percent}%, ${p.appliesTo})`).join(', '))
+        }
+        const usedPromotions = new Map<string, any>()
 
         const formatMxn = (amount: number) =>
             new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(amount)
@@ -97,14 +120,16 @@ serve(async (req) => {
                 imageUrl = `${origin}${imageUrl}`;
             }
 
-            // Precio en centavos (con descuento si hay promoción vigente)
+            // Precio en centavos (con descuento si al modelo le toca promoción)
             const basePrice = Number(product.price)
+            const promotion = bestPromotionFor(product.id)
+            if (promotion) usedPromotions.set(promotion.name, promotion)
             const unitAmount = promotion
-                ? Math.round(basePrice * (100 - promoPercent))
+                ? Math.round(basePrice * (100 - promotion.percent))
                 : Math.round(basePrice * 100)
 
             const description = promotion
-                ? `${promoPercent}% de descuento · Precio normal ${formatMxn(basePrice)}`
+                ? `${promotion.percent}% de descuento · Precio normal ${formatMxn(basePrice)}`
                 : (product.description ? product.description.substring(0, 100) : undefined)
 
             lineItems.push({
@@ -127,10 +152,11 @@ serve(async (req) => {
 
         let stripeCouponId = undefined;
         let appliedCouponCode: string | undefined = undefined;
-        // Durante una promoción que no permite cupones, el cupón se ignora
-        const couponsAllowed = !promotion || promotion.allow_coupons === true
+        // Si algún modelo del carrito tiene una promoción que no permite cupones,
+        // el cupón no aplica a todo el carrito
+        const couponsAllowed = [...usedPromotions.values()].every((p: any) => p.allowCoupons)
         if (couponCode && !couponsAllowed) {
-            console.log(`Cupón ${couponCode} ignorado: la promoción vigente no permite cupones`)
+            console.log(`Cupón ${couponCode} ignorado: el carrito tiene modelos con una promoción que no permite cupones`)
         }
         if (couponCode && couponsAllowed) {
             const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey)
@@ -167,7 +193,9 @@ serve(async (req) => {
             // El webhook usa este dato para contar el uso del cupón
             metadata: {
                 ...(appliedCouponCode ? { couponCode: appliedCouponCode } : {}),
-                ...(promotion ? { promotion: String(promotion.name), promotionPercent: String(promoPercent) } : {}),
+                ...(usedPromotions.size > 0
+                    ? { promotions: [...usedPromotions.values()].map((p: any) => `${p.name} (${p.percent}%)`).join(', ').slice(0, 500) }
+                    : {}),
             },
             success_url: success_url,
             cancel_url: cancel_url,

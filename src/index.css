@@ -46,3 +46,26 @@
   51% { transform: scaleY(1); transform-origin: bottom; }
   100% { transform: scaleY(0); transform-origin: bottom; }
 }
+/* Franja de promoción con texto en movimiento (PromoBanner) */
+@keyframes promo-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.promo-marquee-track {
+  animation: promo-marquee 40s linear infinite;
+}
+
+.promo-marquee:hover .promo-marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .promo-marquee-track {
+    display: none !important;
+  }
+
+  .promo-marquee-static {
+    display: block !important;
+  }
+}

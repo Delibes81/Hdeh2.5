@@ -3,6 +3,8 @@ import { usePromotion } from '../context/PromotionContext';
 import { formatPrice } from '../utils/format';
 
 interface PriceTagProps {
+    // Producto (para saber si le toca promoción)
+    productId: string;
     // Precio normal (de la base de datos)
     price: number;
     // Cantidad de piezas: muestra el importe total de la línea
@@ -14,17 +16,18 @@ interface PriceTagProps {
     originalClassName?: string;
 }
 
-// Muestra el precio; si hay promoción vigente, el precio normal tachado y el rebajado.
+// Muestra el precio; si al producto le toca promoción, el precio normal tachado y el rebajado.
 export default function PriceTag({
+    productId,
     price,
     quantity = 1,
     className = '',
     priceClassName = '',
     originalClassName = '',
 }: PriceTagProps) {
-    const { promotion, getPrice } = usePromotion();
+    const { getPromotion, getPrice } = usePromotion();
 
-    if (!promotion) {
+    if (!getPromotion(productId)) {
         return <span className={`${className} ${priceClassName}`}>{formatPrice(price * quantity)}</span>;
     }
 
@@ -36,7 +39,7 @@ export default function PriceTag({
             </span>
             <span className={`text-red-700 ${priceClassName}`}>
                 <span className="sr-only">Precio con descuento: </span>
-                {formatPrice(getPrice(price) * quantity)}
+                {formatPrice(getPrice(productId, price) * quantity)}
             </span>
         </span>
     );

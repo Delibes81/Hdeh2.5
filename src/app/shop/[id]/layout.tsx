@@ -1,6 +1,6 @@
 import { Metadata, ResolvingMetadata } from 'next';
 import { supabase } from '../../../lib/supabase';
-import { applyDiscount, fetchActivePromotion } from '../../../lib/promotion';
+import { applyDiscount, bestPromotionFor, fetchActivePromotions } from '../../../lib/promotion';
 import { createSlug } from '../../../utils/format';
 
 type Props = {
@@ -60,7 +60,7 @@ export default async function ProductLayout({
     if (!product) return <>{children}</>;
 
     // Precio para Google: con descuento mientras haya promoción vigente
-    const promotion = await fetchActivePromotion(supabase);
+    const promotion = bestPromotionFor(await fetchActivePromotions(supabase), String(product.id));
     const offerPrice = promotion ? applyDiscount(Number(product.price), promotion.discountPercent) : product.price;
 
     const jsonLd = {

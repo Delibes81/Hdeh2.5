@@ -3,7 +3,7 @@ import { supabase } from '../../../lib/supabase';
 import { createSlug, formatPrice } from '../../../utils/format';
 import ProductClient from './ProductClient';
 import { Product } from '../../../types';
-import { applyDiscount, fetchActivePromotion } from '../../../lib/promotion';
+import { applyDiscount, bestPromotionFor, fetchActivePromotions } from '../../../lib/promotion';
 
 async function getProduct(id: string): Promise<Product | null> {
     const { data: rawProducts, error } = await supabase
@@ -65,7 +65,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
         };
     }
 
-    const promotion = await fetchActivePromotion(supabase);
+    const promotion = bestPromotionFor(await fetchActivePromotions(supabase), String(product.id));
     const formattedPrice = formatPrice(promotion ? applyDiscount(product.price, promotion.discountPercent) : product.price);
 
     return {
@@ -131,7 +131,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     };
 
     // Precio para Google: con descuento mientras haya promoción vigente
-    const promotion = await fetchActivePromotion(supabase);
+    const promotion = bestPromotionFor(await fetchActivePromotions(supabase), String(product.id));
     const offerPrice = promotion ? applyDiscount(product.price, promotion.discountPercent) : product.price;
 
     const productJsonLd = {

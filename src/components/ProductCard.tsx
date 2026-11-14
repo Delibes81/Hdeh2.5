@@ -17,7 +17,8 @@ export default function ProductCard({ product, index = 0, startAnimation = true 
   const [imageIndex, setImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const { promotion } = usePromotion();
+  const { getPromotion } = usePromotion();
+  const promotion = getPromotion(product.id);
 
   const handleImageChange = () => {
     if (product.images.length > 1) {
@@ -66,7 +67,7 @@ export default function ProductCard({ product, index = 0, startAnimation = true 
             {product.name}
           </h3>
           <p className="font-sans uppercase text-warm-gray font-light text-xs lg:text-[13px] mt-1">
-            <PriceTag price={product.price} />
+            <PriceTag productId={product.id} price={product.price} />
           </p>
         </div>
       </div>

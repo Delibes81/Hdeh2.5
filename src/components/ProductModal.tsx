@@ -62,18 +62,18 @@ export default function ProductModal({
       content_ids: [product.id],
       content_name: product.name,
       content_type: 'product',
-      value: getPrice(product.price) * quantity,
+      value: getPrice(product.id, product.price) * quantity,
       currency: 'MXN',
     });
 
     sendGAEvent('event', 'add_to_cart', {
       currency: 'MXN',
-      value: getPrice(product.price) * quantity,
+      value: getPrice(product.id, product.price) * quantity,
       items: [
         {
           item_id: product.id,
           item_name: product.name,
-          price: getPrice(product.price),
+          price: getPrice(product.id, product.price),
           quantity,
           item_size: selectedSize
         }
@@ -216,7 +216,7 @@ export default function ProductModal({
                     {product.name}
                   </h1>
                   <p className="font-sans uppercase text-base lg:text-lg text-warm-gray font-light">
-                    <PriceTag price={product.price} />
+                    <PriceTag productId={product.id} price={product.price} />
                   </p>
                 </div>
 
