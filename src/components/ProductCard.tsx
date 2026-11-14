@@ -3,7 +3,9 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Product } from '../types';
-import { formatPrice, createSlug } from '../utils/format';
+import { createSlug } from '../utils/format';
+import PriceTag from './PriceTag';
+import { usePromotion } from '../context/PromotionContext';
 
 interface ProductCardProps {
   product: Product;
@@ -15,6 +17,7 @@ export default function ProductCard({ product, index = 0, startAnimation = true 
   const [imageIndex, setImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const { promotion } = usePromotion();
 
   const handleImageChange = () => {
     if (product.images.length > 1) {
@@ -46,6 +49,12 @@ export default function ProductCard({ product, index = 0, startAnimation = true 
 
 
 
+        {promotion && (
+          <span className="absolute top-2 left-2 z-10 bg-charcoal text-cream text-[10px] lg:text-xs font-montserrat font-semibold tracking-wider px-2 py-1">
+            -{promotion.discountPercent}%
+          </span>
+        )}
+
         {/* Add to Cart Button - appears on hover */}
 
       </div>
@@ -57,7 +66,7 @@ export default function ProductCard({ product, index = 0, startAnimation = true 
             {product.name}
           </h3>
           <p className="font-sans uppercase text-warm-gray font-light text-xs lg:text-[13px] mt-1">
-            {formatPrice(product.price)}
+            <PriceTag price={product.price} />
           </p>
         </div>
       </div>

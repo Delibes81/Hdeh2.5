@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import { CartProvider } from '../context/CartContext';
+import { PromotionProvider } from '../context/PromotionContext';
 import '../index.css';
 import ClientLayout from './ClientLayout';
 import { SpeedInsights } from '@vercel/speed-insights/next';
@@ -62,11 +63,13 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${inter.variable} ${libreBodoni.variable} ${montserrat.variable}`} data-scroll-behavior="smooth">
       <body>
-        <CartProvider>
-          <ClientLayout>
-            {children}
-          </ClientLayout>
-        </CartProvider>
+        <PromotionProvider>
+          <CartProvider>
+            <ClientLayout>
+              {children}
+            </ClientLayout>
+          </CartProvider>
+        </PromotionProvider>
         <SpeedInsights />
         <Analytics />
         <GoogleAnalytics gaId="G-2EBDHM951Y" />

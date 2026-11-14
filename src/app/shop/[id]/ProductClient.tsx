@@ -5,10 +5,12 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { sendGAEvent } from '@next/third-parties/google';
 import { trackMeta } from '../../../lib/tracking';
+import PriceTag from '../../../components/PriceTag';
+import { usePromotion } from '../../../context/PromotionContext';
 import { useProducts } from '../../../hooks/useProducts';
 import { useCart } from '../../../hooks/useCart';
 import { Heart, Share2, Loader, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
-import { formatPrice, createSlug } from '../../../utils/format';
+import { createSlug } from '../../../utils/format';
 import { Product } from '../../../types';
 
 interface ProductClientProps {
@@ -21,6 +23,7 @@ export default function ProductClient({ initialProduct }: ProductClientProps = {
 
     const { products, loading: productsLoading, error: productsError } = useProducts();
     const { addToCart } = useCart();
+    const { getPrice } = usePromotion();
 
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [quantity, setQuantity] = useState(1);
@@ -42,17 +45,17 @@ export default function ProductClient({ initialProduct }: ProductClientProps = {
                 content_ids: [product.id],
                 content_name: product.name,
                 content_type: 'product',
-                value: product.price,
+                value: getPrice(product.price),
                 currency: 'MXN',
             });
             sendGAEvent('event', 'view_item', {
                 currency: 'MXN',
-                value: product.price,
+                value: getPrice(product.price),
                 items: [
                     {
                         item_id: product.id,
                         item_name: product.name,
-                        price: product.price,
+                        price: getPrice(product.price),
                         quantity: 1
                     }
                 ]
@@ -108,18 +111,18 @@ export default function ProductClient({ initialProduct }: ProductClientProps = {
             content_ids: [product.id],
             content_name: product.name,
             content_type: 'product',
-            value: product.price * quantity,
+            value: getPrice(product.price) * quantity,
             currency: 'MXN',
         });
 
         sendGAEvent('event', 'add_to_cart', {
             currency: 'MXN',
-            value: product.price * quantity,
+            value: getPrice(product.price) * quantity,
             items: [
                 {
                     item_id: product.id,
                     item_name: product.name,
-                    price: product.price,
+                    price: getPrice(product.price),
                     quantity,
                     item_size: selectedSize
                 }
@@ -265,7 +268,7 @@ export default function ProductClient({ initialProduct }: ProductClientProps = {
                                 {product.name}
                             </h1>
                             <p className="font-sans uppercase text-2xl text-warm-gray font-light tracking-wide mb-8">
-                                {formatPrice(product.price)}
+                                <PriceTag price={product.price} />
                             </p>
 
                             <p className="text-warm-gray text-base font-light leading-relaxed mb-10">

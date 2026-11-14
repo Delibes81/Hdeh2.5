@@ -3,6 +3,7 @@ import { supabase } from '../../../lib/supabase';
 import { createSlug, formatPrice } from '../../../utils/format';
 import ProductClient from './ProductClient';
 import { Product } from '../../../types';
+import { applyDiscount, fetchActivePromotion } from '../../../lib/promotion';
 
 async function getProduct(id: string): Promise<Product | null> {
     const { data: rawProducts, error } = await supabase
@@ -64,7 +65,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
         };
     }
 
-    const formattedPrice = formatPrice(product.price);
+    const promotion = await fetchActivePromotion(supabase);
+    const formattedPrice = formatPrice(promotion ? applyDiscount(product.price, promotion.discountPercent) : product.price);
 
     return {
         title: `${product.name} | H de Helena`,
@@ -128,6 +130,10 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         ]
     };
 
+    // Precio para Google: con descuento mientras haya promoción vigente
+    const promotion = await fetchActivePromotion(supabase);
+    const offerPrice = promotion ? applyDiscount(product.price, promotion.discountPercent) : product.price;
+
     const productJsonLd = {
         '@context': 'https://schema.org',
         '@type': 'Product',
@@ -138,7 +144,8 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             '@type': 'Offer',
             'url': `https://hdehelena.com/shop/${id}`,
             'priceCurrency': 'MXN',
-            'price': product.price,
+            'price': offerPrice,
+            ...(promotion?.endsAt ? { 'priceValidUntil': promotion.endsAt.slice(0, 10) } : {}),
             'itemCondition': 'https://schema.org/NewCondition',
             'availability': 'https://schema.org/InStock',
             'seller': {

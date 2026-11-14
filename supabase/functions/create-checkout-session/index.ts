@@ -30,6 +30,27 @@ serve(async (req) => {
 
         const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
+        // Promoción de toda la tienda (tabla promotions). Misma consulta y mismo
+        // redondeo que src/lib/promotion.ts en la página: si cambias uno, cambia el otro.
+        const nowIso = new Date().toISOString()
+        const { data: promoRows } = await supabase
+            .from('promotions')
+            .select('*')
+            .eq('is_active', true)
+            .lte('starts_at', nowIso)
+            .or(`ends_at.is.null,ends_at.gt.${nowIso}`)
+            .order('discount_percent', { ascending: false })
+            .limit(1)
+        const promoRow = promoRows?.[0]
+        const promoPercent = promoRow ? Number(promoRow.discount_percent) : 0
+        const promotion = promoPercent > 0 && promoPercent < 100 ? promoRow : null
+        if (promotion) {
+            console.log(`Promoción vigente: ${promotion.name} (${promoPercent}%)`)
+        }
+
+        const formatMxn = (amount: number) =>
+            new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(amount)
+
         const lineItems = []
 
         for (const item of items) {
@@ -76,19 +97,29 @@ serve(async (req) => {
                 imageUrl = `${origin}${imageUrl}`;
             }
 
+            // Precio en centavos (con descuento si hay promoción vigente)
+            const basePrice = Number(product.price)
+            const unitAmount = promotion
+                ? Math.round(basePrice * (100 - promoPercent))
+                : Math.round(basePrice * 100)
+
+            const description = promotion
+                ? `${promoPercent}% de descuento · Precio normal ${formatMxn(basePrice)}`
+                : (product.description ? product.description.substring(0, 100) : undefined)
+
             lineItems.push({
                 price_data: {
                     currency: 'mxn',
                     product_data: {
                         name: `${product.name} (${item.size})`,
-                        description: product.description ? product.description.substring(0, 100) : undefined,
+                        description,
                         images: imageUrl ? [imageUrl] : [],
                         metadata: {
                             productId: product.id,
                             size: item.size
                         }
                     },
-                    unit_amount: Math.round(product.price * 100),
+                    unit_amount: unitAmount,
                 },
                 quantity: item.quantity,
             })
@@ -96,7 +127,12 @@ serve(async (req) => {
 
         let stripeCouponId = undefined;
         let appliedCouponCode: string | undefined = undefined;
-        if (couponCode) {
+        // Durante una promoción que no permite cupones, el cupón se ignora
+        const couponsAllowed = !promotion || promotion.allow_coupons === true
+        if (couponCode && !couponsAllowed) {
+            console.log(`Cupón ${couponCode} ignorado: la promoción vigente no permite cupones`)
+        }
+        if (couponCode && couponsAllowed) {
             const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey)
             const { data: coupon, error: couponError } = await supabaseAdmin
                 .from('coupons')
@@ -129,7 +165,10 @@ serve(async (req) => {
             mode: 'payment',
             discounts: stripeCouponId ? [{ coupon: stripeCouponId }] : undefined,
             // El webhook usa este dato para contar el uso del cupón
-            metadata: appliedCouponCode ? { couponCode: appliedCouponCode } : undefined,
+            metadata: {
+                ...(appliedCouponCode ? { couponCode: appliedCouponCode } : {}),
+                ...(promotion ? { promotion: String(promotion.name), promotionPercent: String(promoPercent) } : {}),
+            },
             success_url: success_url,
             cancel_url: cancel_url,
             shipping_address_collection: {

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Cart } from '../types';
+import PromoBanner, { PromoBannerSpacer } from './PromoBanner';
 
 interface HeaderProps {
   cart: Cart;
@@ -28,7 +29,11 @@ export default function Header({ cart, onCartClick }: HeaderProps) {
   ];
 
   return (
+    <>
+    {/* Empuja el contenido la altura de la franja de promoción (el header es fijo) */}
+    <PromoBannerSpacer />
     <header className="fixed top-0 left-0 right-0 z-50 bg-gray-200/95 backdrop-blur-sm border-b border-stone/20">
+      <PromoBanner />
       <nav className="w-full mx-auto px-6 lg:px-8">
         <div className="relative flex items-center justify-between h-20">
           {/* Logo */}
@@ -108,5 +113,6 @@ export default function Header({ cart, onCartClick }: HeaderProps) {
         )}
       </nav>
     </header>
+    </>
   );
 }

@@ -6,6 +6,8 @@ import { useState } from 'react';
 
 import { formatPrice } from '../utils/format';
 import { trackBeginCheckout } from '../lib/tracking';
+import { usePromotion } from '../context/PromotionContext';
+import PriceTag from './PriceTag';
 import { Coupon } from '../types';
 
 interface CartModalProps {
@@ -76,16 +78,26 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
       setCouponError(null);
   };
 
+  /* Promoción de toda la tienda: precios rebajados y, si no se permiten, sin cupones.
+     La función de pago aplica las mismas reglas, así que esto es solo lo que se muestra. */
+  const { promotion, getPrice } = usePromotion();
+  const couponsBlocked = !!promotion && !promotion.allowCoupons;
+  const activeCoupon = couponsBlocked ? null : appliedCoupon;
+
+  const baseSubtotal = cart.items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const saleSubtotal = cart.items.reduce((sum, item) => sum + getPrice(item.product.price) * item.quantity, 0);
+  const promotionSavings = baseSubtotal - saleSubtotal;
+
   const calculateDiscount = () => {
-      if (!appliedCoupon) return 0;
-      if (appliedCoupon.discountType === 'percentage') {
-          return cart.total * (appliedCoupon.discountValue / 100);
+      if (!activeCoupon) return 0;
+      if (activeCoupon.discountType === 'percentage') {
+          return saleSubtotal * (activeCoupon.discountValue / 100);
       }
-      return Math.min(appliedCoupon.discountValue, cart.total); // Max discount is total
+      return Math.min(activeCoupon.discountValue, saleSubtotal); // Max discount is total
   };
 
   const discountAmount = calculateDiscount();
-  const finalTotal = Math.max(0, cart.total - discountAmount);
+  const finalTotal = Math.max(0, saleSubtotal - discountAmount);
 
   const handleCheckout = async () => {
     setIsCheckingOut(true);
@@ -97,11 +109,11 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
         cart.items.map(item => ({
           id: item.product.id,
           name: item.product.name,
-          price: item.product.price,
+          price: getPrice(item.product.price),
           quantity: item.quantity,
           size: item.size,
         })),
-        appliedCoupon?.code
+        activeCoupon?.code
       );
 
       // 1. Call Edge Function
@@ -112,7 +124,7 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
             size: item.size,
             quantity: item.quantity
           })),
-          couponCode: appliedCoupon?.code,
+          couponCode: activeCoupon?.code,
           // Stripe reemplaza {CHECKOUT_SESSION_ID}: se usa como ID de la compra en el pixel
           success_url: (process.env.NEXT_PUBLIC_APP_URL || window.location.origin) + '/success?session_id={CHECKOUT_SESSION_ID}',
           cancel_url: process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/shop` : window.location.origin + '/shop',
@@ -196,7 +208,9 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
                       <button onClick={() => onRemoveItem(item.product.id, item.size)} className="text-xs text-red-500 hover:text-red-700 mb-1 block ml-auto">
                         Eliminar
                       </button>
-                      <p className="font-medium text-charcoal">{formatPrice(item.product.price * item.quantity)}</p>
+                      <p className="font-medium text-charcoal">
+                        <PriceTag price={item.product.price} quantity={item.quantity} className="justify-end" originalClassName="text-xs" />
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -210,6 +224,11 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
           <div className="p-6 border-t border-stone/10 bg-stone/5 space-y-4">
             
             {/* Coupon Section */}
+            {couponsBlocked ? (
+                <p className="text-xs text-warm-gray text-center">
+                    Los cupones no aplican durante la promoción de {promotion?.discountPercent}% de descuento.
+                </p>
+            ) : (
             <div className="bg-white p-3 rounded-lg border border-stone-200">
                 {!appliedCoupon ? (
                     <div>
@@ -247,13 +266,20 @@ export default function CartModal({ isOpen, onClose, cart, onUpdateQuantity, onR
                     </div>
                 )}
             </div>
+            )}
 
             <div className="space-y-2 border-b border-stone/10 pb-4 mb-4">
                 <div className="flex justify-between items-end">
                   <span className="text-warm-gray text-sm uppercase tracking-wider">Subtotal</span>
-                  <span className="text-lg text-charcoal">{formatPrice(cart.total)}</span>
+                  <span className="text-lg text-charcoal">{formatPrice(baseSubtotal)}</span>
                 </div>
-                {appliedCoupon && (
+                {promotion && promotionSavings > 0 && (
+                    <div className="flex justify-between items-end text-red-700">
+                      <span className="text-sm uppercase tracking-wider">Descuento {promotion.discountPercent}%</span>
+                      <span className="text-lg">- {formatPrice(promotionSavings)}</span>
+                    </div>
+                )}
+                {activeCoupon && (
                     <div className="flex justify-between items-end text-green-600">
                       <span className="text-sm uppercase tracking-wider">Descuento</span>
                       <span className="text-lg">- {formatPrice(discountAmount)}</span>

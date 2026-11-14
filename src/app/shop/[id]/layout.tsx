@@ -1,5 +1,6 @@
 import { Metadata, ResolvingMetadata } from 'next';
 import { supabase } from '../../../lib/supabase';
+import { applyDiscount, fetchActivePromotion } from '../../../lib/promotion';
 import { createSlug } from '../../../utils/format';
 
 type Props = {
@@ -58,6 +59,10 @@ export default async function ProductLayout({
 
     if (!product) return <>{children}</>;
 
+    // Precio para Google: con descuento mientras haya promoción vigente
+    const promotion = await fetchActivePromotion(supabase);
+    const offerPrice = promotion ? applyDiscount(Number(product.price), promotion.discountPercent) : product.price;
+
     const jsonLd = {
         '@context': 'https://schema.org',
         '@type': 'Product',
@@ -68,7 +73,8 @@ export default async function ProductLayout({
             '@type': 'Offer',
             url: `https://hdehelena.com/shop/${id}`,
             priceCurrency: 'MXN',
-            price: product.price,
+            price: offerPrice,
+            ...(promotion?.endsAt ? { priceValidUntil: promotion.endsAt.slice(0, 10) } : {}),
             itemCondition: 'https://schema.org/NewCondition',
             availability: 'https://schema.org/InStock',
             seller: {
