@@ -126,13 +126,22 @@ serve(async (req) => {
                     }
 
                     if (dbById && size) {
+                        // Piezas que salen de inventario y piezas a fabricar. La tabla
+                        // order_items exige que inventory_quantity + production_quantity = quantity.
+                        const variant = (dbById.variants || []).find((v: any) => v.size === size)
+                        const available = variant ? Math.max(0, Number(variant.stock) || 0) : 0
+                        const inventoryQuantity = Math.min(available, quantity)
+                        const productionQuantity = quantity - inventoryQuantity
+
                         // Insert Order Item
                         const { error: itemInsertError } = await supabase.from('order_items').insert({
                             order_id: order.id,
                             product_id: dbById.id,
                             quantity: quantity,
                             size: size,
-                            price_at_purchase: (item.amount_total || 0) / 100 / quantity
+                            price_at_purchase: (item.amount_total || 0) / 100 / quantity,
+                            inventory_quantity: inventoryQuantity,
+                            production_quantity: productionQuantity
                         })
 
                         if (itemInsertError) {
@@ -142,7 +151,6 @@ serve(async (req) => {
                         // Decrease Stock: solo si la talla está registrada y tiene piezas.
                         // Si no tiene piezas (o no existe), se vendió sobre pedido y el
                         // stock se queda igual; nunca se deja en negativo.
-                        const variant = (dbById.variants || []).find((v: any) => v.size === size)
                         if (variant && variant.stock > 0) {
                             await supabase.from('product_variants')
                                 .update({ stock: Math.max(0, variant.stock - quantity) })
